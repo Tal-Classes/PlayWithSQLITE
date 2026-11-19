@@ -20,7 +20,7 @@ if (Test-Path -LiteralPath $modeFile) {
 }
 
 if (-not $includeTests) {
-    Write-Host "[SKIP] includeTests=false in .agents/MAUI-Agent-Mode.json — unit tests are disabled (testManagementMode ignored)." -ForegroundColor Yellow
+    Write-Host "[SKIP] includeTests=false in .agents/MAUI-Agent-Mode.json" -ForegroundColor Yellow
     Write-Host "RESULT: PASS (TESTS DISABLED)" -ForegroundColor Green
     exit 0
 }
@@ -30,7 +30,8 @@ if (-not (Test-Path -LiteralPath $scriptPath)) {
     $scriptPath = Join-Path $ProjectRoot ".agents\skills\maui-step-guide-author\scripts\validate_tests.py"
 }
 
-foreach ($candidate in @("python3", "python", "py")) {
+# Try python first, then py, then python3
+foreach ($candidate in @("python", "py", "python3")) {
     $cmd = Get-Command $candidate -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
     if ($cmd -and (Test-Path -LiteralPath $scriptPath)) {
         $pyArgs = @()
@@ -44,7 +45,7 @@ foreach ($candidate in @("python3", "python", "py")) {
 
 # Native PowerShell fallback if Python is unavailable
 $effectiveWriter = if (-not $studentMode) { "agent" } else { $testManagementMode }
-Write-Host "[INFO] Validating xUnit tests (includeTests=true, testManagementMode=$testManagementMode, effective writer=$effectiveWriter)" -ForegroundColor Cyan
+Write-Host "[INFO] Validating xUnit tests - effective writer: $effectiveWriter" -ForegroundColor Cyan
 
 $testCsprojs = Get-ChildItem -Path $ProjectRoot -Recurse -Filter "*.Tests.csproj" -File -ErrorAction SilentlyContinue |
     Where-Object { $_.FullName -notmatch "[\\/](bin|obj|\.git|\.vs|\.agents|project-template)[\\/]" }
@@ -61,17 +62,19 @@ if (-not (Test-Path -LiteralPath $testDoc) -or ((Get-Item -LiteralPath $testDoc)
 }
 
 if ($SkipDotnetRun) {
-    Write-Host "RESULT: PASS" -ForegroundColor Green
+    Write-Host "RESULT: PASS (SKIPPED RUN)" -ForegroundColor Green
     exit 0
 }
 
-$totalPassed = 0
 $totalFailed = 0
-foreach ($tc in $testCsprojs) {
-    $out = & dotnet test $tc.FullName --verbosity normal 2>&1 | Out-String
+$totalPassed = 0
+
+foreach ($proj in $testCsprojs) {
+    Write-Host "[INFO] Running: dotnet test $($proj.FullName) --verbosity normal" -ForegroundColor Cyan
+    $out = dotnet test $proj.FullName --verbosity normal 2>&1 | Out-String
+    Write-Host $out
     if ($LASTEXITCODE -ne 0) {
-        Write-Host $out -ForegroundColor Red
-        Write-Host "[FAIL] dotnet test failed for $($tc.Name)" -ForegroundColor Red
+        Write-Host "[FAIL] dotnet test returned exit code $LASTEXITCODE" -ForegroundColor Red
         exit 1
     }
     if ($out -match 'Failed:\s*(\d+),\s*Passed:\s*(\d+)') {
@@ -83,7 +86,7 @@ foreach ($tc in $testCsprojs) {
 }
 
 if ($totalFailed -gt 0 -or $totalPassed -lt 1) {
-    Write-Host "[FAIL] Unit test gate requires Failed == 0 and Passed >= 1 (actual Passed: $totalPassed, Failed: $totalFailed)." -ForegroundColor Red
+    Write-Host "[FAIL] Unit test gate requires Failed == 0 and Passed >= 1." -ForegroundColor Red
     exit 1
 }
 

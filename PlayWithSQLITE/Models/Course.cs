@@ -1,34 +1,29 @@
-using SQLite;
-using SQLiteNetExtensions.Attributes;
-
 namespace PlayWithSQLITE.Models;
 
-[Table("Courses")]
+// TODO (Student - שלב 1): לאחר התקנת החבילות, הוסיפו using SQLite; ו-using SQLiteNetExtensions.Attributes;
+// TODO (Student - שלב 1): קשטו את המחלקה במאפיין [Table("Courses")]
 public class Course
 {
-    [PrimaryKey, AutoIncrement]
+    // TODO (Student - שלב 1): קשטו את המפתח הראשי ב-[PrimaryKey, AutoIncrement]
     public int Id { get; set; }
 
-    [NotNull, MaxLength(100)]
+    // TODO (Student - שלב 1): הגדירו שדה חובה באורך מקסימלי: [NotNull, MaxLength(100)]
     public string Title { get; set; } = string.Empty;
 
     public int Credits { get; set; } = 3;
 
-    [MaxLength(200)]
+    // TODO (Student - שלב 1): הגדירו אורך מקסימלי: [MaxLength(200)]
     public string Description { get; set; } = string.Empty;
 
-    // מפתח זר המקשר למורה (Teacher)
-    [ForeignKey(typeof(Teacher))]
+    // TODO (Student - שלב 1): קשטו כמפתח זר למורה: [ForeignKey(typeof(Teacher))]
     public int TeacherId { get; set; }
 
-    // קשר N:1 - לכל קורס יש מורה אחד
-    [ManyToOne]
+    // TODO (Student - שלב 3): הגדירו קשר N:1 בעזרת [ManyToOne]
     public Teacher? Teacher { get; set; }
 
-    // קשר M:N - קורס כולל רשימת תלמידים דרך טבלת הקשר Enrollment
-    [ManyToMany(typeof(Enrollment), CascadeOperations = CascadeOperation.All)]
+    // TODO (Student - שלב 3): הגדירו קשר M:N בעזרת [ManyToMany(typeof(Enrollment), CascadeOperations = CascadeOperation.All)]
     public List<Student> Students { get; set; } = new();
 
-    [Ignore]
+    // שדה נוחות לתצוגה ב-XAML
     public string TeacherName => Teacher?.FullName ?? $"מורה מזהה #{TeacherId}";
 }

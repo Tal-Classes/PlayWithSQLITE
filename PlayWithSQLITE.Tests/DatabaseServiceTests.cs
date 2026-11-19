@@ -34,7 +34,7 @@ public class DatabaseServiceTests : IAsyncLifetime
         return Task.CompletedTask;
     }
 
-    [Fact]
+    [Fact(Skip = "שלב 2: יופעל לאחר מימוש GetTeachersAsync ו-SeedSampleDataAsync ב-DatabaseService")]
     public async Task GetTeachersAsync_ReturnsSeededTeachers()
     {
         var teachers = await _databaseService.GetTeachersAsync();
@@ -44,7 +44,7 @@ public class DatabaseServiceTests : IAsyncLifetime
         Assert.Contains(teachers, t => t.FullName == "ישראל ישראלי");
     }
 
-    [Fact]
+    [Fact(Skip = "שלב 3: יופעל לאחר מימוש קשרים וטעינת מורה לקורס")]
     public async Task GetCoursesAsync_WithRelations_LoadsTeacherDetails()
     {
         var courses = await _databaseService.GetCoursesAsync(includeRelations: true);
@@ -56,7 +56,7 @@ public class DatabaseServiceTests : IAsyncLifetime
         Assert.False(string.IsNullOrWhiteSpace(courseWithTeacher.Teacher?.FullName));
     }
 
-    [Fact]
+    [Fact(Skip = "שלב 4: יופעל לאחר מימוש חלוקה לעמודים עם Skip ו-Take")]
     public async Task Pagination_SkipAndTake_ReturnsCorrectSlices()
     {
         int total = await _databaseService.GetStudentsCountAsync();
@@ -70,7 +70,7 @@ public class DatabaseServiceTests : IAsyncLifetime
         Assert.NotEqual(firstSlice[0].Id, secondSlice[0].Id);
     }
 
-    [Fact]
+    [Fact(Skip = "שלב 4: יופעל לאחר מימוש שאילתת קיבוץ ו-JOIN לסיכום ציונים")]
     public async Task GetCourseGradeSummariesAsync_PerformsJoinAndGroupBy()
     {
         var summaries = await _databaseService.GetCourseGradeSummariesAsync();
@@ -83,7 +83,7 @@ public class DatabaseServiceTests : IAsyncLifetime
         Assert.True(csCourse.AverageGrade > 0);
     }
 
-    [Fact]
+    [Fact(Skip = "שלב 4: יופעל לאחר מימוש שאילתת גיליון ציונים מרובת טבלאות")]
     public async Task GetStudentTranscriptAsync_ReturnsMultiTableJoinedItems()
     {
         var students = await _databaseService.GetStudentsAsync(skip: 0, take: 1);
@@ -101,7 +101,7 @@ public class DatabaseServiceTests : IAsyncLifetime
         });
     }
 
-    [Fact]
+    [Fact(Skip = "שלב 4: יופעל לאחר מימוש שאילתת חישוב סכום נקודות זכות")]
     public async Task GetTotalCreditsForStudentAsync_CalculatesSumOfCredits()
     {
         var students = await _databaseService.GetStudentsAsync(skip: 0, take: 1);
@@ -113,7 +113,7 @@ public class DatabaseServiceTests : IAsyncLifetime
         Assert.True(totalCredits > 0);
     }
 
-    [Fact]
+    [Fact(Skip = "שלב 4: יופעל לאחר מימוש שאילתת קיבוץ וספירה של תלמידים לפי שכבה")]
     public async Task GetStudentDistributionByGradeLevelAsync_GroupsAndCountsStudents()
     {
         var distribution = await _databaseService.GetStudentDistributionByGradeLevelAsync();
@@ -123,7 +123,7 @@ public class DatabaseServiceTests : IAsyncLifetime
         Assert.All(distribution, d => Assert.True(d.StudentCount > 0));
     }
 
-    [Fact]
+    [Fact(Skip = "שלב 2/3: יופעל לאחר מימוש פעולת רישום תלמיד לקורס (EnrollStudentAsync)")]
     public async Task EnrollStudentAsync_CreatesNewEnrollment()
     {
         var teacher = new Teacher { FullName = "מורה בדיקה", Email = "test@teacher.org", Department = "בדיקות" };

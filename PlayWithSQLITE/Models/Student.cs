@@ -1,36 +1,30 @@
-using SQLite;
-using SQLiteNetExtensions.Attributes;
-
 namespace PlayWithSQLITE.Models;
 
-[Table("Students")]
+// TODO (Student - שלב 1): לאחר התקנת החבילות, הוסיפו using SQLite; ו-using SQLiteNetExtensions.Attributes;
+// TODO (Student - שלב 1): קשטו את המחלקה במאפיין [Table("Students")]
 public class Student
 {
-    [PrimaryKey, AutoIncrement]
+    // TODO (Student - שלב 1): קשטו את המפתח הראשי ב-[PrimaryKey, AutoIncrement]
     public int Id { get; set; }
 
-    [NotNull, MaxLength(50)]
+    // TODO (Student - שלב 1): שדה חובה באורך מקסימלי: [NotNull, MaxLength(50)]
     public string FirstName { get; set; } = string.Empty;
 
-    [NotNull, MaxLength(50)]
+    // TODO (Student - שלב 1): שדה חובה באורך מקסימלי: [NotNull, MaxLength(50)]
     public string LastName { get; set; } = string.Empty;
 
-    [NotNull, Unique, MaxLength(100)]
+    // TODO (Student - שלב 1): שדה חובה וחד-ערכי: [NotNull, Unique, MaxLength(100)]
     public string Email { get; set; } = string.Empty;
 
-    // שכבת גיל: 10 = י', 11 = י"א, 12 = י"ב
     public int GradeLevel { get; set; } = 10;
-
     public DateTime BirthDate { get; set; } = DateTime.Today.AddYears(-16);
 
-    // קשר M:N - תלמיד רשום למספר קורסים דרך טבלת הקשר Enrollment
-    [ManyToMany(typeof(Enrollment), CascadeOperations = CascadeOperation.All)]
+    // TODO (Student - שלב 3): הגדירו קשר M:N בעזרת [ManyToMany(typeof(Enrollment), CascadeOperations = CascadeOperation.All)]
     public List<Course> Courses { get; set; } = new();
 
-    [Ignore]
+    // TODO (Student - שלב 1): קשטו ב-[Ignore] כדי שהשדות המחושבים לא יישמרו במסד
     public string FullName => $"{FirstName} {LastName}";
 
-    [Ignore]
     public string GradeLevelHebrew => GradeLevel switch
     {
         10 => "שכבה י'",

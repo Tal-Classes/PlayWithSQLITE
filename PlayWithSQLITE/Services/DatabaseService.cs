@@ -1,24 +1,37 @@
 using PlayWithSQLITE.Models;
 using PlayWithSQLITE.Models.DTOs;
-using SQLite;
 
 namespace PlayWithSQLITE.Services;
 
 /// <summary>
-/// מחלקת שירות מסד הנתונים - זוהי סביבת העבודה הראשית שלכם ב-main!
-/// פעלו לפי קובץ ההדרכה הראשי Learning/Guides/00-Master-Assignment.md
-/// ומלאו את המתודות שלב אחר שלב.
-/// אם תרצו לבדוק את עצמכם, תוכלו להריץ בדיקות יחידה: `dotnet test`
-/// או לעבור ל-Branch של השלב המתאים (לדוגמה: `git checkout step-02-db-connection-and-basic-crud`).
+/// מחלקת שירות מסד הנתונים - זוהי נקודת הפתיחה שלכם ב-main!
+/// 
+/// 🚀 כיצד לעבוד?
+/// 1. פתחו את קובץ ההדרכה הראשי: Learning/Guides/00-Master-Assignment.md
+/// 2. בצעו את שלב 1: התקינו את החבילות sqlite-net-pcl ו-SQLiteNetExtensions.Async
+///    והוסיפו את הקישוטים (Attributes) במחלקות בתיקיית Models.
+/// 3. בצעו את שלב 2: הוסיפו כאן using SQLite; ואתחלו את הקשר למסד הנתונים בעזרת SQLiteAsyncConnection.
+/// 4. המשיכו שלב אחר שלב לפי קובצי ההדרכה ב-Learning/Guides/.
+/// 
+/// 💡 בדיקה עצמית:
+/// בכל שלב תוכלו לבדוק את הפתרון שלכם מול הענף המתאים ב-Git:
+/// - git checkout step-01-packages-and-models
+/// - git checkout step-02-db-connection-and-basic-crud
+/// - git checkout step-03-relationships
+/// - git checkout step-04-queries-aggregations-join
+/// - git checkout step-05-full-solution
 /// </summary>
 public class DatabaseService : IDatabaseService
 {
-    private SQLiteAsyncConnection? _database;
+    // TODO (Student - שלב 2): לאחר התקנת sqlite-net-pcl, הוסיפו בראש הקובץ: using SQLite;
+    // והגדירו כאן שדה מסוג חיבור אסינכרוני למסד:
+    // private SQLiteAsyncConnection? _database;
+
     private readonly string _dbPath;
 
     public DatabaseService()
     {
-        // נתיב הקובץ במכשיר
+        // קביעת נתיב הקובץ בתיקיית האפליקציה המבודדת במכשיר
         _dbPath = Path.Combine(FileSystem.AppDataDirectory, "SchoolLms.db3");
     }
 
@@ -33,137 +46,125 @@ public class DatabaseService : IDatabaseService
 
     public async Task InitializeAsync()
     {
-        if (_database != null)
-            return;
-
-        // TODO (Student): 1. צרו מופע חדש של SQLiteAsyncConnection עם _dbPath
-        // TODO (Student): 2. קראו ל-CreateTableAsync עבור 4 הטבלאות: Teacher, Course, Student, Enrollment
+        // TODO (Student - שלב 2):
+        // 1. בדקו אם _database כבר קיים (אם כן, חזרו מיד).
+        // 2. אתחלו את _database באמצעות:
+        //    _database = new SQLiteAsyncConnection(_dbPath, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create | SQLiteOpenFlags.SharedCache);
+        // 3. צרו את 4 הטבלאות באמצעות:
+        //    await _database.CreateTableAsync<Teacher>();
+        //    await _database.CreateTableAsync<Course>();
+        //    await _database.CreateTableAsync<Student>();
+        //    await _database.CreateTableAsync<Enrollment>();
         await Task.CompletedTask;
-    }
-
-    private async Task EnsureInitializedAsync()
-    {
-        if (_database == null)
-        {
-            await InitializeAsync();
-        }
     }
 
     public async Task ClearAllDataAsync()
     {
-        await EnsureInitializedAsync();
-        // TODO (Student): מחיקת כל הנתונים מהטבלאות בעזרת DeleteAllAsync
+        // TODO (Student - שלב 2): מחיקת כל הנתונים בעזרת DeleteAllAsync על כל אחת מהטבלאות
         await Task.CompletedTask;
     }
 
     public async Task SeedSampleDataAsync()
     {
-        await EnsureInitializedAsync();
-        // TODO (Student): יצירת נתוני הדגמה למורים, קורסים, תלמידים ורישומים
+        // TODO (Student - שלב 2/3): יצירת נתוני הדגמה למורים, קורסים, תלמידים ורישומים
         await Task.CompletedTask;
     }
 
     // ==========================================
-    // שלב 2: פעולות CRUD - מורים (ראו מדריך 02)
+    // שלב 2: CRUD בסיסי - מורים (ראו מדריך 02)
     // ==========================================
 
     public async Task<List<Teacher>> GetTeachersAsync()
     {
-        await EnsureInitializedAsync();
-        // TODO (Student): שליפת כל המורים ממוינים לפי FullName בעזרת Table<Teacher>().ToListAsync()
-        return new List<Teacher>();
+        // TODO (Student - שלב 2): החזירו את כל המורים מהמסד ממוינים לפי שם:
+        // return await _database.Table<Teacher>().OrderBy(t => t.FullName).ToListAsync();
+        return await Task.FromResult(new List<Teacher>());
     }
 
     public async Task<Teacher?> GetTeacherByIdAsync(int id, bool includeCourses = false)
     {
-        await EnsureInitializedAsync();
-        // TODO (Student): שליפת מורה לפי Id. אם includeCourses == true טענו גם קורסים (ראו מדריך 03)
-        return null;
+        // TODO (Student - שלב 2): שליפת מורה לפי מזהה Id
+        // בשלב 3, אם includeCourses הוא true:
+        // return await _database.GetWithChildrenAsync<Teacher>(id);
+        return await Task.FromResult<Teacher?>(null);
     }
 
     public async Task<int> SaveTeacherAsync(Teacher teacher)
     {
-        await EnsureInitializedAsync();
-        // TODO (Student): אם teacher.Id != 0 בצעו UpdateAsync, אחרת בצעו InsertAsync
-        return 0;
+        // TODO (Student - שלב 2):
+        // אם teacher.Id != 0 בצעו UpdateAsync(teacher)
+        // אחרת בצעו InsertAsync(teacher)
+        return await Task.FromResult(0);
     }
 
     public async Task<int> DeleteTeacherAsync(Teacher teacher)
     {
-        await EnsureInitializedAsync();
-        // TODO (Student): מחיקת המורה בעזרת DeleteAsync
-        return 0;
+        // TODO (Student - שלב 2): מחיקת המורה בעזרת DeleteAsync(teacher)
+        return await Task.FromResult(0);
     }
 
     // ==========================================
-    // שלב 2 ושלב 3: פעולות CRUD וקשרים - קורסים (ראו מדריך 02 ומדריך 03)
+    // שלב 2 ושלב 3: CRUD וקשרים - קורסים (ראו מדריך 02 ומדריך 03)
     // ==========================================
 
     public async Task<List<Course>> GetCoursesAsync(bool includeRelations = false)
     {
-        await EnsureInitializedAsync();
-        // TODO (Student): שליפת קורסים. אם includeRelations == true השתמשו ב-GetAllWithChildrenAsync
-        return new List<Course>();
+        // TODO (Student - שלב 2): שליפת קורסים בעזרת Table<Course>().ToListAsync()
+        // בשלב 3 (קשרים): אם includeRelations הוא true השתמשו ב-GetAllWithChildrenAsync<Course>()
+        return await Task.FromResult(new List<Course>());
     }
 
     public async Task<Course?> GetCourseByIdAsync(int id, bool includeRelations = true)
     {
-        await EnsureInitializedAsync();
-        // TODO (Student): שליפת קורס לפי Id
-        return null;
+        // TODO (Student - שלב 2): שליפת קורס בודד לפי מזהה Id
+        return await Task.FromResult<Course?>(null);
     }
 
     public async Task<int> SaveCourseAsync(Course course)
     {
-        await EnsureInitializedAsync();
-        // TODO (Student): שמירה או עדכון של קורס
-        return 0;
+        // TODO (Student - שלב 2): הוספה או עדכון קורס
+        return await Task.FromResult(0);
     }
 
     public async Task<int> DeleteCourseAsync(Course course)
     {
-        await EnsureInitializedAsync();
-        // TODO (Student): מחיקת קורס
-        return 0;
+        // TODO (Student - שלב 2): מחיקת קורס
+        return await Task.FromResult(0);
     }
 
     // ==========================================
-    // שלב 2 ושלב 4: פעולות CRUD ודפדוף - תלמידים (ראו מדריך 02 ומדריך 04)
+    // שלב 2 ושלב 4: CRUD ודפדוף - תלמידים (ראו מדריך 02 ומדריך 04)
     // ==========================================
 
     public async Task<List<Student>> GetStudentsAsync(int skip = 0, int take = 20)
     {
-        await EnsureInitializedAsync();
-        // TODO (Student): שליפת תלמידים תוך שימוש ב-OrderBy, Skip(skip) ו-Take(take) לדפדוף מהיר
-        return new List<Student>();
+        // TODO (Student - שלב 2): שליפת תלמידים בסיסית.
+        // TODO (Student - שלב 4): דפדוף (Pagination) באמצעות OrderBy, Skip(skip) ו-Take(take)
+        return await Task.FromResult(new List<Student>());
     }
 
     public async Task<int> GetStudentsCountAsync()
     {
-        await EnsureInitializedAsync();
-        // TODO (Student): ספירת כל התלמידים בטבלה בעזרת CountAsync()
-        return 0;
+        // TODO (Student - שלב 4): ספירת סך כל התלמידים במסד בעזרת CountAsync()
+        return await Task.FromResult(0);
     }
 
     public async Task<Student?> GetStudentByIdAsync(int id, bool includeCourses = false)
     {
-        await EnsureInitializedAsync();
-        // TODO (Student): שליפת תלמיד בודד לפי מזהה
-        return null;
+        // TODO (Student - שלב 2): שליפת תלמיד לפי מזהה
+        return await Task.FromResult<Student?>(null);
     }
 
     public async Task<int> SaveStudentAsync(Student student)
     {
-        await EnsureInitializedAsync();
-        // TODO (Student): שמירת תלמיד חדש או עדכון קיים
-        return 0;
+        // TODO (Student - שלב 2): שמירת תלמיד חדש או עדכון קיים
+        return await Task.FromResult(0);
     }
 
     public async Task<int> DeleteStudentAsync(Student student)
     {
-        await EnsureInitializedAsync();
-        // TODO (Student): מחיקת תלמיד
-        return 0;
+        // TODO (Student - שלב 2): מחיקת תלמיד מהמסד
+        return await Task.FromResult(0);
     }
 
     // ==========================================
@@ -172,30 +173,26 @@ public class DatabaseService : IDatabaseService
 
     public async Task<List<Enrollment>> GetEnrollmentsAsync()
     {
-        await EnsureInitializedAsync();
-        // TODO (Student): שליפת כל הרישומים כולל ילדים בעזרת GetAllWithChildrenAsync
-        return new List<Enrollment>();
+        // TODO (Student - שלב 3): שליפת רישומים בעזרת GetAllWithChildrenAsync<Enrollment>()
+        return await Task.FromResult(new List<Enrollment>());
     }
 
     public async Task<int> EnrollStudentAsync(int studentId, int courseId, double? grade = null)
     {
-        await EnsureInitializedAsync();
-        // TODO (Student): רישום תלמיד לקורס (יצירת רשומת Enrollment חדשה או עדכון ציון)
-        return 0;
+        // TODO (Student - שלב 3): רישום תלמיד לקורס ע"י הוספת רשומת Enrollment חדשה
+        return await Task.FromResult(0);
     }
 
     public async Task<int> UpdateEnrollmentGradeAsync(int enrollmentId, double grade)
     {
-        await EnsureInitializedAsync();
-        // TODO (Student): עדכון שדה הציון (Grade) של רישום קיים
-        return 0;
+        // TODO (Student - שלב 3): עדכון ציון של תלמיד בקורס קיים
+        return await Task.FromResult(0);
     }
 
     public async Task<int> RemoveEnrollmentAsync(int studentId, int courseId)
     {
-        await EnsureInitializedAsync();
-        // TODO (Student): מחיקת רישום של תלמיד מקורס
-        return 0;
+        // TODO (Student - שלב 3): הסרת רישום של תלמיד מקורס
+        return await Task.FromResult(0);
     }
 
     // ==========================================
@@ -204,29 +201,25 @@ public class DatabaseService : IDatabaseService
 
     public async Task<List<CourseGradeSummary>> GetCourseGradeSummariesAsync()
     {
-        await EnsureInitializedAsync();
-        // TODO (Student): כתיבת שאילתת LEFT JOIN המקבצת (GROUP BY) לפי קורס ומחשבת AVG, MAX, MIN, COUNT
-        return new List<CourseGradeSummary>();
+        // TODO (Student - שלב 4): כתיבת שאילתת LEFT JOIN המקבצת (GROUP BY) לפי קורס ומחשבת AVG, MAX, MIN, COUNT
+        return await Task.FromResult(new List<CourseGradeSummary>());
     }
 
     public async Task<List<StudentTranscriptItem>> GetStudentTranscriptAsync(int studentId)
     {
-        await EnsureInitializedAsync();
-        // TODO (Student): כתיבת שאילתת JOIN המחברת 3 טבלאות לחילוץ גיליון ציונים
-        return new List<StudentTranscriptItem>();
+        // TODO (Student - שלב 4): כתיבת שאילתת JOIN המחברת 3 טבלאות לחילוץ גיליון ציונים אישי
+        return await Task.FromResult(new List<StudentTranscriptItem>());
     }
 
     public async Task<List<GradeLevelCount>> GetStudentDistributionByGradeLevelAsync()
     {
-        await EnsureInitializedAsync();
-        // TODO (Student): שאילתת GROUP BY עם COUNT לחישוב התפלגות תלמידים לפי שכבה
-        return new List<GradeLevelCount>();
+        // TODO (Student - שלב 4): שאילתת GROUP BY עם COUNT לחישוב התפלגות תלמידים לפי שכבה
+        return await Task.FromResult(new List<GradeLevelCount>());
     }
 
     public async Task<int> GetTotalCreditsForStudentAsync(int studentId)
     {
-        await EnsureInitializedAsync();
-        // TODO (Student): שאילתת SUM לחישוב סך כל נקודות הזכות של תלמיד
-        return 0;
+        // TODO (Student - שלב 4): שאילתת SUM לחישוב סך כל נקודות הזכות של תלמיד
+        return await Task.FromResult(0);
     }
 }
