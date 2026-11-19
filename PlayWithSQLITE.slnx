@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="PlayWithSQLITE.Tests/PlayWithSQLITE.Tests.csproj" />
+  <Project Path="PlayWithSQLITE/PlayWithSQLITE.csproj" />
+</Solution>

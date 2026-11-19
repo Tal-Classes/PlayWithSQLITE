@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PlayWithSQLITE.ViewModels"
+             xmlns:models="clr-namespace:PlayWithSQLITE.Models"
+             x:Class="PlayWithSQLITE.Views.CoursesPage"
+             x:DataType="vm:CoursesViewModel"
+             Title="{Binding Title}"
+             FlowDirection="RightToLeft">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+            <Label Text="📚 ניהול קורסים ומורים (קשר 1:N)"
+                   FontSize="20"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center" />
+
+            <!-- טופס הוספת קורס -->
+            <Border Stroke="#D1D5DB" StrokeThickness="1" Padding="12">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="8" />
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="הוספת קורס חדש:" FontAttributes="Bold" />
+                    <Entry Placeholder="שם הקורס" Text="{Binding NewCourseTitle}" />
+                    <Entry Placeholder="תיאור הקורס" Text="{Binding NewCourseDescription}" />
+                    <HorizontalStackLayout Spacing="8">
+                        <Label Text="נקודות זכות:" VerticalOptions="Center" />
+                        <Picker SelectedItem="{Binding NewCourseCredits}">
+                            <Picker.ItemsSource>
+                                <x:Array Type="{x:Type x:Int32}">
+                                    <x:Int32>1</x:Int32>
+                                    <x:Int32>2</x:Int32>
+                                    <x:Int32>3</x:Int32>
+                                    <x:Int32>4</x:Int32>
+                                    <x:Int32>5</x:Int32>
+                                </x:Array>
+                            </Picker.ItemsSource>
+                        </Picker>
+                    </HorizontalStackLayout>
+                    <Label Text="בחר מורה מלמד (Foreign Key):" FontAttributes="Bold" />
+                    <Picker Title="בחר מורה מהרשימה"
+                            ItemsSource="{Binding Teachers}"
+                            ItemDisplayBinding="{Binding FullName}"
+                            SelectedItem="{Binding SelectedTeacher}" />
+
+                    <Button Text="➕ הוסף קורס"
+                            Command="{Binding AddCourseCommand}"
+                            BackgroundColor="#10B981"
+                            TextColor="White" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- מחוון טעינה -->
+            <ActivityIndicator IsRunning="{Binding IsLoading}"
+                               IsVisible="{Binding IsLoading}"
+                               Color="#10B981" />
+
+            <!-- רשימת קורסים -->
+            <Label Text="רשימת הקורסים הקיימים:" FontAttributes="Bold" />
+            <CollectionView ItemsSource="{Binding Courses}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Course">
+                        <Border Stroke="#E5E7EB" StrokeThickness="1" Padding="12" Margin="0,4">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="8" />
+                            </Border.StrokeShape>
+                            <Grid ColumnDefinitions="*,Auto">
+                                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                    <Label Text="{Binding Title}" FontSize="16" FontAttributes="Bold" />
+                                    <Label Text="{Binding Description}" FontSize="13" TextColor="#4B5563" />
+                                    <Label Text="{Binding TeacherName, StringFormat='מורה אחראי: {0}'}" FontSize="13" TextColor="#059669" />
+                                    <Label Text="{Binding Credits, StringFormat='{0} נקודות זכות'}" FontSize="12" TextColor="#6B7280" />
+                                </VerticalStackLayout>
+                                <Button Grid.Column="1"
+                                        Text="🗑 מחק"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CoursesViewModel}}, Path=DeleteCourseCommand}"
+                                        CommandParameter="{Binding .}"
+                                        BackgroundColor="#EF4444"
+                                        TextColor="White"
+                                        HeightRequest="36" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

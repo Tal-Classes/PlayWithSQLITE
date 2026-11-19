@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="PlayWithSQLITE.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:PlayWithSQLITE.Views"
+    Title="מערכת ניהול בית ספר - SQLite"
+    FlowDirection="RightToLeft">
+
+    <TabBar>
+        <Tab Title="תלמידים">
+            <ShellContent
+                Title="תלמידים ודפדוף"
+                ContentTemplate="{DataTemplate views:StudentsPage}"
+                Route="StudentsPage" />
+        </Tab>
+
+        <Tab Title="קורסים">
+            <ShellContent
+                Title="קורסים"
+                ContentTemplate="{DataTemplate views:CoursesPage}"
+                Route="CoursesPage" />
+        </Tab>
+
+        <Tab Title="מורים">
+            <ShellContent
+                Title="סגל מורים"
+                ContentTemplate="{DataTemplate views:TeachersPage}"
+                Route="TeachersPage" />
+        </Tab>
+
+        <Tab Title="דוחות ואגרגציה">
+            <ShellContent
+                Title="דוחות"
+                ContentTemplate="{DataTemplate views:ReportsPage}"
+                Route="ReportsPage" />
+        </Tab>
+    </TabBar>
+
+</Shell>

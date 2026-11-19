@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PlayWithSQLITE.ViewModels"
+             xmlns:models="clr-namespace:PlayWithSQLITE.Models"
+             xmlns:dtos="clr-namespace:PlayWithSQLITE.Models.DTOs"
+             x:Class="PlayWithSQLITE.Views.StudentsPage"
+             x:DataType="vm:StudentsViewModel"
+             Title="{Binding Title}"
+             FlowDirection="RightToLeft">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+            <Label Text="🎓 ניהול תלמידים ודפדוף (SKIP &amp; TAKE)"
+                   FontSize="20"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center" />
+
+            <!-- טופס הוספת תלמיד חדש -->
+            <Border Stroke="#D1D5DB" StrokeThickness="1" Padding="12">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="8" />
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="הוספת תלמיד חדש:" FontAttributes="Bold" />
+                    <Entry Placeholder="שם פרטי" Text="{Binding NewFirstName}" />
+                    <Entry Placeholder="שם משפחה" Text="{Binding NewLastName}" />
+                    <Entry Placeholder="דואר אלקטרוני" Text="{Binding NewEmail}" Keyboard="Email" />
+                    <HorizontalStackLayout Spacing="8">
+                        <Label Text="שכבת גיל:" VerticalOptions="Center" />
+                        <Picker SelectedItem="{Binding NewGradeLevel}">
+                            <Picker.ItemsSource>
+                                <x:Array Type="{x:Type x:Int32}">
+                                    <x:Int32>10</x:Int32>
+                                    <x:Int32>11</x:Int32>
+                                    <x:Int32>12</x:Int32>
+                                </x:Array>
+                            </Picker.ItemsSource>
+                        </Picker>
+                    </HorizontalStackLayout>
+                    <Button Text="➕ הוסף תלמיד"
+                            Command="{Binding AddStudentCommand}"
+                            BackgroundColor="#2563EB"
+                            TextColor="White" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- סרגל דפדוף (Pagination) -->
+            <Border Stroke="#E5E7EB" StrokeThickness="1" Padding="8" BackgroundColor="#F9FAFB">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="8" />
+                </Border.StrokeShape>
+                <Grid ColumnDefinitions="Auto,*,Auto" VerticalOptions="Center">
+                    <Button Grid.Column="0"
+                            Text="◀ עמוד קודם"
+                            Command="{Binding PrevPageCommand}" />
+                    <Label Grid.Column="1"
+                           Text="{Binding PageInfo}"
+                           VerticalOptions="Center"
+                           HorizontalOptions="Center"
+                           FontAttributes="Bold" />
+                    <Button Grid.Column="2"
+                            Text="עמוד הבא ▶"
+                            Command="{Binding NextPageCommand}" />
+                </Grid>
+            </Border>
+
+            <!-- מחוון טעינה -->
+            <ActivityIndicator IsRunning="{Binding IsLoading}"
+                               IsVisible="{Binding IsLoading}"
+                               Color="#2563EB" />
+
+            <!-- רשימת תלמידים -->
+            <Label Text="רשימת תלמידים בעמוד זה (לחץ על תלמיד לצפייה בציונים):" FontAttributes="Bold" />
+            <CollectionView ItemsSource="{Binding Students}"
+                            SelectedItem="{Binding SelectedStudent, Mode=TwoWay}"
+                            SelectionMode="Single">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Student">
+                        <Border Stroke="#E5E7EB" StrokeThickness="1" Padding="12" Margin="0,4">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="8" />
+                            </Border.StrokeShape>
+                            <Grid ColumnDefinitions="*,Auto">
+                                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                    <Label Text="{Binding FullName}" FontSize="16" FontAttributes="Bold" />
+                                    <Label Text="{Binding Email}" FontSize="13" TextColor="#4B5563" />
+                                    <Label Text="{Binding GradeLevelHebrew}" FontSize="13" TextColor="#2563EB" />
+                                </VerticalStackLayout>
+                                <Button Grid.Column="1"
+                                        Text="🗑 מחק"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:StudentsViewModel}}, Path=DeleteStudentCommand}"
+                                        CommandParameter="{Binding .}"
+                                        BackgroundColor="#EF4444"
+                                        TextColor="White"
+                                        HeightRequest="36" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- גיליון ציונים של התלמיד הנבחר (שאילתת JOIN) -->
+            <Border IsVisible="{Binding HasSelectedStudent}"
+                    Stroke="#3B82F6"
+                    StrokeThickness="2"
+                    Padding="12"
+                    BackgroundColor="#EFF6FF">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="8" />
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="📊 גיליון ציונים (תוצאת JOIN בין 3 טבלאות):"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="#1E3A8A" />
+
+                    <HorizontalStackLayout Spacing="6">
+                        <Label Text="סה&quot;כ נקודות זכות (פונקציית SUM):" FontAttributes="Bold" />
+                        <Label Text="{Binding StudentTotalCredits}" TextColor="#2563EB" FontAttributes="Bold" />
+                    </HorizontalStackLayout>
+
+                    <CollectionView ItemsSource="{Binding SelectedStudentTranscript}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="dtos:StudentTranscriptItem">
+                                <Border Stroke="#BFDBFE" StrokeThickness="1" Padding="8" Margin="0,3" BackgroundColor="White">
+                                    <Grid ColumnDefinitions="*,Auto,Auto">
+                                        <VerticalStackLayout Grid.Column="0">
+                                            <Label Text="{Binding CourseTitle}" FontAttributes="Bold" />
+                                            <Label Text="{Binding TeacherName, StringFormat='מורה: {0}'}" FontSize="12" TextColor="#6B7280" />
+                                        </VerticalStackLayout>
+                                        <Label Grid.Column="1" Text="{Binding Credits, StringFormat='{0} נ&quot;ז'}" Margin="10,0" VerticalOptions="Center" />
+                                        <Label Grid.Column="2" Text="{Binding GradeDisplay, StringFormat='ציון: {0}'}" FontAttributes="Bold" TextColor="#059669" VerticalOptions="Center" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

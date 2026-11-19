@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PlayWithSQLITE.ViewModels"
+             xmlns:models="clr-namespace:PlayWithSQLITE.Models"
+             x:Class="PlayWithSQLITE.Views.TeachersPage"
+             x:DataType="vm:TeachersViewModel"
+             Title="{Binding Title}"
+             FlowDirection="RightToLeft">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+            <Label Text="👨‍🏫 ניהול סגל מורים וקורסים משויכים"
+                   FontSize="20"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center" />
+
+            <!-- טופס הוספת מורה -->
+            <Border Stroke="#D1D5DB" StrokeThickness="1" Padding="12">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="8" />
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="הוספת מורה חדש:" FontAttributes="Bold" />
+                    <Entry Placeholder="שם מלא" Text="{Binding NewFullName}" />
+                    <Entry Placeholder="אימייל" Text="{Binding NewEmail}" Keyboard="Email" />
+                    <Entry Placeholder="מחלקה / תחום דעת" Text="{Binding NewDepartment}" />
+
+                    <Button Text="➕ הוסף מורה"
+                            Command="{Binding AddTeacherCommand}"
+                            BackgroundColor="#8B5CF6"
+                            TextColor="White" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- מחוון טעינה -->
+            <ActivityIndicator IsRunning="{Binding IsLoading}"
+                               IsVisible="{Binding IsLoading}"
+                               Color="#8B5CF6" />
+
+            <!-- רשימת מורים -->
+            <Label Text="רשימת המורים והקורסים שהם מלמדים (קשר 1:N):" FontAttributes="Bold" />
+            <CollectionView ItemsSource="{Binding Teachers}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Teacher">
+                        <Border Stroke="#E5E7EB" StrokeThickness="1" Padding="12" Margin="0,4">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="8" />
+                            </Border.StrokeShape>
+                            <VerticalStackLayout Spacing="4">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <VerticalStackLayout Grid.Column="0">
+                                        <Label Text="{Binding FullName}" FontSize="16" FontAttributes="Bold" />
+                                        <Label Text="{Binding Department, StringFormat='מחלקה: {0}'}" FontSize="13" TextColor="#7C3AED" />
+                                        <Label Text="{Binding Email}" FontSize="12" TextColor="#6B7280" />
+                                    </VerticalStackLayout>
+                                    <Button Grid.Column="1"
+                                            Text="🗑 מחק"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TeachersViewModel}}, Path=DeleteTeacherCommand}"
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="#EF4444"
+                                            TextColor="White"
+                                            HeightRequest="36" />
+                                </Grid>
+
+                                <!-- פירוט קורסים של המורה (1:N) -->
+                                <Label Text="קורסים שהמורה מלמד:" FontSize="13" FontAttributes="Bold" Margin="0,6,0,2" />
+                                <CollectionView ItemsSource="{Binding Courses}">
+                                    <CollectionView.ItemTemplate>
+                                        <DataTemplate x:DataType="models:Course">
+                                            <Label Text="{Binding Title, StringFormat='• {0}'}" FontSize="13" TextColor="#374151" Margin="8,1" />
+                                        </DataTemplate>
+                                    </CollectionView.ItemTemplate>
+                                </CollectionView>
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

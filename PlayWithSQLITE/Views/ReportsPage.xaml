@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PlayWithSQLITE.ViewModels"
+             xmlns:dtos="clr-namespace:PlayWithSQLITE.Models.DTOs"
+             x:Class="PlayWithSQLITE.Views.ReportsPage"
+             x:DataType="vm:ReportsViewModel"
+             Title="{Binding Title}"
+             FlowDirection="RightToLeft">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+            <Label Text="📈 דוחות אגרגציה ושאילתות מורכבות"
+                   FontSize="20"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center" />
+
+            <!-- פעולות מסד (Seed / Clear) -->
+            <Border Stroke="#D1D5DB" StrokeThickness="1" Padding="12" BackgroundColor="#F3F4F6">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="8" />
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="ניהול נתוני הדגמה למסד הנתונים:" FontAttributes="Bold" />
+                    <HorizontalStackLayout Spacing="10">
+                        <Button Text="🌱 צור נתוני הדגמה (Seed)"
+                                Command="{Binding SeedDataCommand}"
+                                BackgroundColor="#059669"
+                                TextColor="White" />
+                        <Button Text="🗑 רוקן מסד (Clear)"
+                                Command="{Binding ClearDataCommand}"
+                                BackgroundColor="#DC2626"
+                                TextColor="White" />
+                    </HorizontalStackLayout>
+                    <Label Text="{Binding StatusMessage}" FontSize="12" TextColor="#4B5563" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- מחוון טעינה -->
+            <ActivityIndicator IsRunning="{Binding IsLoading}"
+                               IsVisible="{Binding IsLoading}"
+                               Color="#059669" />
+
+            <!-- דוח 1: קיבוץ לפי קורסים (JOIN + GROUP BY + AVG + COUNT) -->
+            <Border Stroke="#10B981" StrokeThickness="2" Padding="12" BackgroundColor="#ECFDF5">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="8" />
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="1. סיכום קורסים וציונים (LEFT JOIN + GROUP BY + AVG + COUNT):"
+                           FontAttributes="Bold"
+                           FontSize="15"
+                           TextColor="#065F46" />
+
+                    <CollectionView ItemsSource="{Binding CourseSummaries}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="dtos:CourseGradeSummary">
+                                <Border Stroke="#A7F3D0" StrokeThickness="1" Padding="10" Margin="0,4" BackgroundColor="White">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="6" />
+                                    </Border.StrokeShape>
+                                    <VerticalStackLayout Spacing="2">
+                                        <Label Text="{Binding CourseTitle}" FontSize="15" FontAttributes="Bold" />
+                                        <Label Text="{Binding TeacherName, StringFormat='מורה: {0}'}" FontSize="13" TextColor="#4B5563" />
+                                        <Grid ColumnDefinitions="*,*,*" Margin="0,4,0,0">
+                                            <Label Grid.Column="0" Text="{Binding StudentCount, StringFormat='רשומים: {0}'}" FontSize="12" FontAttributes="Bold" />
+                                            <Label Grid.Column="1" Text="{Binding AverageGrade, StringFormat='ממוצע: {0:F1}'}" FontSize="12" TextColor="#059669" FontAttributes="Bold" />
+                                            <Label Grid.Column="2" Text="{Binding MaxGrade, StringFormat='ציון שיא: {0:F0}'}" FontSize="12" TextColor="#2563EB" />
+                                        </Grid>
+                                    </VerticalStackLayout>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- דוח 2: התפלגות תלמידים לפי שכבה (GROUP BY + COUNT) -->
+            <Border Stroke="#6366F1" StrokeThickness="2" Padding="12" BackgroundColor="#EEF2FF">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="8" />
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="2. התפלגות תלמידים לפי שכבת גיל (GROUP BY + COUNT):"
+                           FontAttributes="Bold"
+                           FontSize="15"
+                           TextColor="#3730A3" />
+
+                    <CollectionView ItemsSource="{Binding GradeDistributions}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="dtos:GradeLevelCount">
+                                <Border Stroke="#C7D2FE" StrokeThickness="1" Padding="8" Margin="0,3" BackgroundColor="White">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Label Grid.Column="0" Text="{Binding Title}" FontAttributes="Bold" />
+                                        <Label Grid.Column="1" Text="{Binding StudentCount, StringFormat='{0} תלמידים'}" TextColor="#4F46E5" FontAttributes="Bold" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
