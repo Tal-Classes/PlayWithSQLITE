@@ -120,6 +120,15 @@ def parse_dotnet_test_counts(output: str) -> tuple[int, int]:
         if m_f:
             failed = sum(int(x) for x in m_f)
 
+    # Microsoft.Testing.Platform (xUnit v3) format: "succeeded: X", "failed: Y"
+    if passed == 0 and failed == 0:
+        m_s = re.findall(r"succeeded\s*:\s*(\d+)", output, re.IGNORECASE)
+        m_f_mtp = re.findall(r"failed\s*:\s*(\d+)", output, re.IGNORECASE)
+        if m_s:
+            passed = sum(int(x) for x in m_s)
+        if m_f_mtp:
+            failed = sum(int(x) for x in m_f_mtp)
+
     return passed, failed
 
 

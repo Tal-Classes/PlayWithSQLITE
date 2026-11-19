@@ -488,7 +488,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <hr />
 <h2>📚 פרק 1: תשתית מסד הנתונים ועיצוב הישויות (Models &amp; SQLite Attributes)</h2>
 <ul>
-<li><strong>מה נבנה:</strong> הוספנו את החבילות <code>sqlite-net-pcl</code> ו-<code>SQLiteNetExtensions.Async</code>, ובנינו 4 מחלקות מודל: <code>Teacher</code>, <code>Course</code>, <code>Student</code>, <code>Enrollment</code>.</li>
+<li><strong>מה נבנה:</strong> הוספנו את החבילות הרשמיות והיציבות (Stable בלבד) <code>sqlite-net-pcl</code> ו-<code>SQLiteNetExtensions.Async</code> באמצעות ממשק המשתמש הגרפי (Manage NuGet Packages) ב-Visual Studio וב-Rider (ללא סימון Prerelease). בנינו 4 מחלקות מודל: <code>Teacher</code>, <code>Course</code>, <code>Student</code>, <code>Enrollment</code>.</li>
 <li><strong>למה זה נחוץ:</strong> ייצוג מדויק של עולם התוכן (בית ספר) במסד נתונים יחסי (Relational DB) המאפשר שמירה מקומית על גבי המכשיר הנייד ללא תלות ברשת.</li>
 <li><strong>מושגים שנלמדו:</strong> <code>[Table]</code>, <code>[PrimaryKey]</code>, <code>[AutoIncrement]</code>, <code>[NotNull]</code>, <code>[Unique]</code>, <code>[Ignore]</code>, <code>[ForeignKey]</code>, <code>[OneToMany]</code>, <code>[ManyToMany]</code>.</li>
 <li><strong>מדריך מפורט:</strong> [01-Nuget-Packages-And-Models.md](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/Learning/Guides/01-Nuget-Packages-And-Models.md).</li>
@@ -770,7 +770,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <td style="text-align:left"><strong>שלב 1</strong></td>
 <td style="text-align:left">חבילות ומודלים</td>
 <td style="text-align:left">[01-Nuget-Packages-And-Models.md](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/Learning/Guides/01-Nuget-Packages-And-Models.md)</td>
-<td style="text-align:left">הוספת <code>sqlite-net-pcl</code> ו-<code>SQLiteNetExtensions.Async</code>, יצירת המחלקות <code>Teacher</code>, <code>Course</code>, <code>Student</code>, <code>Enrollment</code> עם הקישוטים הנדרשים.</td>
+<td style="text-align:left">התקנת החבילות היציבות (Stable) דרך ממשק ה-NuGet הגרפי (Manage NuGet Packages) ב-Visual Studio או ב-Rider (ללא Prerelease), והגדרת הקישוטים (Attributes) במודלים <code>Teacher</code>, <code>Course</code>, <code>Student</code>, <code>Enrollment</code>.</td>
 </tr>
 <tr>
 <td style="text-align:left"><strong>שלב 2</strong></td>
@@ -809,17 +809,52 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <li><strong><code>sqlite-net-pcl</code></strong>: חבילת הבסיס הקלה והאסינכרונית לניהול מסד נתונים מקומי. מספקת את המחלקה הראשית <code>SQLiteAsyncConnection</code> ודקורציות בסיסיות של טבלה ועמודות.</li>
 <li><strong><code>SQLiteNetExtensions.Async</code></strong>: הרחבה שמתלבשת על <code>sqlite-net-pcl</code> ומאפשרת לנהל קשרי גומלין (1:1, 1:N, M:N) בקלות באמצעות דקורציות ושיטות עזר כגון <code>GetWithChildrenAsync</code>.</li>
 </ol>
-<h3>כיצד להוסיף את החבילות?</h3>
-<p>ניתן להוסיף דרך ה-CLI במסוף הפרויקט:</p>
-<pre><code class="language-bash"><div class="code-block" dir="ltr"><div class="code-header"><span class="code-lang">BASH</span></div><pre class="highlight"><code>dotnet<span class="w"> </span>add<span class="w"> </span>PlayWithSQLITE/PlayWithSQLITE.csproj<span class="w"> </span>package<span class="w"> </span>sqlite-net-pcl
-dotnet<span class="w"> </span>add<span class="w"> </span>PlayWithSQLITE/PlayWithSQLITE.csproj<span class="w"> </span>package<span class="w"> </span>SQLiteNetExtensions.Async
-</code></pre></div></code></pre>
-<p>או לבדוק שבקובץ <code>PlayWithSQLITE.csproj</code> קיימות השורות הבאות:</p>
-<pre><code class="language-xml"><div class="code-block" dir="ltr"><div class="code-header"><span class="code-lang">XML</span></div><pre class="highlight"><code><span class="nt">&lt;ItemGroup&gt;</span>
-<span class="w">  </span><span class="nt">&lt;PackageReference</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;sqlite-net-pcl&quot;</span><span class="w"> </span><span class="na">Version=</span><span class="s">&quot;1.11.285&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
-<span class="w">  </span><span class="nt">&lt;PackageReference</span><span class="w"> </span><span class="na">Include=</span><span class="s">&quot;SQLiteNetExtensions.Async&quot;</span><span class="w"> </span><span class="na">Version=</span><span class="s">&quot;2.1.0&quot;</span><span class="w"> </span><span class="nt">/&gt;</span>
-<span class="nt">&lt;/ItemGroup&gt;</span>
-</code></pre></div></code></pre>
+<h3>כיצד להתקין את החבילות באופן ויזואלי (Manage NuGet Packages)?</h3>
+<div class="callout callout-important"><div class="callout-icon">⚠️</div><div class="callout-content"><p><strong>הקפידו להתקין אך ורק גרסה יציבה (Stable Release)!</strong>
+ודאו שתיבת הסימון <strong>&quot;Include prerelease&quot;</strong> <strong>איננה מסומנת</strong>. התקנת גרסאות בטא/תצוגה מקדימה עלולה לגרום לשגיאות תאימות.</p>
+</div></div>
+<h4>אפשרות א': Visual Studio (Windows / VS 2026 / VS 2022)</h4>
+<ol>
+<li><strong>פתיחת מנהל החבילות לפתרון:</strong>
+<ul>
+<li>בתפריט העליון בחרו: <code>Tools</code> ➡️ <code>NuGet Package Manager</code> ➡️ <strong><code>Manage NuGet Packages for Solution...</code></strong><br />
+<em>(או: קליק ימני על שם ה-Solution ב-Solution Explorer ובחירה ב-<code>Manage NuGet Packages for Solution...</code>)</em>.</li>
+</ul>
+</li>
+<li><strong>מעבר לעיון:</strong> לחצו על הלשונית <strong>Browse</strong> (עיון).</li>
+<li><strong>בדיקת תיבת Prerelease:</strong> ודאו שתיבת <strong>&quot;Include prerelease&quot;</strong> לצד שורת החיפוש <strong>מכובה (Unchecked)</strong>.</li>
+<li><strong>התקנת חבילת הבסיס:</strong>
+<ul>
+<li>בשורת החיפוש הקלידו: <code>sqlite-net-pcl</code></li>
+<li>בחרו בחבילה הרשמית מאת <code>Frank A. Krueger</code> / <code>Eric Sink</code>.</li>
+<li>בחלונית הימנית, סמנו ב-V את פרויקט האפליקציה <strong><code>PlayWithSQLITE</code></strong> (אין צורך לסמן את פרויקט הבדיקות).</li>
+<li>לחצו על כפתור <strong>Install</strong> ואשרו את חלון השינויים והרישיון.</li>
+</ul>
+</li>
+<li><strong>התקנת חבילת הקשרים:</strong>
+<ul>
+<li>בשורת החיפוש הקלידו: <code>SQLiteNetExtensions.Async</code></li>
+<li>בחרו בחבילה הרשמית והיציבה (גרסה <code>2.1.0</code>).</li>
+<li>סמנו את פרויקט <strong><code>PlayWithSQLITE</code></strong> ולחצו על <strong>Install</strong>.</li>
+</ul>
+</li>
+</ol>
+<h4>אפשרות ב': JetBrains Rider (macOS / Mac)</h4>
+<ol>
+<li><strong>פתיחת חלון ה-NuGet:</strong>
+<ul>
+<li>קליק ימני על שם הפרויקט <strong><code>PlayWithSQLITE</code></strong> ב-Solution Explorer ➡️ בחרו ב-<strong><code>Manage NuGet Packages</code></strong><br />
+<em>(או בתפריט העליון: <code>Tools</code> ➡️ <code>NuGet</code> ➡️ <code>Manage NuGet Packages for Solution</code>)</em>.</li>
+</ul>
+</li>
+<li><strong>בדיקת תיבת Prerelease:</strong> ודאו שהמתג <strong>&quot;Prerelease&quot;</strong> לצד שדה החיפוש <strong>כבוי (אינו מסומן)</strong>.</li>
+<li><strong>התקנת החבילות:</strong>
+<ul>
+<li>חפשו <code>sqlite-net-pcl</code>, סמנו את הפרויקט ולחצו על סימן הפלוס (<code>+</code>) או <strong>Install</strong>.</li>
+<li>חפשו <code>SQLiteNetExtensions.Async</code> ולחצו על <strong>Install</strong>.</li>
+</ul>
+</li>
+</ol>
 <hr />
 <h2>2. מילון הדקורציות המרכזיות (Attributes)</h2>
 <table>

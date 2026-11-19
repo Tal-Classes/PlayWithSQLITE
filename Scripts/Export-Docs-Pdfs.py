@@ -395,11 +395,12 @@ def convert_markdown_to_pdf(page, md_file: Path, output_pdf: Path, learning_dir:
             print_background=True,
             margin={"top": "14mm", "bottom": "14mm", "left": "12mm", "right": "12mm"}
         )
+        print(f"  [MD -> PDF] {output_pdf.name} ({output_pdf.stat().st_size / 1024:.1f} KB)")
+    except PermissionError:
+        print(f"  [LOCKED] {output_pdf.name} is currently open in another program (e.g. PDF reader) - skipped overwrite.")
     finally:
         if temp_html.exists():
             temp_html.unlink()
-
-    print(f"  [MD -> PDF] {output_pdf.name} ({output_pdf.stat().st_size / 1024:.1f} KB)")
 
 
 def convert_html_to_pdf(page, html_file: Path, output_pdf: Path):
@@ -502,6 +503,16 @@ def convert_mmd_to_pdf(page, mmd_file: Path, output_pdf: Path, learning_dir: Pat
     print(f"  [MMD -> PDF] {output_pdf.name} ({output_pdf.stat().st_size / 1024:.1f} KB)")
 
 
+def safe_copy(src: Path, dst: Path):
+    if not src.exists():
+        return
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        shutil.copy2(src, dst)
+    except Exception as e:
+        print(f"  [LOCKED] Could not copy {src.name} to {dst.name}: {e}")
+
+
 def main():
     repo_root = Path.cwd().resolve()
     learning_dir = repo_root / "Learning"
@@ -542,8 +553,7 @@ def main():
                 root_pdf = root_docs / f"{g_file.stem}.pdf"
 
             convert_markdown_to_pdf(page, g_file, maui_pdf, learning_dir)
-            root_pdf.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(maui_pdf, root_pdf)
+            safe_copy(maui_pdf, root_pdf)
 
         print("\n[2/3] Converting Diagram Markdown & HTML files...")
         for d_md in diagram_md_files:
@@ -553,12 +563,9 @@ def main():
             root_sub_pdf = root_docs / "Diagrams" / f"{d_md.stem}.pdf"
 
             convert_markdown_to_pdf(page, d_md, maui_pdf, learning_dir)
-            maui_sub_pdf.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(maui_pdf, maui_sub_pdf)
-            root_pdf.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(maui_pdf, root_pdf)
-            root_sub_pdf.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(maui_pdf, root_sub_pdf)
+            safe_copy(maui_pdf, maui_sub_pdf)
+            safe_copy(maui_pdf, root_pdf)
+            safe_copy(maui_pdf, root_sub_pdf)
 
         for d_html in diagram_html_files:
             maui_pdf = maui_docs / f"{d_html.stem}.pdf"
@@ -567,12 +574,9 @@ def main():
             root_sub_pdf = root_docs / "Diagrams" / f"{d_html.stem}.pdf"
 
             convert_html_to_pdf(page, d_html, maui_pdf)
-            maui_sub_pdf.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(maui_pdf, maui_sub_pdf)
-            root_pdf.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(maui_pdf, root_pdf)
-            root_sub_pdf.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(maui_pdf, root_sub_pdf)
+            safe_copy(maui_pdf, maui_sub_pdf)
+            safe_copy(maui_pdf, root_pdf)
+            safe_copy(maui_pdf, root_sub_pdf)
 
         print("\n[3/3] Converting Mermaid Diagram files...")
         for d_mmd in diagram_mmd_files:
@@ -582,12 +586,9 @@ def main():
             root_sub_pdf = root_docs / "Diagrams" / f"{d_mmd.stem}.pdf"
 
             convert_mmd_to_pdf(page, d_mmd, maui_pdf, learning_dir)
-            maui_sub_pdf.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(maui_pdf, maui_sub_pdf)
-            root_pdf.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(maui_pdf, root_pdf)
-            root_sub_pdf.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(maui_pdf, root_sub_pdf)
+            safe_copy(maui_pdf, maui_sub_pdf)
+            safe_copy(maui_pdf, root_pdf)
+            safe_copy(maui_pdf, root_sub_pdf)
 
         browser.close()
 

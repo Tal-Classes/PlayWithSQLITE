@@ -1,6 +1,7 @@
-# תיעוד בדיקות יחידה (xUnit Test Documentation) — הכנה להגנה על הפרויקט
+# תיעוד בדיקות יחידה (xUnit v3 Test Documentation) — הכנה להגנה על הפרויקט
 
-מסמך זה מרכז את כל בדיקות היחידה (`xUnit`) בפרויקט `PlayWithSQLITE.Tests`.
+מסמך זה מרכז את כל בדיקות היחידה (`xUnit v3` על גבי `Microsoft.Testing.Platform`) בפרויקט `PlayWithSQLITE.Tests`.
+הפרויקט עושה שימוש בגרסה העדכנית ביותר של xUnit (גרסה 3), הכוללת הרצה ישירה כקובץ הפעלה (Executable), מחזור חיים אסינכרוני מבוסס `ValueTask` (`IAsyncLifetime`), ואינטגרציה מלאה ל-SDK של .NET 10.
 הוא מתעד מה כל בדיקה מאמתת לפי תבנית **Arrange – Act – Assert (AAA)**, אילו רכיבי לוגיקה (`DatabaseService`, `Models`, `DTOs`, `ViewModels`) מכוסים, ואיך להסביר כל בדיקה לבוחן בבחינה בעל-פה (25% "שליטה בקוד").
 
 ---

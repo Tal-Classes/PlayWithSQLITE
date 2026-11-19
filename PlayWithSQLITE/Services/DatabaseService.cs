@@ -8,9 +8,9 @@ namespace PlayWithSQLITE.Services;
 /// 
 /// 🚀 כיצד לעבוד?
 /// 1. פתחו את קובץ ההדרכה הראשי: Learning/Guides/00-Master-Assignment.md
-/// 2. בצעו את שלב 1: התקינו את החבילות sqlite-net-pcl ו-SQLiteNetExtensions.Async
-///    והוסיפו את הקישוטים (Attributes) במחלקות בתיקיית Models.
-/// 3. בצעו את שלב 2: הוסיפו כאן using SQLite; ואתחלו את הקשר למסד הנתונים בעזרת SQLiteAsyncConnection.
+/// 2. בצעו את שלב 1: התקינו את החבילות sqlite-net-pcl ו-SQLiteNetExtensions.Async דרך ממשק ה-NuGet הגרפי
+///    והשלימו את הקישוטים (Attributes) במחלקות בתיקיית Models.
+/// 3. בצעו את שלב 2: הוסיפו כאן using לספריית SQLite ואתחלו את הקשר למסד הנתונים.
 /// 4. המשיכו שלב אחר שלב לפי קובצי ההדרכה ב-Learning/Guides/.
 /// 
 /// 💡 בדיקה עצמית:
@@ -23,9 +23,9 @@ namespace PlayWithSQLITE.Services;
 /// </summary>
 public class DatabaseService : IDatabaseService
 {
-    // TODO (Student - שלב 2): לאחר התקנת sqlite-net-pcl, הוסיפו בראש הקובץ: using SQLite;
-    // והגדירו כאן שדה מסוג חיבור אסינכרוני למסד:
-    // private SQLiteAsyncConnection? _database;
+    // 💡 שלב 2: לאחר התקנת החבילות, איזה using directive עליכם להוסיף בראש הקובץ לעבודה עם SQLite?
+    // וכיצד מגדירים כאן שדה עבור אובייקט החיבור האסינכרוני למסד? (חשבו: מהו טיפוס הנתונים שמספקת החבילה לחיבור אסינכרוני?)
+    // רמז: טיפוס החיבור מכיל את המילה Async בשמו.
 
     private readonly string _dbPath;
 
@@ -46,27 +46,24 @@ public class DatabaseService : IDatabaseService
 
     public async Task InitializeAsync()
     {
-        // TODO (Student - שלב 2):
-        // 1. בדקו אם _database כבר קיים (אם כן, חזרו מיד).
-        // 2. אתחלו את _database באמצעות:
-        //    _database = new SQLiteAsyncConnection(_dbPath, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create | SQLiteOpenFlags.SharedCache);
-        // 3. צרו את 4 הטבלאות באמצעות:
-        //    await _database.CreateTableAsync<Teacher>();
-        //    await _database.CreateTableAsync<Course>();
-        //    await _database.CreateTableAsync<Student>();
-        //    await _database.CreateTableAsync<Enrollment>();
+        // 💡 אתחול מסד הנתונים (שלב 2):
+        // 1. מניעת אתחול כפול: כיצד נוודא שאם החיבור כבר אותחל, לא נבצע אתחול מחדש?
+        // 2. יצירת החיבור: כיצד מאתחלים את אובייקט החיבור האסינכרוני עם נתיב הקובץ ודגלי הפתיחה המתאימים (קריאה/כתיבה, יצירה אם לא קיים, ומטמון משותף)?
+        // 3. יצירת הטבלאות: באיזו מתודה אסינכרונית גנרית יוצרים את ארבע הטבלאות (Teacher, Course, Student, Enrollment)?
         await Task.CompletedTask;
     }
 
     public async Task ClearAllDataAsync()
     {
-        // TODO (Student - שלב 2): מחיקת כל הנתונים בעזרת DeleteAllAsync על כל אחת מהטבלאות
+        // 💡 ניקוי נתונים:
+        // באיזו מתודה אסינכרונית של החיבור מוחקים את כל הרשומות מטבלה מסוימת?
         await Task.CompletedTask;
     }
 
     public async Task SeedSampleDataAsync()
     {
-        // TODO (Student - שלב 2/3): יצירת נתוני הדגמה למורים, קורסים, תלמידים ורישומים
+        // 💡 זריעת נתוני הדגמה (שלב 2 ושלב 3):
+        // כיצד מייצרים נתוני פתיחה (מורים, קורסים, תלמידים ורישומים) ושומרים אותם במסד כך שלמערכת יהיו נתונים מוכנים להצגה?
         await Task.CompletedTask;
     }
 
@@ -76,30 +73,33 @@ public class DatabaseService : IDatabaseService
 
     public async Task<List<Teacher>> GetTeachersAsync()
     {
-        // TODO (Student - שלב 2): החזירו את כל המורים מהמסד ממוינים לפי שם:
-        // return await _database.Table<Teacher>().OrderBy(t => t.FullName).ToListAsync();
+        // 💡 שליפת רשימה ממוינת:
+        // באיזו מתודה ניגשים לטבלת המורים מתוך החיבור?
+        // כיצד ממיינים את התוצאות לפי שם המורה (FullName) ומחזירים רשימה אסינכרונית?
         return await Task.FromResult(new List<Teacher>());
     }
 
     public async Task<Teacher?> GetTeacherByIdAsync(int id, bool includeCourses = false)
     {
-        // TODO (Student - שלב 2): שליפת מורה לפי מזהה Id
-        // בשלב 3, אם includeCourses הוא true:
-        // return await _database.GetWithChildrenAsync<Teacher>(id);
+        // 💡 שליפה לפי מזהה יחיד:
+        // שלב 2: באיזו מתודה שולפים רשומה בודדת על פי המפתח הראשי שלה?
+        // שלב 3 (קשרים): אם התבקשנו לטעון גם את הקורסים של המורה (includeCourses == true),
+        // באיזו מתודת הרחבה ייעודית של SQLiteNetExtensions משתמשים לטעינת הישות יחד עם הילדים שלה?
         return await Task.FromResult<Teacher?>(null);
     }
 
     public async Task<int> SaveTeacherAsync(Teacher teacher)
     {
-        // TODO (Student - שלב 2):
-        // אם teacher.Id != 0 בצעו UpdateAsync(teacher)
-        // אחרת בצעו InsertAsync(teacher)
+        // 💡 יצירה לעומת עדכון (Upsert Pattern):
+        // כיצד מבדילים בין מורה חדש שטרם נשמר (מה יהיה ערך ה-Id שלו?) לבין מורה קיים שערכנו?
+        // באיזו מתודה משתמשים להכנסת רשומה חדשה ובאיזו לעדכון רשומה קיימת?
         return await Task.FromResult(0);
     }
 
     public async Task<int> DeleteTeacherAsync(Teacher teacher)
     {
-        // TODO (Student - שלב 2): מחיקת המורה בעזרת DeleteAsync(teacher)
+        // 💡 מחיקה:
+        // באיזו מתודה אסינכרונית מוחקים את הישות מהמסד?
         return await Task.FromResult(0);
     }
 
@@ -109,26 +109,30 @@ public class DatabaseService : IDatabaseService
 
     public async Task<List<Course>> GetCoursesAsync(bool includeRelations = false)
     {
-        // TODO (Student - שלב 2): שליפת קורסים בעזרת Table<Course>().ToListAsync()
-        // בשלב 3 (קשרים): אם includeRelations הוא true השתמשו ב-GetAllWithChildrenAsync<Course>()
+        // 💡 שליפת קורסים וקשרי גומלין:
+        // שלב 2: כיצד שולפים את כל הקורסים הפשוטים?
+        // שלב 3: אם includeRelations שווה ל-true, באיזו מתודת הרחבה משתמשים כדי לטעון יחד איתם גם את המורה ואת התלמידים הרשומים?
         return await Task.FromResult(new List<Course>());
     }
 
     public async Task<Course?> GetCourseByIdAsync(int id, bool includeRelations = true)
     {
-        // TODO (Student - שלב 2): שליפת קורס בודד לפי מזהה Id
+        // 💡 שליפת קורס בודד:
+        // כיצד שולפים קורס ספציפי לפי ה-Id שלו, כולל או ללא קשרי הגומלין?
         return await Task.FromResult<Course?>(null);
     }
 
     public async Task<int> SaveCourseAsync(Course course)
     {
-        // TODO (Student - שלב 2): הוספה או עדכון קורס
+        // 💡 שמירה/עדכון קורס:
+        // יישמו דפוס Upsert לפי ה-Id של הקורס.
         return await Task.FromResult(0);
     }
 
     public async Task<int> DeleteCourseAsync(Course course)
     {
-        // TODO (Student - שלב 2): מחיקת קורס
+        // 💡 מחיקת קורס:
+        // מחקו את הקורס מהמסד באופן אסינכרוני.
         return await Task.FromResult(0);
     }
 
@@ -138,32 +142,36 @@ public class DatabaseService : IDatabaseService
 
     public async Task<List<Student>> GetStudentsAsync(int skip = 0, int take = 20)
     {
-        // TODO (Student - שלב 2): שליפת תלמידים בסיסית.
-        // TODO (Student - שלב 4): דפדוף (Pagination) באמצעות OrderBy, Skip(skip) ו-Take(take)
+        // 💡 חלוקה לעמודים (Pagination - שלב 4):
+        // אילו שתי מתודות LINQ מאפשרות "לדלג" על מספר רשומות מסוים (skip) ו"לקחת" רק כמות מבוקשת של רשומות (take)?
         return await Task.FromResult(new List<Student>());
     }
 
     public async Task<int> GetStudentsCountAsync()
     {
-        // TODO (Student - שלב 4): ספירת סך כל התלמידים במסד בעזרת CountAsync()
+        // 💡 ספירת רשומות:
+        // באיזו מתודת צבירה אסינכרונית סופרים את סך כל התלמידים הקיימים בטבלה?
         return await Task.FromResult(0);
     }
 
     public async Task<Student?> GetStudentByIdAsync(int id, bool includeCourses = false)
     {
-        // TODO (Student - שלב 2): שליפת תלמיד לפי מזהה
+        // 💡 שליפת תלמיד בודד:
+        // שלפו את התלמיד לפי מזהה, וטפלו בטעינת קורסים לפי הצורך.
         return await Task.FromResult<Student?>(null);
     }
 
     public async Task<int> SaveStudentAsync(Student student)
     {
-        // TODO (Student - שלב 2): שמירת תלמיד חדש או עדכון קיים
+        // 💡 שמירה/עדכון תלמיד:
+        // יישמו דפוס Upsert לפי ה-Id של התלמיד.
         return await Task.FromResult(0);
     }
 
     public async Task<int> DeleteStudentAsync(Student student)
     {
-        // TODO (Student - שלב 2): מחיקת תלמיד מהמסד
+        // 💡 מחיקת תלמיד:
+        // מחקו את התלמיד מהמסד.
         return await Task.FromResult(0);
     }
 
@@ -173,25 +181,29 @@ public class DatabaseService : IDatabaseService
 
     public async Task<List<Enrollment>> GetEnrollmentsAsync()
     {
-        // TODO (Student - שלב 3): שליפת רישומים בעזרת GetAllWithChildrenAsync<Enrollment>()
+        // 💡 שליפת רישומים עם פרטי התלמיד והקורס:
+        // באיזו מתודה טוענים את כל רשומות הרישום כולל ישויות הניווט (Student ו-Course)?
         return await Task.FromResult(new List<Enrollment>());
     }
 
     public async Task<int> EnrollStudentAsync(int studentId, int courseId, double? grade = null)
     {
-        // TODO (Student - שלב 3): רישום תלמיד לקורס ע"י הוספת רשומת Enrollment חדשה
+        // 💡 רישום תלמיד לקורס:
+        // כיצד יוצרים רשומת גישור חדשה של Enrollment עם ה-Foreign Keys המתאימים ושומרים אותה במסד?
         return await Task.FromResult(0);
     }
 
     public async Task<int> UpdateEnrollmentGradeAsync(int enrollmentId, double grade)
     {
-        // TODO (Student - שלב 3): עדכון ציון של תלמיד בקורס קיים
+        // 💡 עדכון ציון:
+        // כיצד שולפים את רשומת הרישום לפי המזהה שלה, מעדכנים את שדה הציון ושומרים את השינוי?
         return await Task.FromResult(0);
     }
 
     public async Task<int> RemoveEnrollmentAsync(int studentId, int courseId)
     {
-        // TODO (Student - שלב 3): הסרת רישום של תלמיד מקורס
+        // 💡 ביטול רישום:
+        // כיצד מאתרים את רשומת הרישום המחברת בין ה-studentId ל-courseId ומוחקים אותה?
         return await Task.FromResult(0);
     }
 
@@ -201,25 +213,35 @@ public class DatabaseService : IDatabaseService
 
     public async Task<List<CourseGradeSummary>> GetCourseGradeSummariesAsync()
     {
-        // TODO (Student - שלב 4): כתיבת שאילתת LEFT JOIN המקבצת (GROUP BY) לפי קורס ומחשבת AVG, MAX, MIN, COUNT
+        // 💡 שאילתת קיבוץ וצירוף טבלאות (שלב 4):
+        // כדי לקבל סטטיסטיקה לכל קורס (ממוצע ציונים, ציון מקסימלי, מינימלי ומספר רשומים):
+        // 1. באיזה סוג של JOIN יש להשתמש כדי שגם קורס ללא נרשמים יופיע בתוצאות (INNER או LEFT)?
+        // 2. לפי איזה שדה יש לקבץ את התוצאות (GROUP BY)?
+        // 3. באילו פונקציות צבירה (Aggregate Functions) ב-SQL נשתמש לחישוב ממוצע, מינימום, מקסימום וספירה?
+        // 4. באיזו מתודה של החיבור מריצים שאילתת SQL ישירה המחזירה אובייקטים מסוג DTO (ראו: QueryAsync)?
         return await Task.FromResult(new List<CourseGradeSummary>());
     }
 
     public async Task<List<StudentTranscriptItem>> GetStudentTranscriptAsync(int studentId)
     {
-        // TODO (Student - שלב 4): כתיבת שאילתת JOIN המחברת 3 טבלאות לחילוץ גיליון ציונים אישי
+        // 💡 חיבור שלוש טבלאות (Multi-Table JOIN):
+        // גיליון הציונים של התלמיד דורש שילוב נתונים מ-Enrollments, Courses, ו-Teachers.
+        // כיצד מנסחים שאילתת SELECT המחברת את 3 הטבלאות הללו ומסננת לפי תעודת הזהות/מזהה התלמיד?
         return await Task.FromResult(new List<StudentTranscriptItem>());
     }
 
     public async Task<List<GradeLevelCount>> GetStudentDistributionByGradeLevelAsync()
     {
-        // TODO (Student - שלב 4): שאילתת GROUP BY עם COUNT לחישוב התפלגות תלמידים לפי שכבה
+        // 💡 התפלגות תלמידים לפי שכבה:
+        // כיצד כותבים שאילתת GROUP BY הסופרת בעזרת COUNT כמה תלמידים קיימים בכל שכבת גיל (GradeLevel)?
         return await Task.FromResult(new List<GradeLevelCount>());
     }
 
     public async Task<int> GetTotalCreditsForStudentAsync(int studentId)
     {
-        // TODO (Student - שלב 4): שאילתת SUM לחישוב סך כל נקודות הזכות של תלמיד
+        // 💡 חישוב סכום (SUM):
+        // כיצד מחשבים את סך כל נקודות הזכות (Credits) של הקורסים בהם רשום תלמיד מסוים?
+        // באילו שתי טבלאות נדרש לעשות שימוש ובאיזו פונקציית צבירה?
         return await Task.FromResult(0);
     }
 }

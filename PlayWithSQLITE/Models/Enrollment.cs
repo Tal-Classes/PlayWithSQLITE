@@ -1,27 +1,31 @@
 namespace PlayWithSQLITE.Models;
 
-// TODO (Student - שלב 1): לאחר התקנת החבילות, הוסיפו using SQLite; ו-using SQLiteNetExtensions.Attributes;
-// TODO (Student - שלב 1): קשטו את המחלקה במאפיין [Table("Enrollments")]
+// 💡 שלב 1: לאחר התקנת החבילות, אילו using directives יש להוסיף לעבודה עם SQLite ומאפייני מפתחות זרים?
+// 💡 הגדרת טבלת גישור: מחלקה זו מייצגת את טבלת הרישום המחברת בין תלמידים לקורסים. כיצד נקשר אותה לטבלת "Enrollments"?
 public class Enrollment
 {
-    // TODO (Student - שלב 1): קשטו את המפתח הראשי ב-[PrimaryKey, AutoIncrement]
+    // 💡 מפתח ראשי: איזה מאפיין מגדיר שדה זה כמזהה ייחודי בעל מספור אוטומטי של רשומת הרישום?
     public int Id { get; set; }
 
-    // TODO (Student - שלב 1): קשטו כמפתח זר לתלמיד: [ForeignKey(typeof(Student))]
+    // 💡 מפתח זר (Foreign Key לתלמיד):
+    // שדה זה מצביע על התלמיד שנרשם. איזה מאפיין מגדיר אותו כמפתח זר ואיזה טיפוס יעד מציינים בסוגריים?
     public int StudentId { get; set; }
 
-    // TODO (Student - שלב 1): קשטו כמפתח זר לקורס: [ForeignKey(typeof(Course))]
+    // 💡 מפתח זר (Foreign Key לקורס):
+    // שדה זה מצביע על הקורס אליו התלמיד נרשם. איזה מאפיין מגדיר אותו כמפתח זר ואיזה טיפוס יעד מציינים בסוגריים?
     public int CourseId { get; set; }
 
     public DateTime EnrollmentDate { get; set; } = DateTime.Now;
 
-    // ציון בקורס (0-100) - nullable כל עוד לא הוזן ציון סופי
+    // ציון בקורס (0-100) - טיפוס nullable שכן הציון ניתן רק בסיום הסמסטר
     public double? Grade { get; set; }
 
-    // האם שולמו דמי רישום
+    // סטטוס תשלום דמי רישום לקורס
     public bool IsPaid { get; set; } = true;
 
-    // TODO (Student - שלב 3): מאפייני ניווט [ManyToOne] לתלמיד ולקורס
+    // 💡 שלב 3 - מאפייני ניווט (Navigation Properties):
+    // כל רשומת רישום שייכת לתלמיד יחיד ולקורס יחיד (רבים-ליחיד).
+    // איזה מאפיין ניווט יקשר את מופע התלמיד ואת מופע הקורס כדי שנוכל לטעון את פרטיהם המלאים יחד עם הרישום?
     public Student? Student { get; set; }
     public Course? Course { get; set; }
 }

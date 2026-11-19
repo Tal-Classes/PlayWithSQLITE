@@ -1,27 +1,32 @@
 namespace PlayWithSQLITE.Models;
 
-// TODO (Student - שלב 1): לאחר התקנת החבילות, הוסיפו using SQLite; ו-using SQLiteNetExtensions.Attributes;
-// TODO (Student - שלב 1): קשטו את המחלקה במאפיין [Table("Courses")]
+// 💡 שלב 1: לאחר התקנת החבילות, אילו using directives דרושים עבור SQLite ומאפייני הקשרים?
+// 💡 הגדרת טבלה: כיצד נורה ל-SQLite ליצור טבלה ייעודית לקורסים בשם "Courses"?
 public class Course
 {
-    // TODO (Student - שלב 1): קשטו את המפתח הראשי ב-[PrimaryKey, AutoIncrement]
+    // 💡 מפתח ראשי: כיצד מגדירים שדה זה כמפתח ראשי של הקורס בעל מספור אוטומטי?
     public int Id { get; set; }
 
-    // TODO (Student - שלב 1): הגדירו שדה חובה באורך מקסימלי: [NotNull, MaxLength(100)]
+    // 💡 שלמות נתונים: כותרת הקורס הינה שדה חובה בעל הגבלת אורך של עד 100 תווים. אילו מאפיינים נדרשים?
     public string Title { get; set; } = string.Empty;
 
     public int Credits { get; set; } = 3;
 
-    // TODO (Student - שלב 1): הגדירו אורך מקסימלי: [MaxLength(200)]
+    // 💡 הגבלת אורך: כיצד נגביל את תיאור הקורס לעד 200 תווים?
     public string Description { get; set; } = string.Empty;
 
-    // TODO (Student - שלב 1): קשטו כמפתח זר למורה: [ForeignKey(typeof(Teacher))]
+    // 💡 מפתח זר (Foreign Key): שדה זה מקשר כל קורס למורה המלמד אותו.
+    // באיזה מאפיין נשתמש כדי להגדיר שדה זה כמפתח זר המצביע אל מחלקת המורה המתאימה?
     public int TeacherId { get; set; }
 
-    // TODO (Student - שלב 3): הגדירו קשר N:1 בעזרת [ManyToOne]
+    // 💡 שלב 3 - מאפיין ניווט לקשר רבים-ליחיד (N:1):
+    // קורסים רבים משויכים למורה אחד. באיזה מאפיין ניווט מקשטים את מופע המורה כדי שטעינת הקורס תכלול גם את פרטי המורה?
     public Teacher? Teacher { get; set; }
 
-    // TODO (Student - שלב 3): הגדירו קשר M:N בעזרת [ManyToMany(typeof(Enrollment), CascadeOperations = CascadeOperation.All)]
+    // 💡 שלב 3 - קשר רבים-לרבים (M:N):
+    // קורס אחד מכיל תלמידים רבים, וכל תלמיד יכול ללמוד בקורסים רבים.
+    // הקשר ממומש דרך טבלת גישור (טבלת רישומים).
+    // איזה מאפיין מגדיר קשר רבים-לרבים, כיצד מציינים את טיפוס טבלת הגישור, ואיזו פעולת Cascade מומלצת?
     public List<Student> Students { get; set; } = new();
 
     // שדה נוחות לתצוגה ב-XAML

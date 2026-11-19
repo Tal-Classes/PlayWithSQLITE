@@ -51,7 +51,7 @@ main                                    <-- 🚀 כאן אתם עובדים! (ת
 
 | שלב | נושא | קובץ הדרכה מפורט | מה עליכם לממש? |
 | :--- | :--- | :--- | :--- |
-| **שלב 1** | חבילות ומודלים | [01-Nuget-Packages-And-Models.md](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/Learning/Guides/01-Nuget-Packages-And-Models.md) | הוספת `sqlite-net-pcl` ו-`SQLiteNetExtensions.Async`, יצירת המחלקות `Teacher`, `Course`, `Student`, `Enrollment` עם הקישוטים הנדרשים. |
+| **שלב 1** | חבילות ומודלים | [01-Nuget-Packages-And-Models.md](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/Learning/Guides/01-Nuget-Packages-And-Models.md) | התקנת החבילות היציבות (Stable) דרך ממשק ה-NuGet הגרפי (Manage NuGet Packages) ב-Visual Studio או ב-Rider (ללא Prerelease), והגדרת הקישוטים (Attributes) במודלים `Teacher`, `Course`, `Student`, `Enrollment`. |
 | **שלב 2** | חיבור ו-CRUD | [02-Database-Connection-And-Basic-CRUD.md](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/Learning/Guides/02-Database-Connection-And-Basic-CRUD.md) | יצירת `DatabaseService`, הגדרת נתיב הקובץ ב-`AppDataDirectory`, יצירת הטבלאות, ומימוש שמירה, שליפה, עדכון ומחיקה של מורים ותלמידים. |
 | **שלב 3** | קשרי גומלין | [03-Table-Relationships.md](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/Learning/Guides/03-Table-Relationships.md) | שימוש ב-`SQLiteNetExtensions.Async`: שליפת קורס יחד עם פרטי המורה שלו (`ManyToOne`), שליפת מורה עם רשימת הקורסים (`OneToMany`), ורישום תלמיד לקורס (`Enrollment`). |
 | **שלב 4** | שאילתות ואגרגציה | [04-Advanced-Queries-Aggregations.md](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/Learning/Guides/04-Advanced-Queries-Aggregations.md) | כתיבת שאילתות SQL ו-LINQ המשלבות `JOIN`, `GROUP BY`, `COUNT`, `SUM`, `AVG`, וכן מימוש דפדוף בעזרת `Skip()` ו-`Take()`. |

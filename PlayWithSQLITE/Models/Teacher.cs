@@ -1,25 +1,27 @@
 namespace PlayWithSQLITE.Models;
 
-// TODO (Student - שלב 1): לאחר התקנת חבילת sqlite-net-pcl, הוסיפו: using SQLite;
-// TODO (Student - שלב 1): לאחר התקנת חבילת SQLiteNetExtensions.Async, הוסיפו: using SQLiteNetExtensions.Attributes;
-// TODO (Student - שלב 1): קשטו את המחלקה במאפיין [Table("Teachers")]
+// 💡 שלב 1: לאחר התקנת החבילות, אילו מרחבי שמות (using directives) יש לייבא כדי לעבוד עם מסד הנתונים וקשרי הטבלאות?
+// 💡 הגדרת טבלה: כיצד נסמן ל-SQLite שמחלקה זו מייצגת טבלה ייעודית בשם "Teachers"?
 public class Teacher
 {
-    // TODO (Student - שלב 1): קשטו את המפתח הראשי ב-[PrimaryKey, AutoIncrement]
+    // 💡 מפתח ראשי: איזה מאפיין מגדיר שדה זה כמפתח החד-ערכי של הישות? וכיצד נורה למסד לקדם את ערכו אוטומטית בכל רשומה חדשה?
     public int Id { get; set; }
 
-    // TODO (Student - שלב 1): הגדירו שדה חובה באורך מקסימלי: [NotNull, MaxLength(100)]
+    // 💡 שלמות נתונים: שדה זה הינו שדה חובה שאסור שיהיה ריק (null), ואורכו לא יעלה על 100 תווים. אילו שני מאפיינים מבטיחים זאת?
     public string FullName { get; set; } = string.Empty;
 
-    // TODO (Student - שלב 1): הגדירו אורך מקסימלי: [MaxLength(100)]
+    // 💡 הגבלת אורך: כיצד נגביל את אורך כתובת הדוא"ל במסד לעד 100 תווים?
     public string Email { get; set; } = string.Empty;
 
-    // TODO (Student - שלב 1): הגדירו אורך מקסימלי: [MaxLength(50)]
+    // 💡 הגבלת אורך: כיצד נגביל את שם המחלקה / המקצוע לעד 50 תווים?
     public string Department { get; set; } = string.Empty;
 
-    // TODO (Student - שלב 3): הגדירו קשר 1:N מול קורסים באמצעות [OneToMany(CascadeOperations = CascadeOperation.All)]
+    // 💡 שלב 3 - קשרי גומלין (1:N): מורה אחד מלמד קורסים מרובים.
+    // איזה מאפיין מגדיר קשר "יחיד-לרבים" מול רשימת הקורסים?
+    // רמז: זכרו להגדיר פעולות מחיקה/עדכון מדורגות (Cascade) כדי ששינוי במורה ישפיע על קורסיו.
     public List<Course> Courses { get; set; } = new();
 
-    // TODO (Student - שלב 1): קשטו ב-[Ignore] כדי שהשדה המחושב לא יישמר כעמודה במסד
+    // 💡 מאפיין תצוגה מחושב: מאפיין זה נועד לנוחות התצוגה בממשק ואינו נשמר בעמודה בבסיס הנתונים.
+    // באיזה מאפיין עלינו להשתמש כדי ש-SQLite יתעלם ממנו ולא ינסה ליצור עבורו עמודה?
     public string DisplayInfo => $"{FullName} ({Department})";
 }

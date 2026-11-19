@@ -5,7 +5,7 @@
 ---
 
 ## 📚 פרק 1: תשתית מסד הנתונים ועיצוב הישויות (Models & SQLite Attributes)
-- **מה נבנה:** הוספנו את החבילות `sqlite-net-pcl` ו-`SQLiteNetExtensions.Async`, ובנינו 4 מחלקות מודל: `Teacher`, `Course`, `Student`, `Enrollment`.
+- **מה נבנה:** הוספנו את החבילות הרשמיות והיציבות (Stable בלבד) `sqlite-net-pcl` ו-`SQLiteNetExtensions.Async` באמצעות ממשק המשתמש הגרפי (Manage NuGet Packages) ב-Visual Studio וב-Rider (ללא סימון Prerelease). בנינו 4 מחלקות מודל: `Teacher`, `Course`, `Student`, `Enrollment`.
 - **למה זה נחוץ:** ייצוג מדויק של עולם התוכן (בית ספר) במסד נתונים יחסי (Relational DB) המאפשר שמירה מקומית על גבי המכשיר הנייד ללא תלות ברשת.
 - **מושגים שנלמדו:** `[Table]`, `[PrimaryKey]`, `[AutoIncrement]`, `[NotNull]`, `[Unique]`, `[Ignore]`, `[ForeignKey]`, `[OneToMany]`, `[ManyToMany]`.
 - **מדריך מפורט:** [01-Nuget-Packages-And-Models.md](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/Learning/Guides/01-Nuget-Packages-And-Models.md).

@@ -10,19 +10,36 @@
 1. **`sqlite-net-pcl`**: חבילת הבסיס הקלה והאסינכרונית לניהול מסד נתונים מקומי. מספקת את המחלקה הראשית `SQLiteAsyncConnection` ודקורציות בסיסיות של טבלה ועמודות.
 2. **`SQLiteNetExtensions.Async`**: הרחבה שמתלבשת על `sqlite-net-pcl` ומאפשרת לנהל קשרי גומלין (1:1, 1:N, M:N) בקלות באמצעות דקורציות ושיטות עזר כגון `GetWithChildrenAsync`.
 
-### כיצד להוסיף את החבילות?
-ניתן להוסיף דרך ה-CLI במסוף הפרויקט:
-```bash
-dotnet add PlayWithSQLITE/PlayWithSQLITE.csproj package sqlite-net-pcl
-dotnet add PlayWithSQLITE/PlayWithSQLITE.csproj package SQLiteNetExtensions.Async
-```
-או לבדוק שבקובץ `PlayWithSQLITE.csproj` קיימות השורות הבאות:
-```xml
-<ItemGroup>
-  <PackageReference Include="sqlite-net-pcl" Version="1.11.285" />
-  <PackageReference Include="SQLiteNetExtensions.Async" Version="2.1.0" />
-</ItemGroup>
-```
+### כיצד להתקין את החבילות באופן ויזואלי (Manage NuGet Packages)?
+
+> [!IMPORTANT]
+> **הקפידו להתקין אך ורק גרסה יציבה (Stable Release)!**
+> ודאו שתיבת הסימון **"Include prerelease"** **איננה מסומנת**. התקנת גרסאות בטא/תצוגה מקדימה עלולה לגרום לשגיאות תאימות.
+
+#### אפשרות א': Visual Studio (Windows / VS 2026 / VS 2022)
+1. **פתיחת מנהל החבילות לפתרון:**
+   - בתפריט העליון בחרו: `Tools` ➡️ `NuGet Package Manager` ➡️ **`Manage NuGet Packages for Solution...`**  
+   *(או: קליק ימני על שם ה-Solution ב-Solution Explorer ובחירה ב-`Manage NuGet Packages for Solution...`)*.
+2. **מעבר לעיון:** לחצו על הלשונית **Browse** (עיון).
+3. **בדיקת תיבת Prerelease:** ודאו שתיבת **"Include prerelease"** לצד שורת החיפוש **מכובה (Unchecked)**.
+4. **התקנת חבילת הבסיס:**
+   - בשורת החיפוש הקלידו: `sqlite-net-pcl`
+   - בחרו בחבילה הרשמית מאת `Frank A. Krueger` / `Eric Sink`.
+   - בחלונית הימנית, סמנו ב-V את פרויקט האפליקציה **`PlayWithSQLITE`** (אין צורך לסמן את פרויקט הבדיקות).
+   - לחצו על כפתור **Install** ואשרו את חלון השינויים והרישיון.
+5. **התקנת חבילת הקשרים:**
+   - בשורת החיפוש הקלידו: `SQLiteNetExtensions.Async`
+   - בחרו בחבילה הרשמית והיציבה (גרסה `2.1.0`).
+   - סמנו את פרויקט **`PlayWithSQLITE`** ולחצו על **Install**.
+
+#### אפשרות ב': JetBrains Rider (macOS / Mac)
+1. **פתיחת חלון ה-NuGet:**
+   - קליק ימני על שם הפרויקט **`PlayWithSQLITE`** ב-Solution Explorer ➡️ בחרו ב-**`Manage NuGet Packages`**  
+   *(או בתפריט העליון: `Tools` ➡️ `NuGet` ➡️ `Manage NuGet Packages for Solution`)*.
+2. **בדיקת תיבת Prerelease:** ודאו שהמתג **"Prerelease"** לצד שדה החיפוש **כבוי (אינו מסומן)**.
+3. **התקנת החבילות:**
+   - חפשו `sqlite-net-pcl`, סמנו את הפרויקט ולחצו על סימן הפלוס (`+`) או **Install**.
+   - חפשו `SQLiteNetExtensions.Async` ולחצו על **Install**.
 
 ---
 

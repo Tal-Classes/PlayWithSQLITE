@@ -15,13 +15,13 @@ public class DatabaseServiceTests : IAsyncLifetime
         _databaseService = new DatabaseService(_testDbPath);
     }
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         await _databaseService.InitializeAsync();
         await _databaseService.SeedSampleDataAsync();
     }
 
-    public Task DisposeAsync()
+    public ValueTask DisposeAsync()
     {
         try
         {
@@ -31,7 +31,7 @@ public class DatabaseServiceTests : IAsyncLifetime
             }
         }
         catch { }
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 
     [Fact(Skip = "שלב 2: יופעל לאחר מימוש GetTeachersAsync ו-SeedSampleDataAsync ב-DatabaseService")]
