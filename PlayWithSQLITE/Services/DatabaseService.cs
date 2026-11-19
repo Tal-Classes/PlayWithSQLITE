@@ -43,17 +43,17 @@ public class DatabaseService : IDatabaseService
     }
 
     // ==========================================
-    // שלב 2: אתחול פנימי אוטומטי (EnsureInitializedAsync — ראו מדריך 02)
+    // שלב 2: אתחול פנימי אוטומטי (InitDBAsync — ראו מדריך 02)
     // ==========================================
 
-    private async Task EnsureInitializedAsync()
+    private async Task InitDBAsync()
     {
         // 💡 אתחול פנימי אוטומטי (שלב 2):
         // אתחול המסד הוא אחריות פנימית של השירות בלבד — ה-ViewModels לעולם לא קוראים למתודה זו ישירות!
         // 1. מניעת אתחול כפול: אם החיבור כבר פתוח (_database != null), חזרו מיד.
         // 2. פתיחת החיבור: אתחלו את החיבור האסינכרוני בעזרת _dbPath ו-Constants.Flags.
         // 3. יצירת הטבלאות: צרו באופן אידמפוטנטי את 4 הטבלאות (Teacher, Course, Student, Enrollment).
-        // 4. קראו ל-await EnsureInitializedAsync() בתחילת כל פעולת CRUD / שאילתה בשירות!
+        // 4. קראו ל-await InitDBAsync() בתחילת כל פעולת CRUD / שאילתה בשירות!
         await Task.CompletedTask;
     }
 

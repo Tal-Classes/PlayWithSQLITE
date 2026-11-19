@@ -7,7 +7,7 @@
 
 > [!NOTE]
 > **שימו לב להפרדת שכבות נקייה:**  
-> אף ViewModel אינו קורא ל-`InitializeAsync()`! אתחול החיבור ויצירת הטבלאות מתבצעים אוטומטית בתוך `DatabaseService` (`private EnsureInitializedAsync()`). ה-ViewModel רק קורא למתודות העסקיות של `IDatabaseService` (`GetTeachersAsync`, `SaveStudentAsync` וכו').
+> אף ViewModel אינו קורא ל-`InitDBAsync()`! אתחול החיבור ויצירת הטבלאות מתבצעים אוטומטית בתוך `DatabaseService` (`private InitDBAsync()`). ה-ViewModel רק קורא למתודות העסקיות של `IDatabaseService` (`GetTeachersAsync`, `SaveStudentAsync` וכו').
 
 ---
 
@@ -29,7 +29,7 @@
 ```csharp
 builder.Services.AddSingleton<IDatabaseService, DatabaseService>();
 ```
-**בדיקה עצמית:** הריצו במסוף `.\Scripts\Audit-DI.ps1` וודאו שמתקבלת התוצאה **`RESULT: PASS`**!
+**בדיקה עצמית:** הריצו את הפרויקט (Build & Run ב-Visual Studio או ב-Rider) — אם השורה חסרה, MAUI יזרוק שגיאה `Unable to resolve service for type 'IDatabaseService'`. לאחר ההוספה האפליקציה עולה חלק!
 
 ---
 
@@ -67,7 +67,7 @@ builder.Services.AddSingleton<IDatabaseService, DatabaseService>();
 ## חלק 3: דוגמה מלאה מקצה לקצה — `TeachersViewModel.cs` (מסך המורים)
 
 לפניכם המימוש השלם של **`TeachersViewModel.cs`** הכולל את כל 6 הצעדים (הצהרת `ICommand`, אתחול בבנאי, `CanExecute`, `ChangeCanExecute` ב-Setters, `Command<Teacher>` למחיקה, וטעינת קשר `1:N` עם `includeCourses: true`).  
-**למדו כל חלק והשלימו את `TeachersViewModel.cs` שלכם לפי דוגמה זו:**
+> 🟡 **מקרא צבעים בקוד:** **השורות הצבועות בצהוב** הן השורות שאתם מוסיפים ומשלימים בשלב 5 (לעומת השורות על רקע לבן שכבר מוכנות עבורכם ב-`main`)!
 
 ```csharp
 public class TeachersViewModel : BaseViewModel
@@ -87,8 +87,10 @@ public class TeachersViewModel : BaseViewModel
             if (_newFullName == value) return;
             _newFullName = value;
             OnPropertyChanged();
+// [NEW-START]
             // NewFullName מופיע בתנאי CanAddTeacher -> לכן חובה לקרוא כאן ל-ChangeCanExecute!
             ((Command)AddTeacherCommand).ChangeCanExecute();
+// [NEW-END]
         }
     }
 
@@ -100,25 +102,31 @@ public class TeachersViewModel : BaseViewModel
             if (_newEmail == value) return;
             _newEmail = value;
             OnPropertyChanged();
+// [NEW-START]
             // NewEmail מופיע בתנאי CanAddTeacher -> לכן חובה לקרוא כאן ל-ChangeCanExecute!
             ((Command)AddTeacherCommand).ChangeCanExecute();
+// [NEW-END]
         }
     }
 
+// [NEW-START]
     // 1. הצהרת מצביעי הפקודות מטיפוס ICommand (השמות זהים ל-Binding ב-TeachersPage.xaml!)
     public ICommand LoadTeachersCommand { get; }
     public ICommand AddTeacherCommand { get; }
     public ICommand DeleteTeacherCommand { get; }
+// [NEW-END]
 
     public TeachersViewModel(IDatabaseService databaseService)
     {
         _databaseService = databaseService;
         Title = "ניהול סגל מורים";
 
+// [NEW-START]
         // 2. אתחול הפקודות בבנאי
         LoadTeachersCommand = new Command(async () => await LoadTeachersAsync());
         AddTeacherCommand = new Command(async () => await AddTeacherAsync(), CanAddTeacher);
         DeleteTeacherCommand = new Command<Teacher>(async (teacher) => await DeleteTeacherAsync(teacher));
+// [NEW-END]
     }
 
     // 3. תנאי CanExecute: פעיל רק כשיש שם מלא וגם אימייל
@@ -128,6 +136,7 @@ public class TeachersViewModel : BaseViewModel
     // 4. טעינת המורים כולל הקורסים שלהם (קשר 1:N)
     public async Task LoadTeachersAsync()
     {
+// [NEW-START]
         if (IsLoading) return;
         try
         {
@@ -144,10 +153,12 @@ public class TeachersViewModel : BaseViewModel
         {
             IsLoading = false;
         }
+// [NEW-END]
     }
 
     private async Task AddTeacherAsync()
     {
+// [NEW-START]
         if (!CanAddTeacher()) return;
         var teacher = new Teacher
         {
@@ -159,13 +170,16 @@ public class TeachersViewModel : BaseViewModel
         NewFullName = string.Empty;
         NewEmail = string.Empty;
         await LoadTeachersAsync();
+// [NEW-END]
     }
 
     private async Task DeleteTeacherAsync(Teacher? teacher)
     {
+// [NEW-START]
         if (teacher == null) return;
         await _databaseService.DeleteTeacherAsync(teacher);
         await LoadTeachersAsync();
+// [NEW-END]
     }
 }
 ```
@@ -260,8 +274,9 @@ private async Task PrevPageAsync()
 ---
 
 ### ✅ בדיקה עצמית בסיום שלב 5:
-1. הריצו `.\Scripts\Audit-DI.ps1` ➡️ **`RESULT: PASS`**.
-2. הפעילו את האפליקציה באמולטור Android, היכנסו ללשונית **דוחות**, לחצו **צור נתוני הדגמה (Seed)** ובדקו שכל 4 הלשוניות מתמלאות בנתונים חיים!
-3. להשוואה מול הפתרון המוכן: `git checkout step-05-di-and-viewmodels`.
+1. בצעו **Build Solution** וודאו שאין שגיאות קומפילציה.
+2. הפעילו את האפליקציה באמולטור Android (או Windows), היכנסו ללשונית **דוחות**, לחצו **צור נתוני הדגמה (Seed)** ובדקו שכל 4 הלשוניות מתמלאות בנתונים חיים!
+3. הריצו את כל בדיקות היחידה ב-**Test Explorer** (Visual Studio) או ב-**Unit Tests** (Rider) וודאו שכולן עוברות בירוק.
+4. להשוואה מול הפתרון המוכן: `git checkout step-05-di-and-viewmodels`.
 
 עברו לשלב האחרון: [06-Testing-And-Verification.pdf](./06-Testing-And-Verification.pdf).

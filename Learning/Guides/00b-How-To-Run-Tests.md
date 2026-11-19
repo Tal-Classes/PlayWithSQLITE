@@ -146,5 +146,5 @@ dotnet test PlayWithSQLITE.Tests\PlayWithSQLITE.Tests.csproj
 1. **`Error Message` (הודעת השגיאה):** אומרת *מה* לא היה תקין. לדוגמה:
    - `Assert.NotEmpty() Failure: Collection was empty` ➡️ המתודה החזירה רשימה ריקה (בדקו האם שכחתם לממש אותה או ש-`SeedSampleDataAsync` לא שמר נתונים).
    - `Assert.Equal() Failure: Expected: 3, Actual: 6` ➡️ למשל ב-`Pagination`, חזרו כל 6 התלמידים במקום 3 (שכחתם `.Take(take)`!).
-   - `SQLiteException: no such table: Courses` ➡️ שכחתם לקרוא ל-`CreateTableAsync<Course>()` בתוך `EnsureInitializedAsync()`.
+   - `SQLiteException: no such table: Courses` ➡️ שכחתם לקרוא ל-`CreateTableAsync<Course>()` בתוך `InitDBAsync()`.
 2. **`Stack Trace` (עקבות הקריאה):** מציג את **שם הקובץ ומספר השורה המדויק** שבה הבדיקה נכשלה (למשל `DatabaseService.cs:line 84`). לחיצה על השורה ב-Visual Studio / Rider תקפיץ אתכם ישירות אל השורה הבעייתית!

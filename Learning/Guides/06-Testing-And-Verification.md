@@ -26,23 +26,19 @@
 
 ## 2. רשימת תיוג (Checklist) לאימות סופי לפני הגשה
 
-הריצו את הפקודות הבאות משורש הפרויקט וודאו שכולן עוברות ללא שגיאות:
+ודאו שכל 3 הבדיקות הבאות עוברות בצורה מלאה:
 
-1. **בניית הפתרון המלא:**
-   ```powershell
-   dotnet build
-   ```
-2. **ביקורת DI Container (`MauiProgram.cs`):**
-   ```powershell
-   .\Scripts\Audit-DI.ps1
-   ```
-   *(תוצאה צפויה: `RESULT: PASS` — `DatabaseService` וכל 4 ה-ViewModels רשומים כנדרש!)*
-3. **הרצת כל בדיקות היחידה (`xUnit v3`):**
-   ```powershell
-   .\Scripts\Validate-Tests.ps1
-   ```
-   *(או דרך `Test Explorer` ב-Visual Studio / `Unit Tests` ב-Rider — תוצאה צפויה: `failed: 0`!)*
-4. **אימות חי באמולטור Android (או דרך MAUI DevFlow):**
+1. **בניית הפתרון המלא ללא שגיאות (`Build Solution`):**
+   - ב-Visual Studio או ב-Rider בצעו **Rebuild Solution** (או במסוף: `dotnet build`) וודאו `0 Error(s)`.
+2. **הרצת כל בדיקות היחידה (`xUnit v3`):**
+   - ב-Visual Studio: פתחו `Test ➡️ Test Explorer` ולחצו **Run All Tests**.
+   - ב-Rider: פתחו `View ➡️ Tool Windows ➡️ Unit Tests` ולחצו **Run All Tests**.
+   - או במסוף:
+     ```powershell
+     dotnet test PlayWithSQLITE.Tests\PlayWithSQLITE.Tests.csproj
+     ```
+   - ודאו ש**כל הבדיקות ירוקות (`failed: 0`)**!
+3. **אימות חי בהרצת האפליקציה (אמולטור Android / Windows):**
    - לשונית **דוחות** ➡️ לחיצה על **צור נתוני הדגמה (Seed)** ➡️ וידוא ש-4 כרטיסי הקורסים (ממוצע, רשומים, ציון שיא) ו-3 שכבות הגיל מוצגים מיד.
    - לשונית **תלמידים** ➡️ מעבר בין עמוד 1 ל-2 (`הבא` / `קודם`), בחירת תלמיד לצפייה בגיליון הציונים ובסך נ"ז (`SUM`), והוספת תלמיד חדש.
    - לשונית **קורסים** ➡️ בחירת מורה מה-`Picker`, הוספת קורס חדש ווידוא ששם המורה מוצג בכרטיס.

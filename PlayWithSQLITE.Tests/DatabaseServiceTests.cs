@@ -17,7 +17,7 @@ public class DatabaseServiceTests : IAsyncLifetime
 
     public async ValueTask InitializeAsync()
     {
-        // האתחול ויצירת הטבלאות מתבצעים אוטומטית בתוך DatabaseService (EnsureInitializedAsync)
+        // האתחול ויצירת הטבלאות מתבצעים אוטומטית בתוך DatabaseService (InitDBAsync)
         await _databaseService.SeedSampleDataAsync();
     }
 

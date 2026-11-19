@@ -15,8 +15,8 @@
 
 ---
 
-## 📚 פרק 2: מחלקת `Constants`, הבנת `IDatabaseService`, אתחול פנימי אוטומטי ו-CRUD
-- **מה נבנה:** מחלקה סטטית ייעודית `Constants.cs` המרכזת את `DatabaseFilename`, `SQLiteOpenFlags` ו-`DatabasePath`; הבנת החוזה `IDatabaseService` (כולל שמירת האתחול כפרטי ואוטומטי בתוך `DatabaseService` באמצעות `EnsureInitializedAsync()`); הסבר האופרטור `_database!.` (Null-Forgiving Operator); ומימוש שלב-אחר-שלב של CRUD מלא.
+## 📚 פרק 2: מחלקת `Constants`, הבנת `IDatabaseService`, אתחול פנימי (`InitDBAsync`) ו-CRUD
+- **מה נבנה:** מחלקה סטטית ייעודית `Constants.cs` המרכזת את `DatabaseFilename`, `SQLiteOpenFlags` ו-`DatabasePath`; הבנת החוזה `IDatabaseService` (כולל שמירת האתחול כפרטי ואוטומטי בתוך `DatabaseService` באמצעות `InitDBAsync()`); טבלת הפעולות של `sqlite-net-pcl`; הסבר האופרטור `_database!.` (Null-Forgiving Operator); ומימוש שלב-אחר-שלב של CRUD מלא.
 - **מדריך מפורט:** [02-Database-Connection-And-Basic-CRUD.md](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/Learning/Guides/02-Database-Connection-And-Basic-CRUD.md).
 
 ---
@@ -39,6 +39,6 @@
 
 ---
 
-## 📚 פרק 6: אימות מלא, `Audit-DI.ps1`, בדיקות `xUnit v3` ומפת הענפים
+## 📚 פרק 6: אימות מלא, בדיקות `xUnit v3` ומפת הענפים
 - **מדריך אימות סופי:** [06-Testing-And-Verification.md](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/Learning/Guides/06-Testing-And-Verification.md).
 - **מדריך המשימה הראשי:** [00-Master-Assignment.md](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/Learning/Guides/00-Master-Assignment.md).

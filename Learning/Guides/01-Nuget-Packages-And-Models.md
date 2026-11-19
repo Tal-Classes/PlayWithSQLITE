@@ -127,7 +127,36 @@
 
 ![דוגמת השראה ERD — מערכת ספרייה דיגיטלית](../Images/Library-Mini-ERD.png)
 
-### כך מממשים את 4 הישויות בדוגמת הספרייה:
+### טבלת מיפוי מלאה: כל מחלקה ותכונה בדוגמת הספרייה, ה-Decoration שלה וההסבר
+
+לפני שנראה את קוד ה-C#, עברו על הטבלה ושימו לב כיצד כל החלטה מתרשים ה-ERD מתורגמת לדקורציה מדויקת:
+
+| מחלקה / תכונה | הדקורציה (`Decoration`) | הסבר — למה בחרנו דווקא בזו? |
+| :--- | :--- | :--- |
+| **`class Author`** | `[Table("Authors")]` | קובעת את שם הטבלה במסד הנתונים (`Authors`). |
+| `Author.Id` | `[PrimaryKey, AutoIncrement]` | מפתח ראשי חד-ערכי שממוספר אוטומטית (`1, 2, 3...`). |
+| `Author.Name` | `[NotNull, MaxLength(80)]` | שדה חובה (אינו יכול להיות `NULL`) באורך של עד 80 תווים. |
+| `Author.Books` | `[OneToMany(CascadeOperations = CascadeOperation.All)]` | צד ה-**1** בקשר `1:N` (סופר אחד כותב ספרים רבים); פעולות קריאה/שמירה/מחיקה מתגלגלות לספריו. |
+| `Author.Summary` | `[Ignore]` | מאפיין מחושב לתצוגה בממשק בלבד — **לא** תיווצר עבורו עמודה בטבלה. |
+| **`class Book`** | `[Table("Books")]` | קובעת את שם הטבלה במסד (`Books`). |
+| `Book.Id` | `[PrimaryKey, AutoIncrement]` | מפתח ראשי ומספור אוטומטי לכל ספר. |
+| `Book.Title` | `[NotNull, MaxLength(120)]` | כותרת הספר היא שדה חובה עד 120 תווים. |
+| `Book.AuthorId` | `[ForeignKey(typeof(Author))]` | צד ה-**N** בקשר `1:N` — המפתח הזר יושב **תמיד** בצד ה-N ומצביע אל `Author`. |
+| `Book.Author` | `[ManyToOne]` | מאפיין ניווט לסופר האחד שכתב את הספר (נטען אוטומטית ב-`GetWithChildrenAsync`). |
+| `Book.Readers` | `[ManyToMany(typeof(BookLoan), CascadeOperations = CascadeOperation.CascadeRead \| CascadeOperation.CascadeInsert)]` | קשר `M:N` מול קוראים דרך טבלת הגישור `BookLoan` — **בלי `CascadeDelete`** כדי שמחיקת ספר לא תמחק קוראים! |
+| `Book.AuthorName` | `[Ignore]` | שדה נוחות ל-XAML בלבד, אינו עמודה בטבלה. |
+| **`class Reader`** | `[Table("Readers")]` | קובעת את שם הטבלה (`Readers`). |
+| `Reader.Id` | `[PrimaryKey, AutoIncrement]` | מפתח ראשי אוטומטי לקורא. |
+| `Reader.FullName` | `[NotNull, MaxLength(80)]` | שם חובה עד 80 תווים. |
+| `Reader.CardNumber` | `[NotNull, Unique, MaxLength(20)]` | מספר כרטיס ספרייה חובה ו**ייחודי** — המסד מונע כפילות! |
+| `Reader.Books` | `[ManyToMany(typeof(BookLoan), CascadeOperations = CascadeOperation.CascadeRead \| CascadeOperation.CascadeInsert)]` | הצד השני של קשר ה-`M:N` דרך אותה טבלת גישור `BookLoan`. |
+| **`class BookLoan`** | `[Table("BookLoans")]` | טבלת הגישור (Junction Table) השוברת את קשר ה-`M:N`. |
+| `BookLoan.Id` | `[PrimaryKey, AutoIncrement]` | מפתח ראשי אוטומטי לכל רשומת השאלה. |
+| `BookLoan.BookId` | `[ForeignKey(typeof(Book))]` | מפתח זר ראשון המצביע אל טבלת `Books`. |
+| `BookLoan.ReaderId` | `[ForeignKey(typeof(Reader))]` | מפתח זר שני המצביע אל טבלת `Readers`. |
+| `BookLoan.Book` / `Reader` | `[ManyToOne]` | מאפייני ניווט בצד ה-N לשתי ישויות ההורה של ההשאלה. |
+
+### המימוש המלא של 4 המחלקות בדוגמת הספרייה:
 
 ```csharp
 using SQLite;

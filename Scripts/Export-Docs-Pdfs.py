@@ -38,6 +38,24 @@ def highlight_code(code, name, attrs):
         lexer = TextLexer()
     formatter = HtmlFormatter(nowrap=True, style="friendly")
     highlighted = highlight(code, lexer, formatter)
+
+    # Support highlighted added lines via // [NEW-START] ... // [NEW-END] or ✨ marker
+    if "[NEW-START]" in highlighted or "✨" in highlighted:
+        out_lines = []
+        in_hl = False
+        for line in highlighted.splitlines():
+            if "[NEW-START]" in line:
+                in_hl = True
+                continue
+            if "[NEW-END]" in line:
+                in_hl = False
+                continue
+            if in_hl or "✨" in line:
+                out_lines.append(f'<span class="hl-added">{line or " "}</span>')
+            else:
+                out_lines.append(line)
+        highlighted = "\n".join(out_lines)
+
     return f'<div class="code-block" dir="ltr"><div class="code-header"><span class="code-lang">{lang.upper()}</span></div><pre class="highlight"><code>{highlighted}</code></pre></div>'
 
 
@@ -268,6 +286,16 @@ def build_html_document(title: str, body_html: str, subtitle: str = "") -> str:
       font-family: 'Fira Code', Consolas, monospace;
       font-size: 8.5pt;
       line-height: 1.45;
+    }}
+
+    .hl-added {{
+      display: inline-block;
+      width: calc(100% + 24px);
+      background: #fef9c3;
+      border-left: 3.5px solid #d97706;
+      margin: 0 -12px;
+      padding: 0 12px 0 8.5px;
+      font-weight: 600;
     }}
 
     table {{

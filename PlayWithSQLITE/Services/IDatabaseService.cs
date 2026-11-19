@@ -8,8 +8,8 @@ namespace PlayWithSQLITE.Services;
 /// ממשק זה מגדיר אילו פעולות המערכת דורשת מהמסד (CRUD, קשרי גומלין, ושאילתות דוחות)
 /// מבלי לחשוף למסכים (ViewModels) כיצד הנתונים נשמרים או כיצד החיבור מאותחל.
 ///
-/// שימו לב: אתחול החיבור ויצירת הטבלאות (EnsureInitializedAsync) מתבצעים באופן פנימי ואוטומטי
-/// בתוך DatabaseService — ה-ViewModels והבדיקות לעולם אינם צריכים לקרוא ל-InitializeAsync!
+/// שימו לב: אתחול החיבור ויצירת הטבלאות (InitDBAsync) מתבצעים באופן פנימי ואוטומטי
+/// בתוך DatabaseService — ה-ViewModels והבדיקות לעולם אינם צריכים לקרוא ל-InitDBAsync!
 /// </summary>
 public interface IDatabaseService
 {

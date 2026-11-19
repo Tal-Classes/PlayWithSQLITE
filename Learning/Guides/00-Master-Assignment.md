@@ -55,10 +55,10 @@ main                                    <-- 🚀 כאן אתם עובדים! (נ
 | :---: | :--- | :--- | :--- |
 | **0ב** | הכרת בדיקות יחידה | [00b-How-To-Run-Tests.pdf](../00b-How-To-Run-Tests.pdf) | הבנת מבנה `xUnit v3`, הסרת `Skip`, הרצה וניתוח תוצאות. |
 | **1** | NuGets, ERD ומודלים | [01-Nuget-Packages-And-Models.pdf](../01-Nuget-Packages-And-Models.pdf) | התקנה ויזואלית (VS / Rider, גרסת Stable), הבנת [תרשים ERD](../Database-ERD.pdf), `CascadeOperation`, וקישוט 4 המודלים. |
-| **2** | `Constants`, ממשק ו-CRUD | [02-Database-Connection-And-Basic-CRUD.pdf](../02-Database-Connection-And-Basic-CRUD.pdf) | בניית `Constants.cs`, הבנת `IDatabaseService`, אתחול פנימי אוטומטי (`EnsureInitializedAsync`), ו-CRUD בסיסי. |
+| **2** | `Constants`, ממשק ו-CRUD | [02-Database-Connection-And-Basic-CRUD.pdf](../02-Database-Connection-And-Basic-CRUD.pdf) | בניית `Constants.cs`, הבנת `IDatabaseService`, אתחול פנימי אוטומטי (`InitDBAsync`), ו-CRUD בסיסי. |
 | **3** | קשרי גומלין בשירות | [03-Table-Relationships.pdf](../03-Table-Relationships.pdf) | `GetWithChildrenAsync`, `GetAllWithChildrenAsync`, ניהול `Enrollment` ומניעת רשומות יתומות. |
 | **4** | שאילתות SQL ודפדוף | [04-Advanced-Queries-Aggregations.pdf](../04-Advanced-Queries-Aggregations.pdf) | פירוק `INNER/LEFT JOIN`, `GROUP BY`, `COUNT`/`AVG`/`MAX`/`MIN`/`SUM`, ודפדוף `Skip`/`Take`. |
 | **5** | DI ופקודות ב-ViewModels | [05-DI-And-ViewModel-Commands.pdf](../05-DI-And-ViewModel-Commands.pdf) | רישום `IDatabaseService` ב-`MauiProgram.cs` ויצירת `ICommand` + Pagination בכל 4 ה-ViewModels. |
-| **6** | אימות ובדיקות מלאות | [06-Testing-And-Verification.pdf](../06-Testing-And-Verification.pdf) | הרצת `Audit-DI.ps1`, כל בדיקות `xUnit v3`, ובדיקה חיה על האמולטור. |
+| **6** | אימות ובדיקות מלאות | [06-Testing-And-Verification.pdf](../06-Testing-And-Verification.pdf) | הרצת כל בדיקות `xUnit v3`, בניית הפרויקט ובדיקה חיה על האמולטור. |
 
 בהצלחה במסע! פתחו כעת את [01-Nuget-Packages-And-Models.pdf](../01-Nuget-Packages-And-Models.pdf) כדי להתחיל בשלב 1.

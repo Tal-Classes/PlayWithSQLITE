@@ -6,7 +6,8 @@
 
 ## 1. סדר הכתיבה מול סדר הביצוע הלוגי במנוע SQL
 
-**כלל מפתח:** הסדר שבו *כותבים* את השאילתה בקוד אינו הסדר שבו מנוע SQLite *מבצע* אותה!
+**כלל מפתח:** הסדר שבו *כותבים* את השאילתה בקוד אינו הסדר שבו מנוע SQLite *מבצע* אותה!  
+**לדוגמה:** פקודת **`SELECT`** — למרות שהיא מופיעה **ראשונה** בסדר הכתיבה בקוד, היא מתבצעת בפועל רק ב**שלב 6** של הביצוע, אך ורק לאחר ביצוע שליפת הטבלה (`FROM`), צירוף הטבלאות (`JOIN`), הסינון (`WHERE`) והקיבוץ (`GROUP BY`)!
 
 | פקודה בקוד (סדר כתיבה) | **סדר ביצוע אמיתי** | מה המנוע עושה בשלב זה? |
 | :--- | :---: | :--- |
@@ -26,10 +27,12 @@
 ### 🎯 שלב 0 — הטבלה הסופית שאנחנו רוצים לקבל (עבור `studentId = 1`, נועם אברהם)
 זהו גיליון הציונים האישי שמוצג במסך התלמידים (ממופה ל-DTO `StudentTranscriptItem`):
 
-| `StudentId` | `StudentName` | `CourseTitle` | `Credits` | `TeacherName` | `Grade` | `IsPaid` |
+| מזהה | שם התלמיד | שם הקורס | נ"ז | שם המורה | ציון | שולם? |
 | :---: | :--- | :--- | :---: | :--- | :---: | :---: |
 | 1 | נועם אברהם | סדנת בחירה | 2 | לא הוקצה מורה | 88 | true |
 | 1 | נועם אברהם | תכנות ב-C# ו-MAUI | 5 | ישראל ישראלי | 95 | true |
+
+*(שמות העמודות ב-DTO `StudentTranscriptItem`: `StudentId`, `StudentName`, `CourseTitle`, `Credits`, `TeacherName`, `Grade`, `IsPaid`.)*
 
 ### 📋 שלב 1 — חומרי הגלם: טבלאות הבסיס (`SELECT *`)
 הנתונים מפוזרים ב-4 טבלאות נפרדות:
@@ -118,10 +121,12 @@ ORDER BY c.Title;
 ### 🎯 שלב 0 — הטבלה הסופית שאנחנו רוצים לקבל (דוח הקורסים במסך הדוחות)
 שורה אחת מסכמת לכל קורס (כולל קורסים שעדיין אין בהם אף תלמיד!):
 
-| `CourseId` | `CourseTitle` | `TeacherName` | `StudentCount` | `AverageGrade` | `MaxGrade` | `MinGrade` |
+| מזהה | שם הקורס | שם המורה | רשומים | ממוצע | שיא | מינימום |
 | :---: | :--- | :--- | :---: | :---: | :---: | :---: |
 | 104 | רובוטיקה | דוד כהן | **0** | 0.0 | 0.0 | 0.0 |
 | 101 | תכנות C# | ישראל ישראלי | **2** | 87.0 | 95.0 | 79.0 |
+
+*(שמות העמודות הממופות ב-DTO `CourseGradeSummary` הן בהתאמה: `CourseId`, `CourseTitle`, `TeacherName`, `StudentCount`, `AverageGrade`, `MaxGrade`, `MinGrade`.)*
 
 ### 🪜 שלב 1 — מה נוצר אחרי `FROM Courses c LEFT JOIN Teachers t ... LEFT JOIN Enrollments e ...` (**לפני** `GROUP BY`)?
 | `c.Id` | `c.Title` | `t.FullName` | `e.Id` | `e.Grade` |
@@ -175,7 +180,7 @@ ORDER BY c.Title;
 ```csharp
 public async Task<List<Student>> GetStudentsAsync(int skip = 0, int take = 20)
 {
-    await EnsureInitializedAsync();
+    await InitDBAsync();
     return await _database!.Table<Student>()
         .OrderBy(s => s.LastName)     // חובה למיין לפני Skip/Take כדי שהעמודים יהיו עקביים!
         .ThenBy(s => s.FirstName)

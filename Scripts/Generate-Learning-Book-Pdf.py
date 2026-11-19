@@ -101,6 +101,23 @@ def highlight_code(code, name, attrs):
         lexer = TextLexer()
     formatter = HtmlFormatter(nowrap=True, style="friendly")
     highlighted = highlight(code, lexer, formatter)
+
+    if "[NEW-START]" in highlighted or "✨" in highlighted:
+        out_lines = []
+        in_hl = False
+        for line in highlighted.splitlines():
+            if "[NEW-START]" in line:
+                in_hl = True
+                continue
+            if "[NEW-END]" in line:
+                in_hl = False
+                continue
+            if in_hl or "✨" in line:
+                out_lines.append(f'<span class="hl-added">{line or " "}</span>')
+            else:
+                out_lines.append(line)
+        highlighted = "\n".join(out_lines)
+
     return f'<div class="code-block" dir="ltr"><div class="code-header"><span class="code-lang">{lang.upper()}</span></div><pre class="highlight"><code>{highlighted}</code></pre></div>'
 
 def transform_callouts(html_text: str) -> str:
@@ -440,6 +457,16 @@ def generate_html_document(combined_md: str, project_info: dict, learning_dir: P
       word-break: break-word !important;
       overflow-wrap: anywhere !important;
       unicode-bidi: normal;
+    }}
+
+    .hl-added {{
+      display: inline-block;
+      width: calc(100% + 28px);
+      background: #fef9c3;
+      border-left: 3.5px solid #d97706;
+      margin: 0 -14px;
+      padding: 0 14px 0 10.5px;
+      font-weight: 600;
     }}
 
     /* Tables */
