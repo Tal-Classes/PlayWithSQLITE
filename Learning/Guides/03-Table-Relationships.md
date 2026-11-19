@@ -1,30 +1,35 @@
 # 🔗 שלב 3: מימוש וטעינת קשרי גומלין בשכבת השירות (`SQLiteNetExtensions.Async`)
 
-בשלב 1 תכננו את תרשים ה-**ERD**, למדנו מה מוגדר בכל צד של הקשר (`1:N` ו-`M:N`), בחרנו `CascadeOperation` מתאים וקישטנו את 4 המודלים.  
-בשלב 2 פתחנו חיבור אסינכרוני דרך `Constants` ובנינו את פעולות ה-CRUD הבסיסיות.
+בשלב 1 הגדרנו את קשרי הגומלין במודלים (`[OneToMany]`, `[ManyToOne]`, `[ManyToMany]`), ובשלב 2 בנינו CRUD בסיסי.  
+כעת נפגוש תופעה חשובה: כאשר מריצים `_database!.Table<Course>().ToListAsync()`, העמודה `TeacherId` חוזרת עם המספר `1`, **אבל המאפיין `course.Teacher` נשאר `null`!**  
+כדי למלא אוטומטית את מאפייני הניווט (הילדים וההורים), נשתמש בהרחבות של **`SQLiteNetExtensions.Async`**.
 
-כעת, בשלב 3, נפגוש בעיה מעשית חשובה:  
-**אם תריצו `await _database.Table<Course>().ToListAsync()`, השדה `course.Teacher` יחזור כ-`null` ורשימת `course.Students` תחזור ריקה!**  
-מדוע? כי `sqlite-net-pcl` הבסיסי שולף עמודות מטבלה אחת בלבד ואינו מכיר קשרי גומלין. כאן נכנסת לפעולה חבילת **`SQLiteNetExtensions.Async`**!
-
----
-
-## 1. שיטות הטעינה עם ילדים (`GetWithChildrenAsync` ו-`GetAllWithChildrenAsync`)
-
-הוסיפו בראש `DatabaseService.cs` את מרחב השמות של מתודות ההרחבה האסינכרוניות:
+הוסיפו בראש `PlayWithSQLITE/Services/DatabaseService.cs`:
 ```csharp
 using SQLiteNetExtensionsAsync.Extensions;
 ```
 
-מרחב שמות זה מוסיף למחלקת `SQLiteAsyncConnection` את מתודות ההרחבה הבאות:
+> [!NOTE]
+> **תזכורת מהירה — מהו סימן הקריאה (`!`) בביטוי `_database!.` ("ה-Bang")?**  
+> השדה `_database` הוגדר כטיפוס שיכול להיות `null` (`SQLiteAsyncConnection?`).  
+> ברגע שאנחנו קוראים בתחילת הפעולה ל-`await EnsureInitializedAsync();`, החיבור כבר פתוח ובוודאות אינו `null`.  
+> האופרטור **`!`** (Null-Forgiving Operator) אומר למהדר של C#: *"אני מתחייב ש-`_database` אינו `null` בנקודה זו — אל תציג אזהרת קומפילציה"*.
 
-| מתודה | מה היא מבצעת? | היכן נשתמש בה ב-`DatabaseService`? |
-| :--- | :--- | :--- |
-| **`GetWithChildrenAsync<T>(id)`** | שולפת ישות יחידה לפי `PrimaryKey`, וקוראת אוטומטית את כל מאפייני הניווט שלה (`[OneToMany]`, `[ManyToOne]`, `[ManyToMany]`)! | `GetTeacherByIdAsync(id, includeCourses: true)`<br/>`GetCourseByIdAsync(id, includeRelations: true)`<br/>`GetStudentByIdAsync(id, includeCourses: true)` |
-| **`GetAllWithChildrenAsync<T>()`** | שולפת את כל הרשומות בטבלה וממלאת את מאפייני הניווט עבור כל אחת מהן! | `GetCoursesAsync(includeRelations: true)`<br/>`GetEnrollmentsAsync()` |
+---
 
-### א. שליפת מורה יחד עם כל הקורסים שלו (`1:N`)
-כאשר ה-ViewModel של מסך המורים מבקש להציג כמה קורסים מלמד כל מורה (`includeCourses = true`), נטפל גם במקרה שהמזהה אינו קיים (שימו לב: `GetWithChildrenAsync` עלול לזרוק `InvalidOperationException` אם ה-`id` לא נמצא, ולכן נגן עליו ב-`try / catch` או נבדוק קודם קיום):
+## חלק 1: ניתוח 4 דוגמאות מלאות (להעתקה והטמעה ב-`DatabaseService.cs`)
+
+להלן 4 דוגמאות מפורקות שלב-אחר-שלב המכסות את כל סוגי הקשרים במערכת.  
+**קראו את הניתוח והעתיקו את 4 הפעולות הללו אל החלקים המתאימים ב-`DatabaseService.cs` שלכם כדי שתוכלו להריץ ולאמת, ולאחר מכן ממשו בעצמכם את הפעולות המקבילות בחלק 2!**
+
+### דוגמה 1 — שליפת ישות אחת עם ילדיה (`1:N`): `GetTeacherByIdAsync`
+- **מה הפעולה מקבלת?** `int id` (מזהה המורה) ו-`bool includeCourses = false` (האם לטעון גם את רשימת הקורסים שלו?).
+- **מה היא מחזירה?** `Task<Teacher?>` (המורה עם רשימת `Courses` מלאה אם התבקש, או `null` אם המזהה לא קיים).
+- **ניתוח שלב-אחר-שלב:**
+  1. מוודאים אתחול פנימי (`await EnsureInitializedAsync()`).
+  2. אם `includeCourses == true`: קוראים ל-`GetWithChildrenAsync<Teacher>(id)`. מכיוון ששיטה זו זורקת `InvalidOperationException` כאשר ה-`id` אינו קיים בטבלה, עוטפים אותה ב-`try / catch` ומחזירים `null`.
+  3. אחרת: מבצעים שליפה רגילה ומהירה (`FirstOrDefaultAsync`).
+
 ```csharp
 public async Task<Teacher?> GetTeacherByIdAsync(int id, bool includeCourses = false)
 {
@@ -45,9 +50,14 @@ public async Task<Teacher?> GetTeacherByIdAsync(int id, bool includeCourses = fa
 }
 ```
 
-### ב. שליפת קורסים יחד עם פרטי המורה (`ManyToOne`) והתלמידים (`ManyToMany`)
-במסך הקורסים (`CoursesPage`), כל כרטיס קורס מציג את `Course.TeacherName` (הנשען על `Teacher?.FullName`).  
-כאשר `includeRelations == true`:
+### דוגמה 2 — שליפת רשימת ישויות עם הוריהן וילדיהן (`N:1` + `M:N`): `GetCoursesAsync`
+- **מה הפעולה מקבלת?** `bool includeRelations = false` (כאשר `true`, נטען עבור כל קורס את אובייקט `Teacher` ואת רשימת `Students`).
+- **מה היא מחזירה?** `Task<List<Course>>` ממוינת לפי שם הקורס (`Title`).
+- **ניתוח שלב-אחר-שלב:**
+  1. מוודאים אתחול (`EnsureInitializedAsync`).
+  2. אם `includeRelations == true`: קוראים ל-`GetAllWithChildrenAsync<Course>()` וממיינים את הרשימה בזיכרון (`OrderBy(c => c.Title).ToList()`).
+  3. אחרת: מבצעים שליפת `Table<Course>()` פשוטה וממוינת.
+
 ```csharp
 public async Task<List<Course>> GetCoursesAsync(bool includeRelations = false)
 {
@@ -62,47 +72,86 @@ public async Task<List<Course>> GetCoursesAsync(bool includeRelations = false)
 }
 ```
 
+### דוגמה 3 — קשר `M:N` עם **מניעת כפילות רישום**: `EnrollStudentAsync`
+- **מה הפעולה מקבלת?** `int studentId`, `int courseId`, וציון אופציונלי `double? grade = null`.
+- **מה היא מחזירה?** `Task<int>` (מספר השורות שנוספו או עודכנו).
+- **מדוע צריך בדיקת כפילות?** אם תלמיד מסוים כבר רשום לקורס "תכנות C#", איננו רוצים שיהיו לו שתי שורות כפולות בטבלת `Enrollments`!
+- **ניתוח שלב-אחר-שלב:**
+  1. מוודאים אתחול (`EnsureInitializedAsync`).
+  2. מחפשים בטבלת `Enrollment` האם כבר קיימת שורה שבה **גם** `StudentId == studentId` **וגם** `CourseId == courseId`.
+  3. **אם נמצאה שורה (`existing != null`):** מעדכנים לה את הציון (`existing.Grade = grade`) ומחזירים `await _database.UpdateAsync(existing)`.
+  4. **אם לא נמצאה שורה:** יוצרים אובייקט `Enrollment` חדש (`EnrollmentDate = DateTime.Now`, `IsPaid = true`) ומחזירים `await _database.InsertAsync(enrollment)`.
+
+```csharp
+public async Task<int> EnrollStudentAsync(int studentId, int courseId, double? grade = null)
+{
+    await EnsureInitializedAsync();
+
+    // בדיקה למניעת כפילות רישום של אותו תלמיד לאותו קורס
+    var existing = await _database!.Table<Enrollment>()
+        .FirstOrDefaultAsync(e => e.StudentId == studentId && e.CourseId == courseId);
+
+    if (existing != null)
+    {
+        existing.Grade = grade;
+        return await _database.UpdateAsync(existing);
+    }
+
+    var enrollment = new Enrollment
+    {
+        StudentId = studentId,
+        CourseId = courseId,
+        Grade = grade,
+        EnrollmentDate = DateTime.Now,
+        IsPaid = true
+    };
+    return await _database.InsertAsync(enrollment);
+}
+```
+
+### דוגמה 4 — מחיקה מבוקרת המונעת רשומות יתומות (`Orphan Records`): `DeleteCourseAsync`
+- **מה הפעולה מקבלת?** `Course course` למחיקה.
+- **מה המטרה?** למחוק קודם את כל שורות ה-`Enrollment` ששייכות לקורס הזה (כדי שלא יישארו רישומים המצביעים על קורס שנמחק), ורק אז למחוק את הקורס עצמו — **מבלי למחוק את התלמידים עצמם!**
+```csharp
+public async Task<int> DeleteCourseAsync(Course course)
+{
+    await EnsureInitializedAsync();
+
+    // 1. איתור ומחיקת כל הרישומים המצביעים על הקורס
+    var enrollments = await _database!.Table<Enrollment>()
+        .Where(e => e.CourseId == course.Id)
+        .ToListAsync();
+    foreach (var enrollment in enrollments)
+    {
+        await _database.DeleteAsync(enrollment);
+    }
+
+    // 2. מחיקת הקורס עצמו
+    return await _database.DeleteAsync(course);
+}
+```
+
 ---
 
-## 2. ניהול טבלת הגישור `Enrollments` (קשר `M:N` עם מידע נוסף)
+## חלק 2: ✍️ משימתכם המעשית בשלב 3 (שדרוג והשלמת הפעולות המקבילות)
 
-מכיוון שטבלת `Enrollments` שומרת לא רק את החיבור בין `StudentId` ל-`CourseId` אלא גם **ציון (`Grade`)**, **תאריך רישום** ו**סטטוס תשלום**, ננהל אותה דרך 4 פעולות מפורשות ב-`DatabaseService`:
+כעת, לפי 4 הדוגמאות המלאות למעלה, שדרגו והשלימו ב-`DatabaseService.cs` את 7 הפעולות הבאות:
 
-1. **`GetEnrollmentsAsync()`**: טוענת את כל הרישומים בעזרת `GetAllWithChildrenAsync<Enrollment>()` כך שכל `Enrollment` יכיל גם את אובייקט ה-`Student` וגם את אובייקט ה-`Course`.
-2. **`EnrollStudentAsync(int studentId, int courseId, double? grade = null)`**:
-   - **מניעת כפילות רישום (Idempotency):** ראשית בודקים האם כבר קיימת שורה בטבלת `Enrollment` עבור אותו `(studentId, courseId)`.
-   - אם כבר קיימת ➡️ מעדכנים את הציון (`existing.Grade = grade`) ומבצעים `UpdateAsync`.
-   - אם לא קיימת ➡️ יוצרים `Enrollment` חדש ומבצעים `InsertAsync`.
-3. **`UpdateEnrollmentGradeAsync(int enrollmentId, double grade)`**: שולפת את הרישום לפי `enrollmentId`, מעדכנת את `Grade` ושומרת ב-`UpdateAsync`.
-4. **`RemoveEnrollmentAsync(int studentId, int courseId)`**: מאתרת את הרישום התואם ומוחקת אותו ב-`DeleteAsync`.
-
----
-
-## 3. מניעת רשומות יתומות (`Orphan Records`) במחיקה
-
-זוכרים את האזהרה משלב 1 לגבי `CascadeOperation`?  
-ב-SQLite (בברירת מחדל), פקודת `DeleteAsync(teacher)` פשוטה מוחקת רק את השורה מטבלת `Teachers` — ומשאירה את כל הקורסים של אותו מורה "יתומים" עם `TeacherId` שמצביע על מורה שכבר אינו קיים!
-
-לכן בשכבת השירות נוודא **שלמות התייחסותית (`Referential Integrity`)** בעת מחיקה:
-- **`DeleteCourseAsync(course)`**: מוחקים תחילה את כל ה-`Enrollments` שבהם `CourseId == course.Id`, ורק אז מוחקים את הקורס עצמו.
-- **`DeleteStudentAsync(student)`**: מוחקים תחילה את כל ה-`Enrollments` שבהם `StudentId == student.Id`, ורק אז מוחקים את התלמיד עצמו.
-- **`DeleteTeacherAsync(teacher)`**: מוחקים תחילה את כל הקורסים של המורה (באמצעות `DeleteCourseAsync` שגם מנקה את הרישומים שלהם!), ורק אז מוחקים את המורה.
-
-> [!IMPORTANT]
-> **יתרון הגישה המבוקרת בשכבת השירות:**
-> כשמוחקים קורס, אנו מוחקים רק את ה-`Enrollments` שלו — **ולעולם לא מוחקים בטעות את התלמידים עצמם** (סכנה שעלולה לקרות אם מפעילים מחיקה רקורסיבית עיוורת על קשר `M:N` עם `CascadeOperation.All`)!
-
----
-
-## 4. משימתכם המעשית בשלב 3
-
-1. הוסיפו `using SQLiteNetExtensionsAsync.Extensions;` בראש [DatabaseService.cs](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/PlayWithSQLITE/Services/DatabaseService.cs).
-2. שדרגו את `GetTeacherByIdAsync`, `GetCoursesAsync`, `GetCourseByIdAsync` ו-`GetStudentByIdAsync` לטעינת ילדים באמצעות `GetWithChildrenAsync` ו-`GetAllWithChildrenAsync`.
-3. ממשו את 4 פעולות טבלת הגישור: `GetEnrollmentsAsync`, `EnrollStudentAsync`, `UpdateEnrollmentGradeAsync`, ו-`RemoveEnrollmentAsync`.
-4. שדרגו את `DeleteTeacherAsync`, `DeleteCourseAsync` ו-`DeleteStudentAsync` כך שינקו רשומות תלויות וימנעו רשומות יתומות.
+| מתודה לשדרוג / מימוש | קלט (`Parameters`) | מה עליה לבצע ולהחזיר? | לאיזו דוגמה היא מקבילה? |
+| :--- | :--- | :--- | :--- |
+| **`GetCourseByIdAsync`** | `int id, bool includeRelations = true` | אם `includeRelations == true` לטעון עם `GetWithChildrenAsync<Course>(id)` בתוך `try/catch`; אחרת `FirstOrDefaultAsync`. מחזירה `Course?`. | דוגמה 1 (`GetTeacherByIdAsync`) |
+| **`GetStudentByIdAsync`** | `int id, bool includeCourses = false` | אם `includeCourses == true` לטעון עם `GetWithChildrenAsync<Student>(id)` בתוך `try/catch`; אחרת `FirstOrDefaultAsync`. מחזירה `Student?`. | דוגמה 1 (`GetTeacherByIdAsync`) |
+| **`GetEnrollmentsAsync`** | ללא | לוודא אתחול ולהחזיר `await _database!.GetAllWithChildrenAsync<Enrollment>()` (כך שכל רישום יכיל את `Student` ו-`Course` מלאים!). | דוגמה 2 (`GetCoursesAsync`) |
+| **`UpdateEnrollmentGradeAsync`** | `int enrollmentId, double grade` | לאתר את הרישום לפי `e.Id == enrollmentId`; אם לא נמצא (`null`) להחזיר `0`; אחרת לעדכן `enrollment.Grade = grade` ולהחזיר `UpdateAsync(enrollment)`. | דוגמה 3 (בדיקת קיום + עדכון) |
+| **`RemoveEnrollmentAsync`** | `int studentId, int courseId` | לאתר רישום לפי `e.StudentId == studentId && e.CourseId == courseId`; אם נמצא — למחוק עם `DeleteAsync` ולהחזיר את התוצאה; אחרת להחזיר `0`. | דוגמה 3 (חיפוש לפי זוג FK) |
+| **`DeleteStudentAsync`** | `Student student` | לאתר ולמחוק תחילה את כל ה-`Enrollment` שבהם `e.StudentId == student.Id`, ורק אז למחוק את ה-`student` עצמו. | דוגמה 4 (`DeleteCourseAsync`) |
+| **`DeleteTeacherAsync`** | `Teacher teacher` | לאתר את כל ה-`Course` שבהם `c.TeacherId == teacher.Id`, לקרוא עבור כל אחד מהם ל-`await DeleteCourseAsync(course)` (שכבר מנקה גם את הרישומים!), ורק אז למחוק את ה-`teacher`. | דוגמה 4 (`DeleteCourseAsync`) |
 
 ### ✅ בדיקה עצמית בסיום שלב 3:
-- פתחו את [DatabaseServiceTests.cs](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/PlayWithSQLITE.Tests/DatabaseServiceTests.cs), הסירו את `Skip` מהבדיקות `GetCoursesAsync_WithRelations_LoadsTeacherDetails` ו-`EnrollStudentAsync_CreatesNewEnrollment`, והריצו `dotnet test`!
-- להשוואה מול הפתרון המוכן: `git checkout step-03-relationships`.
+1. פתחו את `DatabaseServiceTests.cs` והסירו את `Skip = "..."` משתי הבדיקות:
+   - **`GetCoursesAsync_WithRelations_LoadsTeacherDetails`**
+   - **`EnrollStudentAsync_CreatesNewEnrollment`**
+2. הריצו את הבדיקות (ראו [00b-How-To-Run-Tests.pdf](./00b-How-To-Run-Tests.pdf)) וודאו ש-**4 בדיקות עוברות בירוק (`succeeded: 4, failed: 0`)**!
+3. להשוואה מול הפתרון המוכן: `git checkout step-03-relationships`.
 
-עברו לשלב הבא: [04-Advanced-Queries-Aggregations.md](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/Learning/Guides/04-Advanced-Queries-Aggregations.md).
+עברו לשלב הבא: [04-Advanced-Queries-Aggregations.pdf](./04-Advanced-Queries-Aggregations.pdf).

@@ -1,58 +1,52 @@
-# ✅ שלב 6: בדיקות יחידה ב-xUnit v3 ואימות מלא של המערכת
+# ✅ שלב 6: אימות מלא של המערכת, בדיקות `xUnit v3` ובדיקה חיה באמולטור
 
-בשלב הסופי נבדוק שהמערכת כולה — החל מהמודלים ו-`Constants`, דרך `DatabaseService` ושאילתות ה-SQL, ועד ל-DI ולפקודות ה-`ICommand` ב-ViewModels — עובדת בצורה אמינה, אוטומטית ומאומתת.
+בשלב הסופי נאמת שכל שכבות המערכת — `Constants`, 4 המודלים המקושרים, `DatabaseService`, שאילתות ה-SQL המתקדמות, רישום ה-DI ופקודות ה-`ICommand` ב-4 ה-ViewModels — עובדות יחד ללא דופי!
 
----
-
-## 1. מה מיוחד בבדיקות יחידה עם **xUnit v3** ב-.NET 10?
-
-פרויקט הבדיקות [PlayWithSQLITE.Tests.csproj](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/PlayWithSQLITE.Tests/PlayWithSQLITE.Tests.csproj) מוגדר עם הדור החדש של בדיקות היחידה ב-.NET:
-1. **חבילת `xunit.v3`** (גרסה `4.0.3`) + מנוע ההרצה המודרני **`Microsoft.Testing.Platform`** (מוגדר ב-[global.json](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/global.json)).
-2. **פרויקט הפעלה עצמאי (`<OutputType>Exe</OutputType>`):** פרויקט הבדיקות מתקמפל לקובץ הרצה מהיר ללא תלות ב-VSTest הישן, ורץ ישירות דרך `dotnet test` או Test Explorer ב-Visual Studio / Rider.
-3. **מחזור חיים אסינכרוני עם `ValueTask` (`IAsyncLifetime`):**
-   - `public async ValueTask InitializeAsync()` — רצה לפני **כל בדיקה**, מאתחלת קובץ SQLite זמני מבודד בתיקיית `Path.GetTempPath()` וזורעת נתוני בדיקה.
-   - `public ValueTask DisposeAsync()` — רצה בסיום **כל בדיקה** ומוחקת את הקובץ הזמני כדי שכל בדיקה תהיה עצמאית לחלוטין (Isolated).
+> [!NOTE]
+> זקוקים לרענון על איך קוראים קובץ בדיקות, מסירים `Skip`, מריצים ב-Visual Studio / Rider ומנתחים שגיאות?  
+> חזרו אל המדריך הייעודי: **[00b-How-To-Run-Tests.pdf](./00b-How-To-Run-Tests.pdf)**.
 
 ---
 
-## 2. בדיקת שכבת מסד הנתונים ובדיקת ה-ViewModels
+## 1. מה נבדק בחבילת הבדיקות המלאה (`step-06-full-solution`)?
 
-בפרויקט הבדיקות קיימות הבדיקות הבאות:
-1. **`ArchitectureSmokeTests`**: בדיקת תקינות בסיסית של סביבת xUnit v3.
-2. **`DatabaseServiceTests`** (8 בדיקות מלאות):
-   - CRUD וזריעת מורים (`GetTeachersAsync_ReturnsSeededTeachers`)
-   - קשר `1:N` בין קורס למורה (`GetCoursesAsync_WithRelations_LoadsTeacherDetails`)
-   - דפדוף `Skip` / `Take` (`Pagination_SkipAndTake_ReturnsCorrectSlices`)
-   - `LEFT JOIN` + `GROUP BY` + `COUNT`/`AVG`/`MAX`/`MIN` (`GetCourseGradeSummariesAsync_PerformsJoinAndGroupBy`)
-   - `INNER JOIN` + `LEFT JOIN` של 4 טבלאות (`GetStudentTranscriptAsync_ReturnsMultiTableJoinedItems`)
-   - `INNER JOIN` + `SUM` + `ExecuteScalarAsync` (`GetTotalCreditsForStudentAsync_CalculatesSumOfCredits`)
-   - `GROUP BY` + `COUNT` (`GetStudentDistributionByGradeLevelAsync_GroupsAndCountsStudents`)
-   - קשר `M:N` דרך `Enrollment` (`EnrollStudentAsync_CreatesNewEnrollment`)
+פרויקט הבדיקות `PlayWithSQLITE.Tests` פועל על **xUnit v3** (`xunit.v3` 4.0.3 + `Microsoft.Testing.Platform` ב-`global.json`) וכולל בפתרון המלא **13 בדיקות אוטומטיות**:
+1. **`ArchitectureSmokeTests`** (בדיקה 1): אימות סביבת xUnit v3.
+2. **`DatabaseServiceTests`** (8 בדיקות):
+   - CRUD וזריעת נתונים (שלב 2)
+   - קשר `1:N` (`GetCoursesAsync` עם `includeRelations: true`) וקשר `M:N` (`EnrollStudentAsync`) (שלב 3)
+   - דפדוף `Skip`/`Take`, `LEFT JOIN + GROUP BY + AVG/COUNT`, גיליון ציונים מרובה-טבלאות, `SUM` עם `ExecuteScalarAsync`, והתפלגות שכבות (שלב 4)
+3. **`ViewModelsTests`** (4 בדיקות בפתרון המלא `step-06-full-solution`):
+   - `TeachersViewModel`: אימות `AddTeacherCommand.CanExecute` וטעינת מורים כולל קורסים (`1:N`).
+   - `CoursesViewModel`: טעינת מורים וקורסים מקושרים (`N:1`) ואימות `CanAddCourse`.
+   - `StudentsViewModel`: דפדוף עמוד 1 מול 2, ואימות `PrevPageCommand.CanExecute == false` מול `NextPageCommand.CanExecute == true`.
+   - `ReportsViewModel`: טעינת `CourseSummaries` ו-`GradeDistributions` לתוך `ObservableCollection`.
 
 ---
 
-## 3. רשימת תיוג (Checklist) לאימות סופי לפני הגשה
+## 2. רשימת תיוג (Checklist) לאימות סופי לפני הגשה
 
-הריצו את הפקודות הבאות מתוך שורש הפרויקט וודאו שכולן עוברות ללא שגיאות:
+הריצו את הפקודות הבאות משורש הפרויקט וודאו שכולן עוברות ללא שגיאות:
 
 1. **בניית הפתרון המלא:**
    ```powershell
    dotnet build
    ```
-2. **בדיקת רישום DI Container (מבטיח ש-`DatabaseService` וכל ה-ViewModels רשומים):**
+2. **ביקורת DI Container (`MauiProgram.cs`):**
    ```powershell
    .\Scripts\Audit-DI.ps1
    ```
-3. **הרצת כל בדיקות ה-xUnit v3:**
+   *(תוצאה צפויה: `RESULT: PASS` — `DatabaseService` וכל 4 ה-ViewModels רשומים כנדרש!)*
+3. **הרצת כל בדיקות היחידה (`xUnit v3`):**
    ```powershell
-   dotnet test PlayWithSQLITE.Tests\PlayWithSQLITE.Tests.csproj
+   .\Scripts\Validate-Tests.ps1
    ```
-   *(או דרך כלי הבקרה: `.\Scripts\Validate-Tests.ps1`)*
-4. **הרצת האפליקציה בפועל:**
-   - היכנסו למסך **דוחות** ➡️ לחצו **זריעת נתוני הדגמה** ➡️ בדקו שממוצעי הקורסים והתפלגות השכבות מתמלאים.
-   - היכנסו למסך **תלמידים** ➡️ דפדפו בין עמודים (`הבא` / `הקודם`), לחצו על תלמיד וראו את גיליון הציונים וסך נ"ז שלו, והוסיפו תלמיד חדש.
-   - היכנסו למסך **קורסים** ➡️ בחרו מורה ב-`Picker`, צרו קורס חדש וודאו ששם המורה מוצג בכרטיס הקורס.
-   - היכנסו למסך **מורים** ➡️ צפו בקורסים המשוייכים לכל מורה ובדקו הוספה ומחיקה.
+   *(או דרך `Test Explorer` ב-Visual Studio / `Unit Tests` ב-Rider — תוצאה צפויה: `failed: 0`!)*
+4. **אימות חי באמולטור Android (או דרך MAUI DevFlow):**
+   - לשונית **דוחות** ➡️ לחיצה על **צור נתוני הדגמה (Seed)** ➡️ וידוא ש-4 כרטיסי הקורסים (ממוצע, רשומים, ציון שיא) ו-3 שכבות הגיל מוצגים מיד.
+   - לשונית **תלמידים** ➡️ מעבר בין עמוד 1 ל-2 (`הבא` / `קודם`), בחירת תלמיד לצפייה בגיליון הציונים ובסך נ"ז (`SUM`), והוספת תלמיד חדש.
+   - לשונית **קורסים** ➡️ בחירת מורה מה-`Picker`, הוספת קורס חדש ווידוא ששם המורה מוצג בכרטיס.
+   - לשונית **מורים** ➡️ צפייה בקורסים המשוייכים לכל מורה ובדיקת הוספה ומחיקה.
 
 🏆 **כל הכבוד!** השלמתם פרויקט מלא ומקצועי של SQLite מרובה-טבלאות ב-.NET MAUI.  
 להשוואה מול הפתרון השלם והמאומת ביותר: `git checkout step-06-full-solution`.

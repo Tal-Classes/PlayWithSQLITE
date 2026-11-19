@@ -52,10 +52,10 @@
                            FontSize="15"
                            TextColor="#065F46" />
 
-                    <CollectionView ItemsSource="{Binding CourseSummaries}">
-                        <CollectionView.ItemTemplate>
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding CourseSummaries}" Spacing="6">
+                        <BindableLayout.ItemTemplate>
                             <DataTemplate x:DataType="dtos:CourseGradeSummary">
-                                <Border Stroke="#A7F3D0" StrokeThickness="1" Padding="10" Margin="0,4" BackgroundColor="White">
+                                <Border Stroke="#A7F3D0" StrokeThickness="1" Padding="10" BackgroundColor="White">
                                     <Border.StrokeShape>
                                         <RoundRectangle CornerRadius="6" />
                                     </Border.StrokeShape>
@@ -70,8 +70,8 @@
                                     </VerticalStackLayout>
                                 </Border>
                             </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
                 </VerticalStackLayout>
             </Border>
 
@@ -86,18 +86,21 @@
                            FontSize="15"
                            TextColor="#3730A3" />
 
-                    <CollectionView ItemsSource="{Binding GradeDistributions}">
-                        <CollectionView.ItemTemplate>
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding GradeDistributions}" Spacing="6">
+                        <BindableLayout.ItemTemplate>
                             <DataTemplate x:DataType="dtos:GradeLevelCount">
-                                <Border Stroke="#C7D2FE" StrokeThickness="1" Padding="8" Margin="0,3" BackgroundColor="White">
+                                <Border Stroke="#C7D2FE" StrokeThickness="1" Padding="8" BackgroundColor="White">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="6" />
+                                    </Border.StrokeShape>
                                     <Grid ColumnDefinitions="*,Auto">
                                         <Label Grid.Column="0" Text="{Binding Title}" FontAttributes="Bold" />
                                         <Label Grid.Column="1" Text="{Binding StudentCount, StringFormat='{0} תלמידים'}" TextColor="#4F46E5" FontAttributes="Bold" />
                                     </Grid>
                                 </Border>
                             </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
                 </VerticalStackLayout>
             </Border>
 

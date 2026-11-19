@@ -448,6 +448,15 @@ def generate_html_document(combined_md: str, project_info: dict, learning_dir: P
       border-collapse: collapse;
       margin: 14px 0;
       font-size: 8.5pt;
+      break-inside: auto;
+      page-break-inside: auto;
+    }}
+
+    thead {{
+      display: table-header-group;
+    }}
+
+    tr {{
       break-inside: avoid;
       page-break-inside: avoid;
     }}
@@ -456,9 +465,9 @@ def generate_html_document(combined_md: str, project_info: dict, learning_dir: P
       padding: 6px 7px;
       border: 1px solid var(--border);
       text-align: right;
-      vertical-align: middle;
-      word-break: normal;
-      overflow-wrap: break-word;
+      vertical-align: top;
+      word-break: break-word;
+      overflow-wrap: anywhere;
     }}
 
     th {{
@@ -466,7 +475,7 @@ def generate_html_document(combined_md: str, project_info: dict, learning_dir: P
       font-weight: 700;
       color: #0f172a;
       font-size: 8.5pt;
-      white-space: nowrap;
+      white-space: normal;
     }}
 
     tr:nth-child(even) {{
@@ -540,12 +549,15 @@ def generate_html_document(combined_md: str, project_info: dict, learning_dir: P
     /* Images */
     .embedded-img {{
       max-width: 100%;
+      max-height: 155mm;
+      width: auto;
       height: auto;
+      object-fit: contain;
       display: block;
       margin: 14px auto;
       border-radius: 8px;
       border: 1px solid var(--border);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 3px 10px rgba(15, 23, 42, 0.08);
       break-inside: avoid;
       page-break-inside: avoid;
     }}

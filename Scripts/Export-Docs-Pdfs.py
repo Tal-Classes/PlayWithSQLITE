@@ -85,7 +85,10 @@ def embed_images(html_text: str, base_dir: Path, learning_dir: Path) -> str:
             try:
                 with open(found_path, "rb") as f:
                     b64 = base64.b64encode(f.read()).decode("utf-8")
-                return f'<img src="data:image/{ext};base64,{b64}" class="embedded-img" alt="{alt}">'
+                is_phone = found_path.stem.endswith("-live") or found_path.stem.endswith("-android")
+                cls = "embedded-img phone-shot" if is_phone else "embedded-img"
+                caption_html = f'<div class="img-caption">{alt}</div>' if alt else ""
+                return f'<div class="img-wrap"><img src="data:image/{ext};base64,{b64}" class="{cls}" alt="{alt}">{caption_html}</div>'
             except Exception as e:
                 print(f"Warning: Failed embedding image {found_path}: {e}")
         return match.group(0)
@@ -270,15 +273,30 @@ def build_html_document(title: str, body_html: str, subtitle: str = "") -> str:
     table {{
       width: 100%;
       border-collapse: collapse;
-      margin: 14px 0;
-      font-size: 9pt;
+      margin: 12px 0;
+      font-size: 8.5pt;
       direction: rtl;
+      table-layout: auto;
+      page-break-inside: auto;
+      break-inside: auto;
+    }}
+
+    thead {{
+      display: table-header-group;
+    }}
+
+    tr {{
+      page-break-inside: avoid;
+      break-inside: avoid;
     }}
 
     th, td {{
       border: 1px solid var(--border);
-      padding: 7px 10px;
+      padding: 6px 8px;
       text-align: right;
+      vertical-align: top;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }}
 
     th {{
@@ -343,15 +361,40 @@ def build_html_document(title: str, body_html: str, subtitle: str = "") -> str:
       color: #991b1b;
     }}
 
+    .img-wrap {{
+      text-align: center;
+      margin: 12px auto;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }}
+
+    .img-caption {{
+      font-size: 8.5pt;
+      color: var(--text-muted);
+      margin-top: 5px;
+      font-weight: 600;
+    }}
+
     .embedded-img {{
       max-width: 100%;
+      max-height: 170mm;
+      width: auto;
       height: auto;
+      object-fit: contain;
       display: block;
-      margin: 14px auto;
+      margin: 0 auto;
       border-radius: 8px;
       border: 1px solid var(--border);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 3px 10px rgba(15, 23, 42, 0.08);
+      page-break-inside: avoid;
       break-inside: avoid;
+    }}
+
+    .embedded-img.phone-shot {{
+      max-height: 145mm;
+      max-width: 72mm;
+      border: 2px solid #334155;
+      border-radius: 14px;
     }}
 
     hr {{
@@ -473,7 +516,7 @@ def convert_mmd_to_pdf(page, mmd_file: Path, output_pdf: Path, learning_dir: Pat
     if png_path.exists():
         with open(png_path, "rb") as f:
             b64 = base64.b64encode(f.read()).decode("utf-8")
-        img_html = f'<div style="text-align:center; margin: 16px 0;"><img src="data:image/png;base64,{b64}" class="embedded-img" alt="{title}"></div>'
+        img_html = f'<div class="img-wrap"><img src="data:image/png;base64,{b64}" class="embedded-img" alt="{title}"></div>'
 
     body_html = f"""
     <div class="doc-header">
@@ -581,6 +624,8 @@ def main():
                 tmp_pdf.unlink()
 
         for d_html in diagram_html_files:
+            if "architecture-preview" in d_html.stem.lower():
+                continue
             maui_pdf = maui_docs / f"{d_html.stem}.pdf"
             maui_sub_pdf = maui_docs / "Diagrams" / f"{d_html.stem}.pdf"
             root_pdf = root_docs / f"{d_html.stem}.pdf"

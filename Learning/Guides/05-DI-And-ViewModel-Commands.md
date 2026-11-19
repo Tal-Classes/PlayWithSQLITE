@@ -1,161 +1,267 @@
-# 🧩 שלב 5: רישום ב-DI Container ויצירת פקודות (`ICommand`) ב-ViewModels להבאת נתונים מהמסד
+# 🧩 שלב 5: רישום ב-DI Container, יצירת פקודות (`ICommand`) ב-ViewModels ויישום דפדוף (Pagination)
 
 עד שלב 4 בנינו ואמתנו את **שכבת הנתונים** במלואה (`Constants`, `Models`, `IDatabaseService`, `DatabaseService`).  
-אבל אם תפעילו את האפליקציה עכשיו, תגלו שהמסכים עדיין ריקים והכפתורים אינם עושים דבר! מדוע?
-1. ה-**DI Container** ב-`MauiProgram.cs` עדיין לא יודע איזה מימוש להזריק כשמסך מבקש `IDatabaseService`.
-2. ה-**ViewModels** עדיין לא יוצרים את הפקודות (`ICommand`) ולא קוראים למתודות של `_databaseService`.
+בשלב 5 נחבר את שכבת מסד הנתונים אל ארבעת מסכי ה-UI שלנו בשני חלקים:
+1. רישום השירות ב-**DI Container** (`MauiProgram.cs`).
+2. בניית פקודות **`ICommand`** ב-ViewModels (בגישת Vanilla C# MVVM) להזרמת נתונים מהמסד אל המסך — כולל **דוגמה מלאה מקצה לקצה** של מסך המורים (`TeachersViewModel`) ו**מדריך יישומי שלב-אחר-שלב לדפדוף (`Pagination`)** במסך התלמידים!
 
-בשלב זה תחברו בעצמכם את שכבת הממשק (MVVM) לשכבת מסד הנתונים!
+> [!NOTE]
+> **שימו לב להפרדת שכבות נקייה:**  
+> אף ViewModel אינו קורא ל-`InitializeAsync()`! אתחול החיבור ויצירת הטבלאות מתבצעים אוטומטית בתוך `DatabaseService` (`private EnsureInitializedAsync()`). ה-ViewModel רק קורא למתודות העסקיות של `IDatabaseService` (`GetTeachersAsync`, `SaveStudentAsync` וכו').
 
 ---
 
-## 1. מהו DI Container וכיצד רושמים שירותים ב-`MauiProgram.cs`?
+## חלק 1: רישום השירות ב-DI Container (`MauiProgram.cs`)
 
-### מדוע **אסור** לכתוב `new DatabaseService()` בתוך כל ViewModel?
-1. **ניהול חיבורים ונעילות:** אם כל מסך ייצור מופע נפרד של `DatabaseService`, ייפתחו מספר חיבורים נפרדים לאותו קובץ `.db3` — דבר שעלול לגרום לשגיאות נעילה (`Database is locked`) ולבזבוז זיכרון.
-2. **צימוד קשיח (Tight Coupling):** ה-ViewModel צריך להכיר רק את החוזה **`IDatabaseService`**, ולא את המימוש הקונקרטי.
-3. **בדיקות יחידה:** הזרקה דרך הבנאי (`Constructor Injection`) מאפשרת לבדוק ViewModels בבידוד.
+### למה **אסור** לכתוב `new DatabaseService()` בתוך כל ViewModel?
+1. פתיחת מספר מופעים נפרדים של `DatabaseService` עלולה ליצור נעילות קובץ (`Database is locked`) ובזבוז זיכרון.
+2. ה-ViewModel צריך להיות תלוי רק בחוזה **`IDatabaseService`** (הזרקת תלויות דרך הבנאי — `Constructor Injection`).
 
-### שרשרת ההזרקה האוטומטית ב-.NET MAUI:
-```text
-MauiProgram.cs (DI Container)
-   │
-   ├── מזריק את המופע היחיד של IDatabaseService (DatabaseService)
-   │         ▼
-   ├── לתוך הבנאי של StudentsViewModel(IDatabaseService databaseService)
-   │         ▼
-   └── לתוך הבנאי של StudentsPage(StudentsViewModel viewModel)  --> AppShell מציג את המסך!
-```
-
-### מחזורי החיים (Service Lifetimes) ב-`builder.Services`:
-
+### בחירת מחזור חיים (`Service Lifetime`) ב-`builder.Services`:
 | שיטת רישום | כמה מופעים נוצרים? | למי היא מתאימה ב-MAUI? |
 | :--- | :--- | :--- |
-| **`AddSingleton<TInterface, TImpl>()`** | **מופע אחד יחיד** לכל זמן חיי האפליקציה (משותף לכל המסכים). | ✅ **שירות מסד הנתונים (`IDatabaseService` ➡️ `DatabaseService`)**! שומר חיבור אסינכרוני מנוהל אחד לכל המסכים. |
-| **`AddTransient<T>()`** | **מופע חדש** בכל פעם שהשירות מתבקש. | ✅ **ViewModels ו-Pages** (`StudentsViewModel`, `StudentsPage` וכו') — כדי שכל פתיחה תקבל מצב מסך נקי. |
-| **`AddScoped<T>()`** | מופע אחד לכל היקף (Scope). | נפוץ בשרתי Web (בקשת HTTP); ב-MAUI משתמשים בעיקר ב-Singleton ו-Transient. |
+| **`AddSingleton<TInterface, TImpl>()`** | **מופע אחד יחיד** לכל חיי האפליקציה. | ✅ **`IDatabaseService` ➡️ `DatabaseService`** — חיבור אסינכרוני מנוהל אחד משותף לכל המסכים! |
+| **`AddTransient<T>()`** | **מופע חדש** בכל בקשה/ניווט. | ✅ **ViewModels ו-Pages** (`TeachersViewModel`, `TeachersPage` וכו'). |
+| **`AddScoped<T>()`** | מופע אחד לכל היקף בקשה. | נפוץ בעיקר בשרתי Web, פחות ב-MAUI. |
 
-### משימה 5.0 — רישום שירות המסד ב-[MauiProgram.cs](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/PlayWithSQLITE/MauiProgram.cs):
-פתחו את `MauiProgram.cs`. תראו שכל ה-ViewModels וה-Pages כבר רשומים כ-`Transient`.  
-הוסיפו במקום המסומן `TODO (Student - שלב 5)` את רישום הממשק `IDatabaseService` מול המימוש `DatabaseService` במחזור החיים המתאים (`Singleton`).
-
-> [!TIP]
-> **בדיקה אוטומטית של ה-DI:**  
-> הריצו במסוף `.\Scripts\Audit-DI.ps1`!  
-> לפני התיקון תקבלו `[MISSING DI] DatabaseService`, ולאחר הרישום הנכון תקבלו **`RESULT: PASS`**!
-
----
-
-## 2. איך בונים פקודה (`ICommand`) ב-ViewModel להפעלת המסד? (תבנית 5 הצעדים)
-
-בפרויקט זה אנו עובדים ב-**Vanilla C# MVVM** (מימוש מפורש של `INotifyPropertyChanged` ו-`ICommand`, ללא קיצורי Source Generators).  
-בכל ViewModel יש כבר **שדות קלט**, **אוספי `ObservableCollection<T>`**, ומאפייני **`ICommand`** שמחוברים ל-XAML. כדי להחיות אותם, עבדו לפי 5 צעדים קבועים:
-
-### צעד 1: הגדרת הפקודה בבנאי (`Command` / `Command<T>`)
-- פקודה ללא פרמטר (למשל רענון או הוספה):  
-  `new Command(async () => await MethodAsync())`
-- פקודה עם תנאי הפעלה (`CanExecute`) — **מפעילה/משביתה את הכפתור ב-XAML אוטומטית ללא צורך ב-`IsEnabled`!**  
-  `new Command(async () => await AddAsync(), CanAdd)`
-- פקודה המקבלת פרמטר מהרשימה (`CommandParameter="{Binding .}"`, למשל כפתור מחיקה בשורה):  
-  `new Command<Teacher>(async (teacher) => await DeleteAsync(teacher))`
-
-### צעד 2: עדכון מצב הכפתור ב-Setters (`ChangeCanExecute`)
-בכל מאפיין שמשפיע על תנאי `CanExecute` (למשל `NewFirstName`, `SelectedTeacher`, `CurrentPage`), ה-Setter קורא ל:
+### ✍️ משימה 5.0 — רישום שירות המסד ב-`PlayWithSQLITE/MauiProgram.cs`:
+פתחו את `MauiProgram.cs` והוסיפו במקום המסומן `TODO (Student - שלב 5)` את השורה:
 ```csharp
-(AddStudentCommand as Command)?.ChangeCanExecute();
+builder.Services.AddSingleton<IDatabaseService, DatabaseService>();
 ```
-בזכות שורה זו, ברגע שהמשתמש מקליד את התו האחרון החסר בטופס — הכפתור הופך מיד לפעיל!
+**בדיקה עצמית:** הריצו במסוף `.\Scripts\Audit-DI.ps1` וודאו שמתקבלת התוצאה **`RESULT: PASS`**!
 
-### צעד 3: הגנת `IsLoading` עם `try / finally`
-כדי להציג `ActivityIndicator` (גלגל טעינה) ולמנוע לחיצה כפולה על כפתור בזמן שהמסד עובד:
+---
+
+## חלק 2: איך בונים פקודה (`ICommand`) ב-ViewModel? (מהמשימה אל הקוד)
+
+לפני שכותבים קוד של פקודה, תמיד מנסחים במילים פשוטות **מה הפקודה אמורה לבצע במסך**:
+> **לדוגמה — פקודת הוספת מורה (`AddTeacherCommand`):**  
+> *"כשהמשתמש לוחץ על כפתור 'הוסף מורה', המערכת תבדוק ששם מלא ואימייל הוקלדו, תיצור אובייקט `Teacher` חדש, תשמור אותו ב-SQLite דרך `_databaseService.SaveTeacherAsync(...)`, תאפס את שדות הקלט, ותרענן את רשימת המורים במסך."*
+
+כדי לממש כל פקודה כזו ב-**Vanilla C# MVVM**, פועלים לפי **6 צעדים קבועים**:
+
+1. **הגדרת המצביע/מאפיין מטיפוס `ICommand` (לפני האתחול!):**  
+   ה-XAML נקשר למאפיין ציבורי בשם זהה (`Command="{Binding AddTeacherCommand}"`), ולכן חייבים להצהיר עליו קודם במחלקה:
+   ```csharp
+   public ICommand AddTeacherCommand { get; }
+   ```
+2. **אתחול הפקודה בבנאי (`Command` / `Command<T>`):**  
+   בבנאי ה-ViewModel יוצרים מופע `new Command(...)` (ללא פרמטר) או `new Command<Teacher>(...)` (כשהכפתור בתוך רשימה מעביר `CommandParameter="{Binding .}"`):
+   ```csharp
+   AddTeacherCommand = new Command(async () => await AddTeacherAsync(), CanAddTeacher);
+   ```
+3. **הגדרת תנאי `CanExecute` ומיפוי מדויק היכן לקרוא ל-`ChangeCanExecute()`:**
+   - **מהו תנאי `CanExecute`?** פונקציה בוליאנית (למשל `CanAddTeacher()`) שמחזירה `true` רק כשהכפתור מותר ללחיצה (בדוגמה שלנו: כאשר **גם** `NewFullName` **וגם** `NewEmail` אינם ריקים!).
+   - **מתי התנאי משתנה?** בכל פעם שהמשתמש מקליד או מוחק תו ב-`NewFullName` **או** ב-`NewEmail`!
+   - **מה עושה `ChangeCanExecute()` והיכן שמים אותו?** הכפתור ב-XAML אינו "מנחש" לבד שמשהו השתנה. קריאה ל-**`((Command)AddTeacherCommand).ChangeCanExecute();`** בתוך ה-Setter של **כל מאפיין שמופיע בתנאי** שולחת לכפתור אירוע `CanExecuteChanged` — והכפתור נדלק או נכבה אוטומטית (בלי צורך ב-`IsEnabled` ידני ב-XAML)!
+4. **הגנת `IsLoading` עם `try / finally`:**  
+   מונעת לחיצות כפולות ומפעילה את ה-`ActivityIndicator` בזמן העבודה מול המסד (`if (IsLoading) return;`).
+5. **קריאה ל-`_databaseService` ועדכון `ObservableCollection<T>`:**  
+   מנקים את האוסף (`Teachers.Clear()`) ומוסיפים בלולאת `foreach` את הפריטים החדשים (`Teachers.Add(...)`) כך שה-`CollectionView` מתרענן אוטומטית.
+6. **ניקוי שדות קלט ורענון הרשימה:**  
+   לאחר `Save` או `Delete`, מאפסים שדות קלט וקוראים מחדש ל-`await Load...Async()`.
+
+---
+
+## חלק 3: דוגמה מלאה מקצה לקצה — `TeachersViewModel.cs` (מסך המורים)
+
+לפניכם המימוש השלם של **`TeachersViewModel.cs`** הכולל את כל 6 הצעדים (הצהרת `ICommand`, אתחול בבנאי, `CanExecute`, `ChangeCanExecute` ב-Setters, `Command<Teacher>` למחיקה, וטעינת קשר `1:N` עם `includeCourses: true`).  
+**למדו כל חלק והשלימו את `TeachersViewModel.cs` שלכם לפי דוגמה זו:**
+
 ```csharp
-if (IsLoading) return;
-try
+public class TeachersViewModel : BaseViewModel
 {
-    IsLoading = true;
-    await _databaseService.InitializeAsync();
-    // ... קריאות למסד ועדכון האוספים ...
-}
-finally
-{
-    IsLoading = false; // מובטח שיכבה גם אם קרתה שגיאה!
+    private readonly IDatabaseService _databaseService;
+    private string _newFullName = string.Empty;
+    private string _newEmail = string.Empty;
+    private string _newDepartment = "מדעי המחשב";
+
+    public ObservableCollection<Teacher> Teachers { get; } = new();
+
+    public string NewFullName
+    {
+        get => _newFullName;
+        set
+        {
+            if (_newFullName == value) return;
+            _newFullName = value;
+            OnPropertyChanged();
+            // NewFullName מופיע בתנאי CanAddTeacher -> לכן חובה לקרוא כאן ל-ChangeCanExecute!
+            ((Command)AddTeacherCommand).ChangeCanExecute();
+        }
+    }
+
+    public string NewEmail
+    {
+        get => _newEmail;
+        set
+        {
+            if (_newEmail == value) return;
+            _newEmail = value;
+            OnPropertyChanged();
+            // NewEmail מופיע בתנאי CanAddTeacher -> לכן חובה לקרוא כאן ל-ChangeCanExecute!
+            ((Command)AddTeacherCommand).ChangeCanExecute();
+        }
+    }
+
+    // 1. הצהרת מצביעי הפקודות מטיפוס ICommand (השמות זהים ל-Binding ב-TeachersPage.xaml!)
+    public ICommand LoadTeachersCommand { get; }
+    public ICommand AddTeacherCommand { get; }
+    public ICommand DeleteTeacherCommand { get; }
+
+    public TeachersViewModel(IDatabaseService databaseService)
+    {
+        _databaseService = databaseService;
+        Title = "ניהול סגל מורים";
+
+        // 2. אתחול הפקודות בבנאי
+        LoadTeachersCommand = new Command(async () => await LoadTeachersAsync());
+        AddTeacherCommand = new Command(async () => await AddTeacherAsync(), CanAddTeacher);
+        DeleteTeacherCommand = new Command<Teacher>(async (teacher) => await DeleteTeacherAsync(teacher));
+    }
+
+    // 3. תנאי CanExecute: פעיל רק כשיש שם מלא וגם אימייל
+    private bool CanAddTeacher() =>
+        !string.IsNullOrWhiteSpace(NewFullName) && !string.IsNullOrWhiteSpace(NewEmail);
+
+    // 4. טעינת המורים כולל הקורסים שלהם (קשר 1:N)
+    public async Task LoadTeachersAsync()
+    {
+        if (IsLoading) return;
+        try
+        {
+            IsLoading = true;
+            var list = await _databaseService.GetTeachersAsync();
+            Teachers.Clear();
+            foreach (var item in list)
+            {
+                var fullTeacher = await _databaseService.GetTeacherByIdAsync(item.Id, includeCourses: true);
+                Teachers.Add(fullTeacher ?? item);
+            }
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private async Task AddTeacherAsync()
+    {
+        if (!CanAddTeacher()) return;
+        var teacher = new Teacher
+        {
+            FullName = NewFullName.Trim(),
+            Email = NewEmail.Trim(),
+            Department = NewDepartment.Trim()
+        };
+        await _databaseService.SaveTeacherAsync(teacher);
+        NewFullName = string.Empty;
+        NewEmail = string.Empty;
+        await LoadTeachersAsync();
+    }
+
+    private async Task DeleteTeacherAsync(Teacher? teacher)
+    {
+        if (teacher == null) return;
+        await _databaseService.DeleteTeacherAsync(teacher);
+        await LoadTeachersAsync();
+    }
 }
 ```
 
-### צעד 4: עדכון ה-`ObservableCollection`
-מכיוון שה-`CollectionView` ב-XAML מאזין לשינויים ב-`ObservableCollection`, איננו מחליפים את המצביע של הרשימה, אלא:
-1. מנקים את האוסף הקיים (`Items.Clear()`).
-2. מוסיפים בלולאת `foreach` את הפריטים החדשים שהגיעו מהמסד (`Items.Add(item)`).
-
-### צעד 5: רענון אוטומטי לאחר פעולות שינוי (`Save` / `Delete`)
-בסיום כל פעולת הוספה, עדכון או מחיקה במסד:
-1. מאפסים את שדות הטופס (למשל `NewFullName = string.Empty;`).
-2. קוראים מחדש ל-`await Load...Async()` כדי שהמסך ישקף את המצב העדכני מהמסד!
+![צילום חי מ-Android Emulator (MAUI DevFlow) — מסך המורים TeachersPage](../Images/TeachersPage-live.png)
 
 ---
 
-## 3. מיפוי משימות התלמיד — 4 ה-ViewModels שלב אחר שלב
+## חלק 4: מדריך יישומי שלב-אחר-שלב — איך מממשים דפדוף (`Pagination`) ב-`StudentsViewModel`?
 
-בצעו את החיבור בסדר הבא (מהקל אל המורכב):
+התבוננו בצילום החי של מסך התלמידים (`StudentsPage`) למטה: שימו לב שבשורת הדפדוף כתוב **"עמוד 1 מתוך 2 (סה"כ 6 תלמידים)"**, הכפתור **`◀ קודם`** כבוי (אפור) כי אנחנו בעמוד הראשון, והכפתור **`הבא ▶`** דלוק (סגול) כי יש עמוד שני!
 
-### שלב 5.1 — [TeachersViewModel.cs](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/PlayWithSQLITE/ViewModels/TeachersViewModel.cs) (מסך המורים)
-![מסך המורים — TeachersPage](../Images/TeachersPage-overview.png)
+![צילום חי מ-Android Emulator (MAUI DevFlow) — מסך התלמידים ודפדוף StudentsPage](../Images/StudentsPage-live.png)
 
-- **פקודות לאתחול בבנאי:**
-  1. `LoadTeachersCommand` ➡️ מפעילה את `LoadTeachersAsync()`.
-  2. `AddTeacherCommand` ➡️ מפעילה את `AddTeacherAsync()` עם תנאי `CanAddTeacher`.
-  3. `DeleteTeacherCommand` ➡️ `Command<Teacher>` המפעיל את `DeleteTeacherAsync(teacher)`.
-- **מתודות להשלמה:**
-  - `LoadTeachersAsync()`: קראו ל-`GetTeachersAsync()`, ועבור כל מורה טענו גם את קורסיו בעזרת `GetTeacherByIdAsync(item.Id, includeCourses: true)` כדי שמספר הקורסים של כל מורה יוצג בכרטיס!
-  - `AddTeacherAsync()`: בנו `Teacher` חדש משדות הטופס, קראו ל-`SaveTeacherAsync`, נקו שדות ורעננו.
-  - `DeleteTeacherAsync(Teacher? teacher)`: קראו ל-`DeleteTeacherAsync` ורעננו.
+### כך מממשים דפדוף מלא ב-5 צעדים ברורים בתוך `StudentsViewModel.cs`:
+
+#### שלב א' — הכרת משתני המצב (כבר מוכנים ב-`StudentsViewModel`):
+- `_pageSize = 5`: כמה תלמידים מציגים בכל עמוד.
+- `CurrentPage` (מתחיל ב-`1`): מספר העמוד הנוכחי.
+- `TotalStudents`: המספר הכולל של התלמידים במסד (מגיע מ-`GetStudentsCountAsync()`).
+- `TotalPages` (מאפיין מחושב): `Math.Max(1, (int)Math.Ceiling((double)TotalStudents / _pageSize))` (למשל `6 / 5 = 1.2` ➡️ עיגול כלפי מעלה = **2 עמודים**!).
+- `PageInfo` (מאפיין מחושב): `$"עמוד {CurrentPage} מתוך {TotalPages} (סה\"כ {TotalStudents} תלמידים)"`.
+
+#### שלב ב' — מיפוי תנאי ה-`CanExecute` והיכן לשים `ChangeCanExecute()`:
+| פקודה | תנאי `CanExecute` | מתי התנאי משתנה? | באילו Setters חובה לקרוא ל-`ChangeCanExecute()`? |
+| :--- | :--- | :--- | :--- |
+| **`NextPageCommand`** | `() => CurrentPage < TotalPages` | כשהעמוד משתנה **או** כשמספר התלמידים הכולל משתנה (הוספה/מחיקה) | ב-Setter של **`CurrentPage`** וב-Setter של **`TotalStudents`**! |
+| **`PrevPageCommand`** | `() => CurrentPage > 1` | כשהעמוד משתנה **או** כשהטבלה מתרוקנת | ב-Setter של **`CurrentPage`** וב-Setter של **`TotalStudents`**! |
+
+#### שלב ג' — אתחול שתי הפקודות בבנאי:
+```csharp
+NextPageCommand = new Command(async () => await NextPageAsync(), () => CurrentPage < TotalPages);
+PrevPageCommand = new Command(async () => await PrevPageAsync(), () => CurrentPage > 1);
+```
+
+#### שלב ד' — חישוב ה-`skip` ושליפת העמוד הנוכחי בתוך `LoadStudentsAsync()`:
+1. שולפים תחילה את סך כל התלמידים: `TotalStudents = await _databaseService.GetStudentsCountAsync();` (ה-Setter יעדכן אוטומטית את `TotalPages`, את `PageInfo`, ואת מצב הכפתורים `NextPageCommand` / `PrevPageCommand`!).
+2. מחשבים כמה רשומות לדלג (`skip`):
+   - עמוד 1: `(1 - 1) * 5 = 0` ➡️ לוקח רשומות 1–5.
+   - עמוד 2: `(2 - 1) * 5 = 5` ➡️ מדלג על 5 הראשונות ולוקח את השאר!
+   ```csharp
+   int skip = (CurrentPage - 1) * _pageSize;
+   var list = await _databaseService.GetStudentsAsync(skip, _pageSize);
+   ```
+3. מנקים את `Students` וממלאים בלולאת `foreach`.
+
+#### שלב ה' — מימוש `NextPageAsync()` ו-`PrevPageAsync()`:
+```csharp
+private async Task NextPageAsync()
+{
+    if (CurrentPage < TotalPages)
+    {
+        CurrentPage++;          // ה-Setter מעדכן PageInfo ומפעיל ChangeCanExecute!
+        await LoadStudentsAsync();
+    }
+}
+
+private async Task PrevPageAsync()
+{
+    if (CurrentPage > 1)
+    {
+        CurrentPage--;
+        await LoadStudentsAsync();
+    }
+}
+```
 
 ---
 
-### שלב 5.2 — [CoursesViewModel.cs](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/PlayWithSQLITE/ViewModels/CoursesViewModel.cs) (מסך הקורסים)
-![מסך הקורסים — CoursesPage](../Images/CoursesPage-overview.png)
+## חלק 5: ✍️ משימתכם המעשית בשלב 5 — השלמת 3 ה-ViewModels הנותרים
 
-- **פקודות לאתחול בבנאי:** `LoadCoursesCommand`, `AddCourseCommand` (עם `CanAddCourse`), `DeleteCourseCommand` (`Command<Course>`).
-- **מתודות להשלמה:**
-  - `LoadCoursesAsync()`:
-    1. שלפו מורים (`GetTeachersAsync()`) לתוך `Teachers` — כך ה-`Picker` לבחירת מורה יאוכלס!
-    2. שלפו קורסים עם קשרים (`GetCoursesAsync(includeRelations: true)`) לתוך `Courses` — כך כל קורס יציג את שם המורה שלו!
-  - `AddCourseAsync()`: צרו `Course` חדש והציבו **`TeacherId = SelectedTeacher!.Id`** (זהו המפתח הזר המקשר את הקורס למורה שנבחר ב-Picker!). שמרו ב-`SaveCourseAsync`, נקו שדות ורעננו.
-  - `DeleteCourseAsync(Course? course)`: מחקו ב-`DeleteCourseAsync` ורעננו.
+לאחר שהטמעתם את `TeachersViewModel` (חלק 3) ואת מנגנון הדפדוף ב-`StudentsViewModel` (חלק 4), **ממשו באופן דומה** את שאר הפקודות ב-3 ה-ViewModels:
 
----
+### 1. [StudentsViewModel.cs](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/PlayWithSQLITE/ViewModels/StudentsViewModel.cs) (השלמה)
+- אתחלו בבנאי את `LoadStudentsCommand`, `AddStudentCommand` (עם `CanAddStudent` — בדקו באילו Setters כבר נקרא `ChangeCanExecute()`!), ו-`DeleteStudentCommand` (`Command<Student>`).
+- ממשו את `AddStudentAsync()`, את `DeleteStudentAsync(Student? student)` (כולל איפוס `SelectedStudent` ו-`SelectedStudentTranscript` אם נמחק התלמיד הנבחר), ואת `LoadTranscriptForStudentAsync(int studentId)` הקוראת ל-`GetStudentTranscriptAsync` ול-`GetTotalCreditsForStudentAsync`.
 
-### שלב 5.3 — [StudentsViewModel.cs](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/PlayWithSQLITE/ViewModels/StudentsViewModel.cs) (מסך התלמידים, דפדוף וגיליון ציונים)
-![מסך התלמידים — StudentsPage](../Images/StudentsPage-overview.png)
+### 2. [CoursesViewModel.cs](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/PlayWithSQLITE/ViewModels/CoursesViewModel.cs) (מסך הקורסים)
+- אתחלו את `LoadCoursesCommand`, `AddCourseCommand` (עם `CanAddCourse`: דורש גם `NewCourseTitle` וגם `SelectedTeacher != null`!), ו-`DeleteCourseCommand` (`Command<Course>`).
+- ב-`LoadCoursesAsync()`: טענו תחילה את המורים (`GetTeachersAsync()`) לתוך `Teachers` (עבור ה-`Picker`), ואז את הקורסים עם קשרים (`GetCoursesAsync(includeRelations: true)`) לתוך `Courses`.
+- ב-`AddCourseAsync()`: צרו `Course` חדש עם **`TeacherId = SelectedTeacher!.Id`**, שמרו ב-`SaveCourseAsync`, נקו שדות ורעננו.
 
-- **5 פקודות לאתחול בבנאי:**
-  1. `LoadStudentsCommand` ➡️ `LoadStudentsAsync()`
-  2. `NextPageCommand` ➡️ `NextPageAsync()`, עם תנאי `CanExecute`: `() => CurrentPage < TotalPages`
-  3. `PrevPageCommand` ➡️ `PrevPageAsync()`, עם תנאי `CanExecute`: `() => CurrentPage > 1`
-  4. `AddStudentCommand` ➡️ `AddStudentAsync()`, עם תנאי `CanAddStudent`
-  5. `DeleteStudentCommand` ➡️ `Command<Student>` המפעיל `DeleteStudentAsync(student)`
-- **מתודות להשלמה:**
-  - `LoadStudentsAsync()`: עדכנו `TotalStudents = await _databaseService.GetStudentsCountAsync();`, חשבו `int skip = (CurrentPage - 1) * _pageSize;`, ושלפו רק את העמוד הנוכחי ב-`GetStudentsAsync(skip, _pageSize)`.
-  - `NextPageAsync()` / `PrevPageAsync()`: עדכנו את `CurrentPage` (ה-Setter כבר יקרא ל-`ChangeCanExecute()`!) וקראו ל-`LoadStudentsAsync()`.
-  - `LoadTranscriptForStudentAsync(int studentId)`: מופעלת אוטומטית כשהמשתמש לוחץ על תלמיד (`SelectedStudent`)! שלפו את `GetStudentTranscriptAsync(studentId)` לתוך `SelectedStudentTranscript` ועדכנו את `StudentTotalCredits = await _databaseService.GetTotalCreditsForStudentAsync(studentId);`.
-  - `AddStudentAsync()` ו-`DeleteStudentAsync(Student? student)`: שמירה/מחיקה וניקוי `SelectedStudent` במקרה שהתלמיד הנבחר נמחק.
+![צילום חי מ-Android Emulator (MAUI DevFlow) — מסך הקורסים CoursesPage](../Images/CoursesPage-live.png)
 
----
+### 3. [ReportsViewModel.cs](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/PlayWithSQLITE/ViewModels/ReportsViewModel.cs) (מסך הדוחות)
+- אתחלו את `LoadReportsCommand`, `SeedDataCommand`, `ClearDataCommand`.
+- ב-`LoadReportsAsync()`: קראו ל-`GetCourseGradeSummariesAsync()` ול-`GetStudentDistributionByGradeLevelAsync()`, מלאו את `CourseSummaries` ואת `GradeDistributions`, ועדכנו את `StatusMessage`.
+- **טיפ חשוב ב-`SeedDataAsync()`!** ודאו ש-`IsLoading = false;` מתבצע (בבלוק `finally`) **לפני** הקריאה ל-`await LoadReportsAsync();` — אחרת `LoadReportsAsync()` יראה ש-`IsLoading` עדיין `true` וייצא מיד בלי לרענן את המסך!
 
-### שלב 5.4 — [ReportsViewModel.cs](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/PlayWithSQLITE/ViewModels/ReportsViewModel.cs) (מסך הדוחות והשאילתות)
-![מסך הדוחות — ReportsPage](../Images/ReportsPage-overview.png)
-
-- **3 פקודות לאתחול בבנאי:** `LoadReportsCommand`, `SeedDataCommand`, `ClearDataCommand`.
-- **מתודות להשלמה:**
-  - `LoadReportsAsync()`: קראו ל-`GetCourseGradeSummariesAsync()` (לתוך `CourseSummaries`) ול-`GetStudentDistributionByGradeLevelAsync()` (לתוך `GradeDistributions`). עטפו ב-`try / catch / finally` ועדכנו את `StatusMessage` בסיכום או בהודעת שגיאה ידידותית.
-  - `SeedDataAsync()`: הפעילו `await _databaseService.SeedSampleDataAsync();` ולאחר מכן `await LoadReportsAsync();` כדי לראות את הדוחות מתמלאים מיד!
-  - `ClearDataAsync()`: הפעילו `await _databaseService.ClearAllDataAsync();`, נקו את שני האוספים ועדכנו את `StatusMessage`.
+![צילום חי מ-Android Emulator (MAUI DevFlow) — מסך הדוחות ReportsPage](../Images/ReportsPage-live.png)
 
 ---
 
 ### ✅ בדיקה עצמית בסיום שלב 5:
-1. הריצו `.\Scripts\Audit-DI.ps1` וודאו תוצאה **`RESULT: PASS`**.
-2. הפעילו את האפליקציה (Android Emulator או Windows), היכנסו ללשונית **דוחות**, לחצו על **זריעת נתוני הדגמה**, ועברו בין כל 4 הלשוניות (`תלמידים`, `קורסים`, `מורים`, `דוחות`) כדי לוודא שכל הפקודות פועלות!
+1. הריצו `.\Scripts\Audit-DI.ps1` ➡️ **`RESULT: PASS`**.
+2. הפעילו את האפליקציה באמולטור Android, היכנסו ללשונית **דוחות**, לחצו **צור נתוני הדגמה (Seed)** ובדקו שכל 4 הלשוניות מתמלאות בנתונים חיים!
 3. להשוואה מול הפתרון המוכן: `git checkout step-05-di-and-viewmodels`.
 
-עברו לשלב האחרון: [06-Testing-And-Verification.md](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/Learning/Guides/06-Testing-And-Verification.md).
+עברו לשלב האחרון: [06-Testing-And-Verification.pdf](./06-Testing-And-Verification.pdf).

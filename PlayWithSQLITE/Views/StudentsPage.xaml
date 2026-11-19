@@ -50,17 +50,23 @@
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="8" />
                 </Border.StrokeShape>
-                <Grid ColumnDefinitions="Auto,*,Auto" VerticalOptions="Center">
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6" VerticalOptions="Center">
                     <Button Grid.Column="0"
-                            Text="◀ עמוד קודם"
+                            Text="◀ קודם"
+                            FontSize="12"
+                            Padding="10,6"
                             Command="{Binding PrevPageCommand}" />
                     <Label Grid.Column="1"
                            Text="{Binding PageInfo}"
+                           FontSize="12"
+                           HorizontalTextAlignment="Center"
                            VerticalOptions="Center"
                            HorizontalOptions="Center"
                            FontAttributes="Bold" />
                     <Button Grid.Column="2"
-                            Text="עמוד הבא ▶"
+                            Text="הבא ▶"
+                            FontSize="12"
+                            Padding="10,6"
                             Command="{Binding NextPageCommand}" />
                 </Grid>
             </Border>
@@ -120,10 +126,13 @@
                         <Label Text="{Binding StudentTotalCredits}" TextColor="#2563EB" FontAttributes="Bold" />
                     </HorizontalStackLayout>
 
-                    <CollectionView ItemsSource="{Binding SelectedStudentTranscript}">
-                        <CollectionView.ItemTemplate>
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding SelectedStudentTranscript}" Spacing="6">
+                        <BindableLayout.ItemTemplate>
                             <DataTemplate x:DataType="dtos:StudentTranscriptItem">
-                                <Border Stroke="#BFDBFE" StrokeThickness="1" Padding="8" Margin="0,3" BackgroundColor="White">
+                                <Border Stroke="#BFDBFE" StrokeThickness="1" Padding="8" BackgroundColor="White">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="6" />
+                                    </Border.StrokeShape>
                                     <Grid ColumnDefinitions="*,Auto,Auto">
                                         <VerticalStackLayout Grid.Column="0">
                                             <Label Text="{Binding CourseTitle}" FontAttributes="Bold" />
@@ -134,8 +143,8 @@
                                     </Grid>
                                 </Border>
                             </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
                 </VerticalStackLayout>
             </Border>
 

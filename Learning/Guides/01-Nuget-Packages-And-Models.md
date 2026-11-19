@@ -1,11 +1,11 @@
-# 📦 שלב 1: התקנת חבילות NuGet, תכנון ERD, קשרי גומלין, CascadeOperation ודקורציות במודלים
+# 📦 שלב 1: התקנת חבילות NuGet, תכנון ERD, קשרי גומלין, `CascadeOperation` ודקורציות במודלים
 
 בשלב זה נניח את **תשתית הנתונים** של המערכת:
-1. נתקין בצורה ויזואלית את חבילות ה-NuGet היציבות (`Stable`) של SQLite.
-2. נלמד לקרוא ולתכנן **תרשים קשרי ישויות (ERD)** ל-4 הטבלאות שלנו.
+1. נתקין בצורה ויזואלית את חבילות ה-NuGet היציבות (`Stable`) של SQLite לפי סביבת הפיתוח שלכם (Visual Studio או Rider).
+2. נלמד לקרוא **תרשים קשרי ישויות (ERD)** ל-4 הטבלאות של מערכת בית הספר.
 3. נבין לעומק **מהו קשר 1:N ומהו קשר M:N**, ו**איזה קישוט מגדירים בכל צד של הקשר**.
 4. נלמד מהי פעולת **`CascadeOperation`** ומתי בוחרים כל ערך שלה.
-5. נזהה ונשלים בעצמנו את הדקורציות (`Attributes`) בארבעת קובצי המודל בתיקיית `Models/`.
+5. נלמד מתוך **דוגמה מלאה בעולם תוכן אחר (ספרייה דיגיטלית)** איך נראים קובצי מודל גמורים — ואז ניישם בעצמנו על 4 המודלים של בית הספר!
 
 ---
 
@@ -17,146 +17,217 @@
 
 > [!IMPORTANT]
 > **כלל ברזל — גרסאות יציבות (`Stable`) בלבד!**
-> בעת החיפוש במנהל החבילות, **ודאו שתיבת הסימון "Include prerelease" / "Prerelease" אינה מסומנת**. התקנת גרסאות ניסיוניות (Beta / Preview) עלולה לגרום לשגיאות ריצה או אי-תאימות מול `SQLiteNetExtensions.Async`.
+> בעת החיפוש במנהל החבילות, **ודאו שתיבת הסימון "Include prerelease" / "Prerelease" אינה מסומנת**. התקנת גרסאות ניסיוניות (Beta / Preview) עלולה לגרום לשגיאות ריצה או אי-תאימות.
 
 ### 🖥️ אפשרות א': Visual Studio (Windows — VS 2026 / VS 2022)
-1. בתפריט העליון לחצו על:  
-   **`Tools`** ➡️ **`NuGet Package Manager`** ➡️ **`Manage NuGet Packages for Solution...`**  
-   *(חלופה מהירה: קליק ימני על שם ה-Solution בחלון Solution Explorer ובחירה ב-`Manage NuGet Packages for Solution...`)*.
-2. בחלק העליון של החלון שנפתח, עברו ללשונית **`Browse`** (עיון).
-3. ודאו שתיבת הסימון **`Include prerelease`** לצד שורת החיפוש **מכובה (לא מסומנת)**.
-4. **התקנת חבילת SQLite האסינכרונית:**
+*(עפ"י התיעוד הרשמי של Microsoft: `Install and use a package in Visual Studio`)*
+1. **פתיחת מנהל החבילות:**  
+   - בחלון **Solution Explorer**, בצעו קליק ימני על פרויקט **`PlayWithSQLITE`** (או על צומת `Dependencies` שמתחתיו) ובחרו **`Manage NuGet Packages...`**  
+   *(חלופה מהתפריט העליון: `Project` ➡️ `Manage NuGet Packages...`, או עבור כל ה-Solution: `Tools` ➡️ `NuGet Package Manager` ➡️ `Manage NuGet Packages for Solution...`)*.
+2. **הגדרת מקור וחיפוש:**
+   - לחצו על הלשונית **`Browse`** (עיון) בחלק העליון.
+   - ודאו שבתפריט **`Package source`** (בפינה הימנית העליונה) נבחר **`nuget.org`**.
+   - ודאו שתיבת **`Include prerelease`** לצד שורת החיפוש **אינה מסומנת (Unchecked)**.
+3. **התקנת החבילה הראשונה (`sqlite-net-pcl`):**
    - הקלידו בשורת החיפוש: `sqlite-net-pcl`
-   - בחרו בחבילה הרשמית **`sqlite-net-pcl`** (מאת `Frank A. Krueger / Eric Sink`). שימו לב: **לא** לבחור `SQLite.Net-PCL` הישנה ולא `Microsoft.Data.Sqlite`.
-   - בחלונית הפרויקטים בצד ימין, סמנו ב-✅ את הפרויקט **`PlayWithSQLITE`** בלבד (פרויקט הבדיקות מקבל אותה בירושה דרך `ProjectReference`).
-   - ודאו שבשדה `Version` נבחרה הגרסה היציבה האחרונה (**Latest stable**), ולחצו על **`Install`** ואשרו את חלון הרישיון.
-5. **התקנת חבילת קשרי הגומלין:**
+   - בחרו בחבילה הרשמית **`sqlite-net-pcl`** (מאת `Frank A. Krueger / Eric Sink`).  
+     *(שימו לב: לא לבחור `SQLite.Net-PCL` הישנה ולא `Microsoft.Data.Sqlite`)*.
+   - בחלונית הפרטים בצד ימין: אם פתחתם ברמת ה-Solution סמנו ב-✅ את **`PlayWithSQLITE`** בלבד; ודאו שבשדה `Version` נבחרה **Latest stable**, ולחצו **`Install`**.
+   - בחלון **Preview Changes** לחצו **`OK`**, ואשרו את חלון הרישיון (**I Accept**) אם יופיע.
+4. **התקנת החבילה השנייה (`SQLiteNetExtensions.Async`):**
    - הקלידו בשורת החיפוש: `SQLiteNetExtensions.Async`
-   - בחרו בחבילה הרשמית **`SQLiteNetExtensions.Async`** (גרסה יציבה `2.1.0`).
-   - סמנו ב-✅ את הפרויקט **`PlayWithSQLITE`** ולחצו על **`Install`**.
+   - בחרו בחבילה הרשמית (גרסה יציבה `2.1.0`), סמנו את **`PlayWithSQLITE`**, ולחצו **`Install`** ➡️ **`OK`**.
 
 ### 🍎 אפשרות ב': JetBrains Rider (macOS / Mac)
-1. בחלון **Solution Explorer**, בצעו קליק ימני על פרויקט **`PlayWithSQLITE`** ובחרו **`Manage NuGet Packages`**  
-   *(או מתפריט עליון: `Tools` ➡️ `NuGet` ➡️ `Manage NuGet Packages for Solution`)*.
-2. לצד שורת החיפוש בחלונית ה-NuGet, ודאו שהכפתור/תיבה **`Prerelease`** **כבוי (Unchecked)**.
-3. **התקנת החבילות:**
-   - חפשו `sqlite-net-pcl`, בחרו בגרסת ה-**Stable** העדכנית, ולחצו על כפתור **`+` / `Install`** מול הפרויקט `PlayWithSQLITE`.
-   - חפשו `SQLiteNetExtensions.Async`, בחרו בגרסת ה-**Stable** (`2.1.0`), ולחצו על **`+` / `Install`** מול הפרויקט `PlayWithSQLITE`.
+*(עפ"י התיעוד הרשמי של JetBrains: `Consume NuGet packages in Rider`)*
+1. **פתיחת חלון ה-NuGet Tool Window:**  
+   - פתחו את החלון הייעודי דרך התפריט העליון: **`View`** ➡️ **`Tool Windows`** ➡️ **`NuGet`**  
+   *(חלופות מהירות: קליק ימני על פרויקט `PlayWithSQLITE` ב-Solution Explorer ➡️ `Manage NuGet Packages`, או קיצור המקשים של ה-NuGet Tool Window / תפריט `Tools` ➡️ `NuGet` ➡️ `NuGet Quick List`)*.
+2. **בדיקת Prerelease וחיפוש:**
+   - בחלון ה-**NuGet** שנפתח (בלשונית **Packages**), ודאו שתיבת/מתג **`Prerelease`** ליד שורת החיפוש **מכובה (אינו מסומן)**.
+   - הקלידו בשורת החיפוש (צד שמאל): `sqlite-net-pcl`.
+3. **בחירת הפרויקט והתקנה:**
+   - לחצו על התוצאה **`sqlite-net-pcl`** ברשימה השמאלית.
+   - בחלונית הפרטים בצד ימין תראו את רשימת הפרויקטים ב-Solution ואת תיבת בחירת הגרסה (`Version`).
+   - ודאו שנבחרה הגרסה היציבה (**Latest stable**), ולחצו על כפתור הפלוס הירוק (**`+` / `Install`**) בשורה של פרויקט **`PlayWithSQLITE`**.
+4. **חזרה על הפעולה לחבילה השנייה:**
+   - חפשו `SQLiteNetExtensions.Async`, בחרו בגרסה היציבה (`2.1.0`), ולחצו על **`+` / `Install`** בשורה של **`PlayWithSQLITE`**.
 
 > [!TIP]
 > **איך מוודאים שההתקנה הצליחה?**
-> ב-Solution Explorer, פתחו את `PlayWithSQLITE` ➡️ `Dependencies` ➡️ `Packages` וודאו ששתי החבילות מופיעות ללא סימני שגיאה, ושהפרויקט נבנה (`Build Solution`) ללא שגיאות.
+> ב-Solution Explorer, פתחו את `PlayWithSQLITE` ➡️ `Dependencies` ➡️ `Packages` וודאו ששתי החבילות מופיעות ללא אזהרות שגיאה, וש-**Build Solution** עובר בהצלחה.
 
 ---
 
-## 2. תרשים קשרי ישויות (ERD — Entity-Relationship Diagram)
+## 2. תרשים קשרי ישויות (ERD — Entity-Relationship Diagram) של המערכת שלנו
 
-לפני שכותבים שורת קוד אחת במודלים, מתכננים את **מבנה מסד הנתונים** באמצעות תרשים **ERD**.  
-התרשים מציג את 4 הטבלאות שלנו, את המפתחות הראשיים (`PK`), את המפתחות הזרים (`FK`), ואת סוג הקשר בין כל זוג טבלאות:
+לפני שניגשים לקוד, נלמד את תרשים ה-**ERD** של מערכת בית הספר שלנו — 4 טבלאות, מפתחות ראשיים (`PK`), מפתחות זרים (`FK`), וקשרי `1:N` ו-`M:N`:
 
 ![תרשים קשרי ישויות ERD — PlayWithSQLITE](../Images/Database-ERD.png)
-
-### קריאת התרשים — ארבע הטבלאות ותפקידן:
-1. **`Teachers` (מורים):** ישות אב עצמאית. כל מורה מזוהה ע"י `Id` (`PK`) ויכול ללמד **אפס, אחד או יותר** קורסים.
-2. **`Courses` (קורסים):** כל קורס שייך למורה אחד (`TeacherId` הוא `FK` המצביע אל `Teachers.Id`), ויכולים להירשם אליו תלמידים רבים.
-3. **`Students` (תלמידים):** ישות עצמאית. לכל תלמיד `Id` (`PK`) וכתובת `Email` ייחודית (`Unique`), והוא יכול להירשם לקורסים רבים.
-4. **`Enrollments` (רישומים — טבלת גישור / Junction Table):** שוברת את קשר הרבים-לרבים (`M:N`) בין תלמידים לקורסים לשני קשרי `1:N`, ומאפשרת לשמור גם מידע ייחודי על הרישום עצמו (`Grade`, `EnrollmentDate`, `IsPaid`).
 
 ---
 
 ## 3. איך מגדירים קשרים בין טבלאות — ומה מוגדר באיזה צד?
 
-אחת הטעויות הנפוצות ביותר בתכנון מסדי נתונים היא בלבול בין **צד ה-1 (ההורה)** לבין **צד ה-N (הילד)**, והיכן מניחים את המפתח הזר (`ForeignKey`).
-
 ### א. קשר אחד-לרבים (`1:N`) — מורה וקורסים (`Teacher` ⟷ `Course`)
-שאלו את עצמכם: **"למי יש הרבה ממה?"**  
-למורה **אחד** (`1`) יש **הרבה** קורסים (`N`), אבל לכל קורס יש מורה **אחד**.
-
 | צד הקשר | המחלקה | מה מוגדר במחלקה זו? | למה דווקא בצד הזה? |
 | :--- | :--- | :--- | :--- |
-| **צד ה-1 (הורה)** | `Teacher` | מאפיין ניווט מסוג רשימה (`List<Course> Courses`) עם הדקורציה **`[OneToMany]`** | בטבלת `Teachers` **אין** עמודת `CourseId` (כי אי אפשר לדחוס רשימת מזהים בעמודה אחת בטבלה יחסית!). הרשימה קיימת בזיכרון C# בלבד ונטענת לפי המפתח הזר בטבלת הקורסים. |
-| **צד ה-N (ילד)** | `Course` | 1. עמודת מפתח זר: `int TeacherId` עם **`[ForeignKey(typeof(Teacher))]`**<br/>2. מאפיין ניווט להורה: `Teacher? Teacher` עם **`[ManyToOne]`** | **כלל ברזל במסדי נתונים:** המפתח הזר (`FK`) יושב **תמיד** בצד ה-**N**! כל שורת קורס מצביעה למזהה של המורה האחד שמלמד אותה. |
+| **צד ה-1 (הורה)** | `Teacher` | רשימת הילדים `List<Course> Courses` עם **`[OneToMany]`** | בטבלת `Teachers` אין עמודת `CourseId` — אי אפשר לשמור רשימת מזהים בתא אחד בטבלה! |
+| **צד ה-N (ילד)** | `Course` | 1. מפתח זר: `int TeacherId` עם **`[ForeignKey(typeof(Teacher))]`**<br/>2. מאפיין ניווט: `Teacher? Teacher` עם **`[ManyToOne]`** | **כלל ברזל:** המפתח הזר (`FK`) יושב **תמיד** בצד ה-**N**! כל שורת קורס מצביעה למורה אחד. |
 
-### ב. קשר רבים-לרבים (`M:N`) — תלמידים וקורסים (`Student` ⟷ `Course`) דרך `Enrollment`
-תלמיד אחד יכול ללמוד בקורסים רבים, וקורס אחד יכול להכיל תלמידים רבים. במסד נתונים יחסי **אי אפשר** לממש `M:N` ישירות בין שתי טבלאות — לכן יוצרים **טבלת גישור (`Enrollment`)**:
-
+### ב. קשר רבים-לרבים (`M:N`) — תלמידים וקורסים דרך טבלת הגישור (`Enrollment`)
 | תפקיד בקשר | המחלקה | מה מוגדר במחלקה זו? | תפקידו במערכת |
 | :--- | :--- | :--- | :--- |
-| **טבלת הגישור (צד ה-N לשניהם)** | `Enrollment` | 1. `int StudentId` עם **`[ForeignKey(typeof(Student))]`**<br/>2. `int CourseId` עם **`[ForeignKey(typeof(Course))]`**<br/>3. `Student? Student` עם **`[ManyToOne]`**<br/>4. `Course? Course` עם **`[ManyToOne]`** | כל שורה ב-`Enrollments` מחברת בין תלמיד אחד לקורס אחד, ושומרת את הציון (`Grade`) ואת סטטוס התשלום (`IsPaid`). |
-| **צד א' של ה-M:N** | `Student` | `List<Course> Courses` עם **`[ManyToMany(typeof(Enrollment))]`** | מאפשר לגשת ישירות לרשימת הקורסים של תלמיד דרך טבלת הגישור `Enrollment`. |
-| **צד ב' של ה-M:N** | `Course` | `List<Student> Students` עם **`[ManyToMany(typeof(Enrollment))]`** | מאפשר לגשת ישירות לרשימת התלמידים הרשומים לקורס דרך טבלת הגישור `Enrollment`. |
+| **טבלת הגישור (צד N לשניהם)** | `Enrollment` | שני מפתחות זרים: `StudentId` (`[ForeignKey(typeof(Student))]`) ו-`CourseId` (`[ForeignKey(typeof(Course))]`) + שני מאפייני ניווט **`[ManyToOne]`** (`Student?`, `Course?`) | שוברת קשר `M:N` לשני קשרי `1:N`, ושומרת מידע ייחודי לרישום (`Grade`, `EnrollmentDate`, `IsPaid`). |
+| **שני הצדדים של ה-M:N** | `Student` ו-`Course` | `List<Course> Courses` ו-`List<Student> Students` עם **`[ManyToMany(typeof(Enrollment))]`** | מאפשרים ניווט ישיר מהתלמיד לקורסיו ומהקורס לתלמידיו דרך טבלת הגישור. |
 
 ---
 
-## 4. מהו `CascadeOperation` ומתי משתמשים בכל ערך?
+## 4. מהו `CascadeOperation` ומתי בוחרים כל ערך?
 
-בספריית `SQLiteNetExtensions`, כאשר מגדירים קשר (`[OneToMany]`, `[ManyToOne]`, `[ManyToMany]`), ניתן לקבוע פרמטר בשם **`CascadeOperations`**.  
-פרמטר זה קובע **האם פעולה שמתבצעת על ישות ההורה "תתגלגל" (Cascade) אוטומטית גם אל הישויות המקושרות אליה**:
+הפרמטר `CascadeOperations` בקישוטי `SQLiteNetExtensions` קובע האם פעולה על ישות ההורה "תתגלגל" אוטומטית גם לישויות המקושרות אליה:
 
 | ערך (`CascadeOperation`) | מה הוא עושה בפועל? | מתי משתמשים בו? |
 | :--- | :--- | :--- |
-| **`CascadeOperation.None`** *(ברירת מחדל)* | שום פעולה לא מתגלגלת אוטומטית; שמירה/טעינה/מחיקה משפיעה רק על האובייקט הנוכחי. | כאשר רוצים שליטה ידנית מלאה ולא רוצים הפתעות. |
-| **`CascadeOperation.CascadeRead`** | בעת קריאה ל-`GetWithChildrenAsync` / `GetAllWithChildrenAsync`, הילדים נטענים אוטומטית מהטבלה המקושרת. | כאשר תמיד רוצים לקבל את האובייקטים המקושרים בקריאה (למשל קורסים של מורה). |
-| **`CascadeOperation.CascadeInsert`** | בעת שמירה עם `InsertWithChildrenAsync`, גם אובייקטים חדשים ברשימת הילדים נשמרים אוטומטית במסד. | כאשר יוצרים הורה וילדים יחד בזיכרון ורוצים לשמור הכל בפעולה אחת. |
-| **`CascadeOperation.CascadeDelete`** | בעת מחיקה עם `Delete(entity, recursive: true)`, גם הילדים המקושרים נמחקים אוטומטית מהמסד כדי למנוע **רשומות יתומות (Orphan Records)**. | כאשר הילדים **אינם יכולים להתקיים ללא ההורה** (למשל קורסים שתלויים במורה או רישומים של תלמיד שנמחק). |
-| **`CascadeOperation.All`** | שילוב של `CascadeRead \| CascadeInsert \| CascadeDelete`. | נפוץ בקשר `1:N` חזק (כמו `Teacher.Courses`) או לצורך הדגמה מלאה של פעולות מדורגות. |
+| **`None`** *(ברירת מחדל)* | שום פעולה לא מתגלגלת אוטומטית. | כשרוצים שליטה ידנית מלאה. |
+| **`CascadeRead`** | בקריאה עם `GetWithChildrenAsync` הילדים נטענים אוטומטית מהמסד. | כשרוצים לקבל את הילדים יחד עם ההורה. |
+| **`CascadeInsert`** | בשמירה עם `InsertWithChildrenAsync` גם ילדים חדשים נשמרים אוטומטית. | כשיוצרים הורה וילדים יחד בזיכרון. |
+| **`CascadeDelete`** | במחיקה רקורסיבית, גם הילדים נמחקים אוטומטית (מניעת רשומות יתומות). | **רק** כשהילדים לא יכולים להתקיים ללא ההורה! |
+| **`All`** | שילוב של `CascadeRead \| CascadeInsert \| CascadeDelete`. | מתאים לקשר בעלות `1:N` (כמו `Teacher.Courses`). |
 
 > [!WARNING]
-> **נקודה חשובה לחשיבה ולבחינת הבגרות!**
-> בקשר `M:N` בין `Course` ל-`Student`, אם תפעילו מחיקה רקורסיבית (`DeleteAsync(..., recursive: true)`) כשמוגדר `CascadeOperation.All`, מחיקת קורס עלולה למחוק גם את **התלמידים עצמם** ולא רק את הרישומים שלהם!  
-> לכן:
-> - בקשר **בעלות (`Teacher` ➡️ `Courses`)** שימוש ב-`CascadeOperation.All` הגיוני (או `CascadeRead | CascadeInsert`).
-> - בקשר **`M:N` (`Student` ⟷ `Course`)** במערכות ייצור מקובל להשתמש ב-`CascadeOperation.CascadeRead | CascadeOperation.CascadeInsert` ולמחוק באופן מבוקר רק את שורות ה-`Enrollment` בשכבת השירות (כפי שנראה בשלב 3!). בפרויקט שלנו תוכלו לבחור `CascadeRead | CascadeInsert` או `All` תוך הבנת ההשלכה במחיקה!
+> **זהירות בקשר `M:N`!**
+> בקשר רבים-לרבים (`Student` ⟷ `Course`), **לא** נרצה להשתמש ב-`CascadeDelete` אוטומטי, כי מחיקת קורס עלולה למחוק את **התלמידים עצמם** במקום רק את הרישומים שלהם!  
+> לכן בקשר `M:N` נבחר **`CascadeOperation.CascadeRead | CascadeOperation.CascadeInsert`** (ולא `All`), ובשלב 3 נמחק באופן מבוקר רק את שורות ה-`Enrollment`.
 
 ---
 
-## 5. מילון הדקורציות (`Attributes`) המרכזיות
+## 5. מילון הדקורציות (`Attributes`)
 
-לפני שתיגשו לקובצי ה-`Models/`, הכירו את "ארגז הכלים" של הדקורציות שזמינות לכם לאחר התקנת החבילות:
-
-### א. ממרחב השמות `using SQLite;` (חבילת `sqlite-net-pcl`)
-| דקורציה | תפקיד ומשמעות |
-| :--- | :--- |
-| `[Table("Name")]` | קובעת במפורש את שם הטבלה במסד הנתונים (ברבים, למשל `"Teachers"`, `"Students"`). |
-| `[PrimaryKey]` | מגדירה את העמודה כמפתח ראשי ייחודי של הטבלה. |
-| `[AutoIncrement]` | מורה ל-SQLite להקצות אוטומטית מספר רץ (`1, 2, 3...`) לכל רשומה חדשה (`Id`). |
-| `[NotNull]` | אוסרת שמירת ערך ריק (`NULL`) בעמודה זו (שדה חובה). |
-| `[Unique]` | אוסרת כפילות ערכים בעמודה (למשל כתובת `Email` של תלמיד). |
-| `[MaxLength(N)]` | מגבילה את מספר התווים המרבי המותר במחרוזת. |
-| `[Ignore]` | מורה ל-SQLite **לא** ליצור עמודה עבור מאפיין מחושב (כמו `FullName` או `DisplayInfo` שנועדו רק ל-XAML). |
-
-### ב. ממרחב השמות `using SQLiteNetExtensions.Attributes;` (חבילת `SQLiteNetExtensions.Async`)
-| דקורציה | תפקיד ומשמעות |
-| :--- | :--- |
-| `[ForeignKey(typeof(TargetClass))]` | מסמנת עמודת מזהה (`int`) כמפתח זר המצביע לטבלה של `TargetClass`. |
-| `[OneToMany(CascadeOperations = ...)]` | מונחת על רשימה (`List<Child>`) בצד ה-**1** (ההורה). |
-| `[ManyToOne]` | מונחת על אובייקט הורה יחיד (`Parent?`) בצד ה-**N** (הילד או טבלת הגישור). |
-| `[ManyToMany(typeof(JunctionClass), CascadeOperations = ...)]` | מונחת על רשימה בשני הצדדים של קשר `M:N`, תוך ציון טיפוס טבלת הגישור. |
+| דקורציה | מרחב שמות (`using`) | תפקיד ומשמעות |
+| :--- | :--- | :--- |
+| `[Table("Name")]` | `SQLite` | קובעת את שם הטבלה במסד הנתונים. |
+| `[PrimaryKey, AutoIncrement]` | `SQLite` | מפתח ראשי ייחודי עם מספור אוטומטי (`1, 2, 3...`). |
+| `[NotNull]` | `SQLite` | אוסרת ערך `NULL` (שדה חובה). |
+| `[Unique]` | `SQLite` | אוסרת כפילות ערכים בעמודה (למשל `Email` או `CardNumber`). |
+| `[MaxLength(N)]` | `SQLite` | מגבילה את אורך הטקסט המרבי. |
+| `[Ignore]` | `SQLite` | מורה ל-SQLite **לא** ליצור עמודה עבור מאפיין מחושב (ל-UI בלבד). |
+| `[ForeignKey(typeof(T))]` | `SQLiteNetExtensions.Attributes` | מסמנת עמודה כמפתח זר המצביע לטבלה של `T`. |
+| `[OneToMany(CascadeOperations = ...)]` | `SQLiteNetExtensions.Attributes` | מונחת על `List<Child>` בצד ה-**1**. |
+| `[ManyToOne]` | `SQLiteNetExtensions.Attributes` | מונחת על ישות ההורה בצד ה-**N**. |
+| `[ManyToMany(typeof(Junction), CascadeOperations = ...)]` | `SQLiteNetExtensions.Attributes` | מונחת על הרשימות בשני הצדדים של קשר `M:N`. |
 
 ---
 
-## 6. משימתכם המעשית בשלב 1 (ללא Copy-Paste!)
+## 6. דוגמה מלאה להשראה (עולם תוכן אחר: ספרייה דיגיטלית) + משימת התלמיד
 
-פתחו את 4 הקבצים בתיקיית `PlayWithSQLITE/Models/`. בכל קובץ תמצאו שאלות מנחות לצד כל מאפיין. היעזרו ב**תרשים ה-ERD**, ב**טבלאות הצדדים**, וב**מילון הדקורציות** למעלה כדי להחליט בעצמכם אילו דקורציות להוסיף:
+כדי שתראו בדיוק איך כל הדקורציות עובדות יחד — **בלי שנפתור במקומכם את מערכת בית הספר** — נתבונן במערכת **ספרייה דיגיטלית** בעלת מבנה קשרים זהה:
+- **קשר `1:N`:** סופר (`Author`) כותב ספרים רבים (`Book`).
+- **קשר `M:N`:** קוראים (`Reader`) שואלים ספרים רבים (`Book`) דרך טבלת הגישור **`BookLoan`** (השאלה).
 
-1. **[Teacher.cs](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/PlayWithSQLITE/Models/Teacher.cs)**:
-   - יבאו את שני מרחבי השמות הנדרשים.
-   - הגדירו שם טבלה, מפתח ראשי עם מספור אוטומטי, שדות חובה ומגבלות אורך.
-   - הגדירו את קשר ה-`1:N` מול `Courses` כולל `CascadeOperations`.
-   - סמנו את המאפיין המחושב `DisplayInfo` כך שלא יישמר בטבלה.
-2. **[Course.cs](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/PlayWithSQLITE/Models/Course.cs)**:
-   - הגדירו טבלה, מפתח ראשי, אילוצי `Title` ו-`Description`.
-   - הגדירו את `TeacherId` כמפתח זר, את `Teacher` כמאפיין הניווט בצד ה-N, ואת `Students` כקשר `M:N` דרך `Enrollment`.
-   - **אל תשכחו!** מהו המאפיין המחושב בסוף המחלקה (`TeacherName`) שאסור שיישמר כעמודה?
-3. **[Student.cs](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/PlayWithSQLITE/Models/Student.cs)**:
-   - הגדירו טבלה, מפתח ראשי, אילוצי שם פרטי ומשפחה, ואילוץ ייחודיות על `Email`.
-   - הגדירו את קשר ה-`M:N` מול `Courses`.
-   - סמנו את **שני** המאפיינים המחושבים (`FullName` ו-`GradeLevelHebrew`) להתעלמות ע"י SQLite.
-4. **[Enrollment.cs](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/PlayWithSQLITE/Models/Enrollment.cs)**:
-   - הגדירו את טבלת הגישור `"Enrollments"`, מפתח ראשי, שני מפתחות זרים (`StudentId` ו-`CourseId`), ושני מאפייני הניווט (`Student` ו-`Course`).
+![דוגמת השראה ERD — מערכת ספרייה דיגיטלית](../Images/Library-Mini-ERD.png)
+
+### כך מממשים את 4 הישויות בדוגמת הספרייה:
+
+```csharp
+using SQLite;
+using SQLiteNetExtensions.Attributes;
+
+// 1. צד ה-1 (הורה): סופר אחד כותב ספרים רבים
+[Table("Authors")]
+public class Author
+{
+    [PrimaryKey, AutoIncrement]
+    public int Id { get; set; }
+
+    [NotNull, MaxLength(80)]
+    public string Name { get; set; } = string.Empty;
+
+    [OneToMany(CascadeOperations = CascadeOperation.All)]
+    public List<Book> Books { get; set; } = new();
+
+    [Ignore] // מאפיין תצוגה מחושב — לא נשמר בעמודה במסד!
+    public string Summary => $"{Name} ({Books.Count} ספרים)";
+}
+
+// 2. צד ה-N לסופר + צד M:N לקוראים
+[Table("Books")]
+public class Book
+{
+    [PrimaryKey, AutoIncrement]
+    public int Id { get; set; }
+
+    [NotNull, MaxLength(120)]
+    public string Title { get; set; } = string.Empty;
+
+    [ForeignKey(typeof(Author))] // המפתח הזר תמיד בצד ה-N!
+    public int AuthorId { get; set; }
+
+    [ManyToOne] // ניווט אל הסופר האחד
+    public Author? Author { get; set; }
+
+    [ManyToMany(typeof(BookLoan), CascadeOperations = CascadeOperation.CascadeRead | CascadeOperation.CascadeInsert)]
+    public List<Reader> Readers { get; set; } = new();
+
+    [Ignore]
+    public string AuthorName => Author?.Name ?? "לא ידוע";
+}
+
+// 3. צד שני של ה-M:N: קורא עם מספר כרטיס ייחודי (Unique)
+[Table("Readers")]
+public class Reader
+{
+    [PrimaryKey, AutoIncrement]
+    public int Id { get; set; }
+
+    [NotNull, MaxLength(80)]
+    public string FullName { get; set; } = string.Empty;
+
+    [NotNull, Unique, MaxLength(20)]
+    public string CardNumber { get; set; } = string.Empty;
+
+    [ManyToMany(typeof(BookLoan), CascadeOperations = CascadeOperation.CascadeRead | CascadeOperation.CascadeInsert)]
+    public List<Book> Books { get; set; } = new();
+}
+
+// 4. טבלת הגישור (Junction Table): שוברת את ה-M:N לשני קשרי 1:N
+[Table("BookLoans")]
+public class BookLoan
+{
+    [PrimaryKey, AutoIncrement]
+    public int Id { get; set; }
+
+    [ForeignKey(typeof(Book))]
+    public int BookId { get; set; }
+
+    [ForeignKey(typeof(Reader))]
+    public int ReaderId { get; set; }
+
+    public DateTime LoanDate { get; set; } = DateTime.Now;
+
+    [ManyToOne]
+    public Book? Book { get; set; }
+
+    [ManyToOne]
+    public Reader? Reader { get; set; }
+}
+```
+
+---
+
+### ✍️ עכשיו תורכם! משימת שלב 1 בפרויקט בית הספר (`PlayWithSQLITE/Models/`)
+
+לפי הדוגמה של הספרייה ולפי תרשים ה-ERD של בית הספר בסעיף 2, פתחו כל אחד מ-4 קובצי המודל וענו על ההערות המנחות שבו:
+
+| קובץ מודל | מהו התפקיד שלו ב-ERD? | מה עליכם להוסיף? |
+| :--- | :--- | :--- |
+| **`Teacher.cs`** | מקביל ל-`Author` (צד ה-1) | `using`s, שם טבלה `"Teachers"`, מפתח ראשי אוטומטי, אילוצי `NotNull`/`MaxLength`, קשר `[OneToMany]` ל-`Courses` עם `CascadeOperation.All`, ו-`[Ignore]` על `DisplayInfo`. |
+| **`Course.cs`** | מקביל ל-`Book` (צד N למורה + M:N לתלמידים) | `using`s, שם טבלה `"Courses"`, מפתח ראשי, אילוצי `Title`/`Description`, `[ForeignKey]` על `TeacherId`, `[ManyToOne]` על `Teacher`, `[ManyToMany]` על `Students` דרך `Enrollment` (ללא `CascadeDelete`!), ו-`[Ignore]` על `TeacherName`. |
+| **`Student.cs`** | מקביל ל-`Reader` (צד M:N לקורסים) | `using`s, שם טבלה `"Students"`, מפתח ראשי, אילוצי שם פרטי ומשפחה, `[NotNull, Unique, MaxLength(100)]` על `Email`, `[ManyToMany]` על `Courses`, ו-`[Ignore]` על **שני** השדות המחושבים (`FullName` ו-`GradeLevelHebrew`). |
+| **`Enrollment.cs`** | מקביל ל-`BookLoan` (טבלת גישור) | `using`s, שם טבלה `"Enrollments"`, מפתח ראשי, שני `[ForeignKey]` (`StudentId`, `CourseId`), ושני `[ManyToOne]` (`Student`, `Course`). |
 
 ### ✅ בדיקה עצמית בסיום שלב 1:
 - הריצו **Build Solution** ב-Visual Studio או ב-Rider וודאו שיש **0 שגיאות קומפילציה**.
-- להשוואת הפתרון שלכם מול הענף המוכן: `git checkout step-01-packages-and-models` (וזכרו לחזור ל-`main` לאחר ההשוואה!).
+- להשוואת הפתרון שלכם מול הענף המוכן: `git checkout step-01-packages-and-models`.
 
-עברו לשלב הבא: [02-Database-Connection-And-Basic-CRUD.md](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/Learning/Guides/02-Database-Connection-And-Basic-CRUD.md).
+עברו לשלב הבא: [02-Database-Connection-And-Basic-CRUD.pdf](./02-Database-Connection-And-Basic-CRUD.pdf) *(ומומלץ לקרוא גם את [00b-How-To-Run-Tests.pdf](./00b-How-To-Run-Tests.pdf) לפני תחילת שלב 2!)*.

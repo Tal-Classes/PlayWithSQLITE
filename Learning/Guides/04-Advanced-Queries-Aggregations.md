@@ -1,78 +1,96 @@
 # 📊 שלב 4: פירוק שאילתות SQL מתקדמות — סדר פקודות, שלבי `JOIN`, `GROUP BY`, אגרגציות ודפדוף
 
-בשלב זה נלמד **לחשוב כמו מנוע SQL**: לא רק "להעתיק שאילתה ארוכה", אלא להבין **איך בונים שאילתת `JOIN` ו-`GROUP BY` שלב אחר שלב**, מהי הטבלה הזמנית שנוצרת בכל שלב, מהו סדר הביצוע האמיתי של הפקודות, וכיצד מממשים דפדוף (`Skip`/`Take`).
+בשלב זה נלמד **לחשוב כמו מנוע SQL**: בכל שאילתה נתחיל מהצגת **טבלת היעד הסופית** שאנו רוצים לקבל, נבחן את **טבלאות הבסיס** (`SELECT *`), ואז נראה **צעד-אחר-צעד** איך כל `JOIN`, `WHERE` ו-`GROUP BY` בונה את התוצאה!
 
 ---
 
-## 1. סדר הכתיבה מול סדר הביצוע הלוגי ב-SQL (קריטי להבנה!)
+## 1. סדר הכתיבה מול סדר הביצוע הלוגי במנוע SQL
 
-אחד המפתחות הכי חשובים להבנת SQL הוא ש**הסדר שבו כותבים את השאילתה אינו הסדר שבו מנוע המסד מבצע אותה!**
+**כלל מפתח:** הסדר שבו *כותבים* את השאילתה בקוד אינו הסדר שבו מנוע SQLite *מבצע* אותה!
 
-| סדר הכתיבה בקוד | **סדר הביצוע האמיתי במנוע SQL** | מה המנוע עושה בשלב זה? |
+| פקודה בקוד (סדר כתיבה) | **סדר ביצוע אמיתי** | מה המנוע עושה בשלב זה? |
 | :--- | :---: | :--- |
-| `SELECT ...` | **6** | בוחר את העמודות הסופיות, מפעיל פונקציות צבירה (`COUNT`, `SUM`, `AVG`) ומעניק כינויים (`AS`). |
-| `FROM ...` | **1** | בוחר את טבלת הבסיס הראשונה שממנה מתחילים. |
-| `INNER / LEFT JOIN ... ON ...` | **2** | מחבר שורות מטבלאות נוספות לפי תנאי ההתאמה (`ON`) ויוצר **טבלה וירטואלית מורחבת**. |
-| `WHERE ...` | **3** | מסנן **שורות בודדות** מהטבלה המורחבת *לפני* הקיבוץ (אי אפשר לשים כאן `AVG`/`COUNT`!). |
-| `GROUP BY ...` | **4** | מאחד שורות בעלות ערך זהה (למשל אותו `CourseId` או אותה `GradeLevel`) ל**קבוצות (דליים)**. |
-| `HAVING ...` | **5** | מסנן **קבוצות שלמות** *אחרי* הקיבוץ (כאן כן מותר לכתוב למשל `HAVING COUNT(e.Id) >= 2`). |
-| `ORDER BY ...` | **7** | ממיין את השורות הסופיות לפי סדר עולה (`ASC`) או יורד (`DESC`). |
-| `LIMIT ... OFFSET ...` | **8** | חותך רק את חלון העמוד המבוקש (תואם ל-`Take` ו-`Skip` ב-LINQ). |
-
-> [!TIP]
-> **עכשיו מובן למה אי אפשר לכתוב `WHERE AVG(Grade) > 85`!**  
-> כי `WHERE` רץ בשלב **3** — הרבה לפני ש-`GROUP BY` (שלב 4) ו-`AVG` (שלב 6) בכלל חושבו! סינון לפי תוצאת אגרגציה מתבצע תמיד ב-`HAVING` (שלב 5).
+| `SELECT ...` | **6** | בוחר את העמודות הסופיות, מחשב פונקציות צבירה (`COUNT`, `SUM`, `AVG`) ומעניק כינויים (`AS`). |
+| `FROM ...` | **1** | טוען את טבלת הבסיס הראשונה. |
+| `INNER / LEFT JOIN ... ON ...` | **2** | מחבר שורות מטבלאות נוספות לפי מפתח משותף ויוצר **טבלה וירטואלית מורחבת**. |
+| `WHERE ...` | **3** | מסנן **שורות בודדות** *לפני* הקיבוץ (אי אפשר לכתוב כאן `AVG` או `COUNT`!). |
+| `GROUP BY ...` | **4** | מאחד שורות בעלות ערך זהה (למשל אותו `CourseId`) ל**קבוצות (דליים)**. |
+| `HAVING ...` | **5** | מסנן **קבוצות שלמות** *אחרי* הקיבוץ (כאן כן מותר `HAVING COUNT(e.Id) >= 2`). |
+| `ORDER BY ...` | **7** | ממיין את השורות הסופיות (`ASC` / `DESC`). |
+| `LIMIT ... OFFSET ...` | **8** | חותך רק את עמוד התוצאות המבוקש (מקביל ל-`Take` ו-`Skip` ב-LINQ). |
 
 ---
 
-## 2. פירוק שלב-אחר-שלב של `INNER JOIN` ו-`LEFT JOIN` — מה נוצר בכל שלב?
+## 2. פירוק שאילתת `JOIN` מרובת-טבלאות (`GetStudentTranscriptAsync`)
 
-נבנה יחד את שאילתת **גיליון הציונים האישי של התלמיד (`GetStudentTranscriptAsync`)**, ונראה בדיוק איזו טבלה זמנית נוצרת אחרי כל פקודת `JOIN`!
+### 🎯 שלב 0 — הטבלה הסופית שאנחנו רוצים לקבל (עבור `studentId = 1`, נועם אברהם)
+זהו גיליון הציונים האישי שמוצג במסך התלמידים (ממופה ל-DTO `StudentTranscriptItem`):
 
-### שלב א' — טבלת הבסיס: `FROM Enrollments e`
-טבלת `Enrollments` מחזיקה רק **מזהים מספריים** וציון — עדיין אין בה שמות של תלמידים, קורסים או מורים:
+| `StudentId` | `StudentName` | `CourseTitle` | `Credits` | `TeacherName` | `Grade` | `IsPaid` |
+| :---: | :--- | :--- | :---: | :--- | :---: | :---: |
+| 1 | נועם אברהם | סדנת בחירה | 2 | לא הוקצה מורה | 88 | true |
+| 1 | נועם אברהם | תכנות ב-C# ו-MAUI | 5 | ישראל ישראלי | 95 | true |
 
-| `e.Id` | `e.StudentId` | `e.CourseId` | `e.Grade` | `e.IsPaid` |
+### 📋 שלב 1 — חומרי הגלם: טבלאות הבסיס (`SELECT *`)
+הנתונים מפוזרים ב-4 טבלאות נפרדות:
+
+**`SELECT * FROM Enrollments`:**
+| `Id` | `StudentId` | `CourseId` | `Grade` | `IsPaid` |
 | :---: | :---: | :---: | :---: | :---: |
 | 10 | **1** | **101** | 95 | true |
 | 11 | **1** | **102** | 88 | true |
 | 12 | **2** | **101** | 79 | false |
 
-### שלב ב' — הוספת `INNER JOIN Students s ON e.StudentId = s.Id`
-מנוע ה-SQL לוקח כל שורה מ-`Enrollments` ומחפש את השורה התואמת ב-`Students` שבה `e.StudentId == s.Id`.  
-בגלל שזה **`INNER JOIN`**, רק שורות שיש להן התאמה בשני הצדדים ממשיכות הלאה.  
-**הטבלה הזמנית שנוצרה:**
+**`SELECT * FROM Students`:**
+| `Id` | `FirstName` | `LastName` |
+| :---: | :--- | :--- |
+| **1** | נועם | אברהם |
+| **2** | מאיה | שלום |
 
+**`SELECT * FROM Courses`:**
+| `Id` | `Title` | `Credits` | `TeacherId` |
+| :---: | :--- | :---: | :---: |
+| **101** | תכנות ב-C# ו-MAUI | 5 | **7** |
+| **102** | סדנת בחירה | 2 | **0** *(ללא מורה)* |
+
+**`SELECT * FROM Teachers`:**
+| `Id` | `FullName` |
+| :---: | :--- |
+| **7** | ישראל ישראלי |
+
+---
+
+### 🪜 שלב 2 — בניית ה-`JOIN` צעד-אחר-צעד (מה נוצר בכל שלב!)
+
+#### צעד א': `FROM Enrollments e INNER JOIN Students s ON e.StudentId = s.Id`
+מחברים כל רישום לשורת התלמיד המתאימה. רק שורות שיש להן התאמה בשני הצדדים ממשיכות (`INNER JOIN`).  
+**הטבלה הזמנית שנוצרה:**
 | `e.Id` | `s.Id` | `s.FirstName` | `s.LastName` | `e.CourseId` | `e.Grade` |
 | :---: | :---: | :--- | :--- | :---: | :---: |
 | 10 | 1 | נועם | אברהם | **101** | 95 |
 | 11 | 1 | נועם | אברהם | **102** | 88 |
 | 12 | 2 | מאיה | שלום | **101** | 79 |
 
-### שלב ג' — הוספת `INNER JOIN Courses c ON e.CourseId = c.Id`
-כעת מנוע ה-SQL מחבר לטבלה הזמנית את טבלת `Courses` לפי `e.CourseId == c.Id`.  
-**הטבלה הזמנית המורחבת שנוצרה:**
-
+#### צעד ב': הוספת `INNER JOIN Courses c ON e.CourseId = c.Id`
+כעת מוסיפים לטבלה הזמנית את שם הקורס, נקודות הזכות ומזהה המורה (`c.TeacherId`):
 | `s.FirstName` | `c.Title` | `c.Credits` | `c.TeacherId` | `e.Grade` |
 | :--- | :--- | :---: | :---: | :---: |
 | נועם | תכנות ב-C# ו-MAUI | 5 | **7** | 95 |
-| נועם | סדנת בחירה (ללא מורה משובץ) | 2 | **0** | 88 |
+| נועם | סדנת בחירה | 2 | **0** | 88 |
 | מאיה | תכנות ב-C# ו-MAUI | 5 | **7** | 79 |
 
-### שלב ד' — הוספת `LEFT JOIN Teachers t ON c.TeacherId = t.Id` (ולמה דווקא `LEFT`?)
-שימו לב לשורה השנייה (`c.TeacherId = 0` — קורס שטרם שובץ לו מורה!):
-- אילו היינו כותבים `INNER JOIN Teachers`, השורה של הקורס השני **הייתה נעלמת** מגיליון הציונים של נועם!
-- בזכות **`LEFT JOIN Teachers`**, כל השורות מהצד השמאלי נשמרות, ובעמודת `t.FullName` מתקבל `NULL` כאשר אין התאמה:
+#### צעד ג': הוספת `LEFT JOIN Teachers t ON c.TeacherId = t.Id` (מדוע `LEFT` ולא `INNER`?)
+שימו לב לקורס "סדנת בחירה" (`c.TeacherId = 0`, אין לו מורה תואם ב-`Teachers`):
+- ב-`INNER JOIN` השורה הזו **הייתה נמחקת ונעלמת** מהגיליון של נועם!
+- ב-**`LEFT JOIN`** השורה **נשמרת**, ובעמודת `t.FullName` מתקבל `NULL` — שאותו אנו מחליפים באמצעות `IFNULL(t.FullName, 'לא הוקצה מורה')`:
 
 | `s.FirstName` | `c.Title` | `c.Credits` | `t.FullName` | `e.Grade` |
 | :--- | :--- | :---: | :--- | :---: |
 | נועם | תכנות ב-C# ו-MAUI | 5 | ישראל ישראלי | 95 |
-| נועם | סדנת בחירה | 2 | **`NULL`** ➡️ `IFNULL` הופך ל-'לא הוקצה מורה' | 88 |
+| נועם | סדנת בחירה | 2 | `NULL` ➡️ `'לא הוקצה מורה'` | 88 |
 | מאיה | תכנות ב-C# ו-MAUI | 5 | ישראל ישראלי | 79 |
 
-### שלב ה' — סינון (`WHERE`), בחירת עמודות (`SELECT ... AS ...`) ומיון (`ORDER BY`)
-כעת `WHERE e.StudentId = ?` מסנן רק את השורות של נועם (`Id=1`), ו-`SELECT` ממפה כל עמודה בעזרת `AS` **בדיוק לשמות המאפיינים ב-DTO `StudentTranscriptItem`**:
-
+#### צעד ד': סינון (`WHERE e.StudentId = ?`), בחירת עמודות (`SELECT ... AS`) ומיון (`ORDER BY c.Title`)
 ```sql
 SELECT 
     s.Id AS StudentId,
@@ -89,51 +107,40 @@ LEFT JOIN Teachers t ON c.TeacherId = t.Id
 WHERE e.StudentId = ?
 ORDER BY c.Title;
 ```
-
 > [!IMPORTANT]
-> **הגנה מפני SQL Injection ומיפוי ל-DTO:**
-> - שימו לב לסימן השאלה **`?`** במקום שרשור מחרוזות (`$"WHERE e.StudentId = {studentId}"`)! העברת `studentId` כפרמטר ל-`QueryAsync<StudentTranscriptItem>(query, studentId)` מונעת הזרקת SQL.
-> - שמות הכינויים (`AS CourseTitle`, `AS TeacherName` וכו') **חייבים להיות זהים** לשמות ה-Properties במחלקת `StudentTranscriptItem` כדי ש-`sqlite-net-pcl` ידע למלא אותם אוטומטית!
+> **הגנה מ-SQL Injection ומיפוי ל-DTO:**  
+> מעבירים את `studentId` כפרמטר בטוח לסימן השאלה (`?`): `await _database!.QueryAsync<StudentTranscriptItem>(query, studentId);` — ושמות הכינויים (`AS CourseTitle` וכו') חייבים להתאים בדיוק לשמות ה-Properties במחלקת `StudentTranscriptItem`!
 
 ---
 
-## 3. פירוק שלב-אחר-שלב של `GROUP BY` ואגרגציות (`COUNT`, `AVG`, `MAX`, `MIN`, `SUM`)
+## 3. פירוק שאילתת `GROUP BY` ואגרגציות (`GetCourseGradeSummariesAsync`)
 
-כעת נפרק את שאילתת **דוח הציונים המסכם לכל קורס (`GetCourseGradeSummariesAsync`)** — השאילתה החשובה ביותר במסך הדוחות!
+### 🎯 שלב 0 — הטבלה הסופית שאנחנו רוצים לקבל (דוח הקורסים במסך הדוחות)
+שורה אחת מסכמת לכל קורס (כולל קורסים שעדיין אין בהם אף תלמיד!):
 
-### א. המטרה
-לכל קורס בבית הספר (גם אם עדיין **אף תלמיד לא נרשם אליו!**) נרצה שורה אחת מסכמת המציגה: שם הקורס, שם המורה, **מספר התלמידים הרשומים (`COUNT`)**, **ממוצע (`AVG`)**, **ציון שיא (`MAX`)** ו**ציון מינימלי (`MIN`)**.
+| `CourseId` | `CourseTitle` | `TeacherName` | `StudentCount` | `AverageGrade` | `MaxGrade` | `MinGrade` |
+| :---: | :--- | :--- | :---: | :---: | :---: | :---: |
+| 104 | רובוטיקה | דוד כהן | **0** | 0.0 | 0.0 | 0.0 |
+| 101 | תכנות C# | ישראל ישראלי | **2** | 87.0 | 95.0 | 79.0 |
 
-### ב. מה נוצר אחרי שלבי `FROM` ו-`LEFT JOIN` (לפני `GROUP BY`)?
-```sql
-FROM Courses c
-LEFT JOIN Teachers t ON c.TeacherId = t.Id
-LEFT JOIN Enrollments e ON c.Id = e.CourseId
-```
-תוצאת ביניים (לפני הקיבוץ — שורה לכל צירוף של קורס + רישום):
-
+### 🪜 שלב 1 — מה נוצר אחרי `FROM Courses c LEFT JOIN Teachers t ... LEFT JOIN Enrollments e ...` (**לפני** `GROUP BY`)?
 | `c.Id` | `c.Title` | `t.FullName` | `e.Id` | `e.Grade` |
 | :---: | :--- | :--- | :---: | :---: |
 | 101 | תכנות C# | ישראל ישראלי | 10 | 95 |
 | 101 | תכנות C# | ישראל ישראלי | 12 | 79 |
-| 104 | רובוטיקה *(קורס חדש ללא נרשמים)* | דוד כהן | **`NULL`** | **`NULL`** |
+| 104 | רובוטיקה *(אין עדיין נרשמים)* | דוד כהן | **`NULL`** | **`NULL`** |
 
-### ג. מה קורה ברגע שמפעילים `GROUP BY c.Id, c.Title, t.FullName`?
-מנוע ה-SQL אוסף את כל השורות בעלות אותו `c.Id` לתוך **דלי (קבוצה) אחד**, ואז מפעיל את פונקציות הצבירה על כל דלי בנפרד:
-- **דלי קורס 101 (`תכנות C#`):** מכיל 2 שורות (`e.Id = 10, 12`; ציונים `95, 79`):
-  * `COUNT(e.Id)` = **2**
-  * `AVG(e.Grade)` = **(95 + 79) / 2 = 87.0**
-  * `MAX(e.Grade)` = **95.0**, `MIN(e.Grade)` = **79.0**
-- **דלי קורס 104 (`רובוטיקה`):** מכיל שורה אחת עם `e.Id = NULL` ו-`e.Grade = NULL`:
-  * `COUNT(e.Id)` = **0** (כי `COUNT(column)` מתעלם מ-`NULL`!)
-  * `IFNULL(AVG(e.Grade), 0.0)` = **0.0** (בלעדי `IFNULL`, המיפוי של `NULL` לתוך `double` ב-C# היה עלול להיכשל או לבלבל!).
+### 🪜 שלב 2 — מה עושה `GROUP BY c.Id, c.Title, t.FullName`?
+המנוע מאחד את השורות לפי קורס לשני "דליים" ומריץ עליהם את פונקציות הצבירה:
+- **דלי `101` (`תכנות C#`)**: 2 שורות (`e.Id = 10, 12`, ציונים `95, 79`) ➡️ `COUNT(e.Id) = 2`, `AVG = 87.0`, `MAX = 95.0`, `MIN = 79.0`.
+- **דלי `104` (`רובוטיקה`)**: שורה אחת שבה `e.Id = NULL` ➡️ `COUNT(e.Id) = 0`, `IFNULL(AVG(e.Grade), 0.0) = 0.0`.
 
 > [!CAUTION]
-> **מלכודת קלאסית בבגרות: `COUNT(e.Id)` מול `COUNT(*)` ב-`LEFT JOIN`!**
-> - `COUNT(*)` סופר **שורות** (כולל שורות שבהן הצד הימני הוא `NULL`), ולכן על קורס `רובוטיקה` הריק הוא היה מחזיר בטעות **1** תלמיד!
-> - `COUNT(e.Id)` סופר רק ערכים שאינם `NULL` בעמודת `e.Id`, ולכן מחזיר במדויק **0** תלמידים!
+> **מלכודת קלאסית בבגרות: מדוע `COUNT(e.Id)` ולא `COUNT(*)` ב-`LEFT JOIN`?**  
+> - `COUNT(*)` סופר **שורות** (כולל שורה שבה הרישום הוא `NULL`), ולכן היה מחזיר על `רובוטיקה` **1** במקום **0**!  
+> - `COUNT(e.Id)` סופר רק ערכים שאינם `NULL`, ולכן מחזיר במדויק **0** תלמידים!
 
-### ד. השאילתה השלמה והמלאה:
+### השאילתה השלמה:
 ```sql
 SELECT 
     c.Id AS CourseId,
@@ -152,54 +159,45 @@ ORDER BY c.Title;
 
 ---
 
-## 4. עוד שתי אגרגציות חיוניות: התפלגות (`COUNT`) וסכום סקלרי (`SUM`)
+## 4. שתי שאילתות אגרגציה נוספות + דפדוף (`Skip` & `Take`)
 
 ### א. התפלגות תלמידים לפי שכבה (`GetStudentDistributionByGradeLevelAsync`)
-מקבצים את טבלת `Students` לפי `GradeLevel` וסופרים את `Id` בכל שכבה:
-```sql
-SELECT 
-    GradeLevel,
-    COUNT(Id) AS StudentCount
-FROM Students
-GROUP BY GradeLevel
-ORDER BY GradeLevel;
-```
+- **היעד:** טבלה עם 2 עמודות (`GradeLevel`, `StudentCount`) — שורה אחת לכל שכבה (`10`, `11`, `12`).
+- **השאילתה:** `SELECT GradeLevel, COUNT(Id) AS StudentCount FROM Students GROUP BY GradeLevel ORDER BY GradeLevel;` מופעלת עם `QueryAsync<GradeLevelCount>(query)`.
 
-### ב. סך נקודות זכות לתלמיד (`GetTotalCreditsForStudentAsync`) — `INNER JOIN` + `SUM` + `ExecuteScalarAsync`
-כאשר השאילתה מחזירה **ערך מספרי בודד** (ולא רשימת אובייקטים), משתמשים במתודה **`ExecuteScalarAsync<int>`**:
-1. מתחילים מ-`FROM Enrollments e`.
-2. מחברים `INNER JOIN Courses c ON e.CourseId = c.Id` כדי להגיע לעמודת `c.Credits`.
-3. מסננים `WHERE e.StudentId = ?`.
-4. מחשבים `SELECT IFNULL(SUM(c.Credits), 0)` — ואם התלמיד אינו רשום לאף קורס, `IFNULL` מחזיר `0` במקום `NULL`.
+### ב. חישוב סך נקודות זכות לתלמיד (`GetTotalCreditsForStudentAsync`) — ערך סקלרי בודד (`SUM`)
+- **היעד:** מספר שלם אחד (`int`), למשל `9` (5 נ"ז + 4 נ"ז).
+- **השלבים:** `FROM Enrollments e` ➡️ `INNER JOIN Courses c ON e.CourseId = c.Id` ➡️ `WHERE e.StudentId = ?` ➡️ `SELECT IFNULL(SUM(c.Credits), 0)`.
+- **איך מריצים ב-C#?** כשרוצים לקבל **ערך בודד אחד** (לא רשימה!), משתמשים ב-**`await _database!.ExecuteScalarAsync<int>(query, studentId)`**!
 
----
-
-## 5. דפדוף מהיר (`Pagination`) באמצעות `OrderBy`, `Skip` ו-`Take`
-
-כאשר בטבלה יש מאות או אלפי תלמידים, שליפת כולם בבת אחת מכבידה על הזיכרון ועל ממשק המשתמש. במקום זאת שולפים **עמוד אחד בכל פעם**:
-- **`OrderBy(s => s.LastName).ThenBy(s => s.FirstName)`** — **חובה למיין קודם!** ללא מיון מפורש, סדר השורות ב-SQL אינו מובטח ותלמידים עלולים לחזור על עצמם בין עמודים.
-- **`Skip(skip)`** — מתורגם ל-`OFFSET` ב-SQL: על כמה שורות לדלג מתחילת התוצאה הממוינת.
-- **`Take(take)`** — מתורגם ל-`LIMIT` ב-SQL: כמה שורות לקחת לעמוד הנוכחי.
-
-נוסחת החישוב לעמוד `currentPage` (המתחיל מ-1) בגודל `pageSize`:
+### ג. דפדוף (`Pagination`) באמצעות `OrderBy`, `Skip` ו-`Take`
+כדי לא לטעון אלפי תלמידים בבת אחת, שולפים עמוד אחד בכל פעם:
 ```csharp
-int skip = (currentPage - 1) * pageSize;
-int totalPages = Math.Max(1, (int)Math.Ceiling((double)totalStudents / pageSize));
+public async Task<List<Student>> GetStudentsAsync(int skip = 0, int take = 20)
+{
+    await EnsureInitializedAsync();
+    return await _database!.Table<Student>()
+        .OrderBy(s => s.LastName)     // חובה למיין לפני Skip/Take כדי שהעמודים יהיו עקביים!
+        .ThenBy(s => s.FirstName)
+        .Skip(skip)                   // מתורגם ל-OFFSET ב-SQL
+        .Take(take)                   // מתורגם ל-LIMIT ב-SQL
+        .ToListAsync();
+}
 ```
 
 ---
 
-## 6. משימתכם המעשית בשלב 4
-
-פתחו את [DatabaseService.cs](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/PlayWithSQLITE/Services/DatabaseService.cs) וממשו:
-1. דפדוף ב-`GetStudentsAsync(int skip = 0, int take = 20)` וספירה ב-`GetStudentsCountAsync()`.
-2. `GetCourseGradeSummariesAsync()` (`LEFT JOIN` + `GROUP BY` + `COUNT(e.Id)` + `AVG` + `MAX` + `MIN`).
-3. `GetStudentTranscriptAsync(int studentId)` (חיבור 4 טבלאות עם פרמטר `?`).
-4. `GetStudentDistributionByGradeLevelAsync()` (`GROUP BY GradeLevel` + `COUNT`).
-5. `GetTotalCreditsForStudentAsync(int studentId)` (`INNER JOIN` + `SUM` + `ExecuteScalarAsync<int>`).
+## 5. ✍️ משימתכם המעשית בשלב 4
+פתחו את `DatabaseService.cs` והשלימו את 5 המתודות הבאות:
+1. הוסיפו `.Skip(skip).Take(take)` לתוך `GetStudentsAsync`.
+2. ממשו את `GetCourseGradeSummariesAsync()` עם `QueryAsync<CourseGradeSummary>`.
+3. ממשו את `GetStudentTranscriptAsync(int studentId)` עם `QueryAsync<StudentTranscriptItem>`.
+4. ממשו את `GetStudentDistributionByGradeLevelAsync()` עם `QueryAsync<GradeLevelCount>`.
+5. ממשו את `GetTotalCreditsForStudentAsync(int studentId)` עם `ExecuteScalarAsync<int>`.
 
 ### ✅ בדיקה עצמית בסיום שלב 4:
-- הסירו את כל ה-`Skip` שנותרו ב-[DatabaseServiceTests.cs](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/PlayWithSQLITE.Tests/DatabaseServiceTests.cs) והריצו `dotnet test` — **כל 9 הבדיקות צריכות לעבור (`succeeded: 9, failed: 0`)!**
+- הסירו את כל ה-`Skip = "..."` שנותרו ב-`DatabaseServiceTests.cs` והריצו את הבדיקות (ראו [00b-How-To-Run-Tests.pdf](./00b-How-To-Run-Tests.pdf)).
+- **כל 9 הבדיקות צריכות לעבור בירוק (`succeeded: 9, failed: 0`)!**
 - להשוואה מול הפתרון המוכן: `git checkout step-04-queries-aggregations-join`.
 
-עברו לשלב הבא: [05-DI-And-ViewModel-Commands.md](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/Learning/Guides/05-DI-And-ViewModel-Commands.md).
+עברו לשלב הבא: [05-DI-And-ViewModel-Commands.pdf](./05-DI-And-ViewModel-Commands.pdf).
