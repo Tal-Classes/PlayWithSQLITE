@@ -27,8 +27,8 @@ public class Course
     // 💡 קשר M:N (רבים-לרבים) מול תלמידים:
     // איזה מאפיין מגדיר קשר רבים-לרבים, איזו טבלת גישור (Junction Table) מציינים בו,
     // ואיזה CascadeOperation תבחרו כאן (שימו לב: מה יקרה אם נמחק קורס עם CascadeDelete)?
-    public List<Student> Students { get; set; } = new();
+    public List<Student> Students { get; set; } = [];//[] כמו new List<Student>();
 
-    // 💡 מאפיין מחושב לתצוגה ב-XAML — זכרו לסמן אותו כך שלא יישמר כעמודה בטבלה!
-    public string TeacherName => Teacher?.FullName ?? $"מורה מזהה #{TeacherId}";
+	// 💡 מאפיין מחושב לתצוגה ב-XAML — זכרו לסמן אותו כך שלא יישמר כעמודה בטבלה!
+	public string TeacherName => Teacher?.FullName ?? $"מורה מזהה #{TeacherId}";
 }
