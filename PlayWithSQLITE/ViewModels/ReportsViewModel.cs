@@ -50,7 +50,7 @@ public class ReportsViewModel : BaseViewModel
     {
         // 💡 TODO (Student - שלב 5):
         // 1. מנעו ריצה כפולה בעזרת IsLoading בתוך try / catch / finally ועדכנו את StatusMessage.
-        // 2. אתחלו את המסד ושלפו את סיכומי הקורסים (GetCourseGradeSummariesAsync) לתוך CourseSummaries.
+        // 2. שלפו את סיכומי הקורסים (GetCourseGradeSummariesAsync) לתוך CourseSummaries (אתחול המסד מתבצע אוטומטית בשירות!).
         // 3. שלפו את התפלגות השכבות (GetStudentDistributionByGradeLevelAsync) לתוך GradeDistributions.
         // 4. הציגו ב-StatusMessage כמה דוחות ושכבות נטענו.
         await Task.CompletedTask;

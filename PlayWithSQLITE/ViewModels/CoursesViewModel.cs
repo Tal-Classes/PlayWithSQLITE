@@ -104,7 +104,7 @@ public class CoursesViewModel : BaseViewModel
     public async Task LoadCoursesAsync()
     {
         // 💡 TODO (Student - שלב 5):
-        // 1. מנעו ריצה כפולה (IsLoading בתוך try / finally) וודאו אתחול המסד.
+        // 1. מנעו ריצה כפולה (IsLoading בתוך try / finally). אתחול המסד מתבצע אוטומטית בתוך השירות!
         // 2. טענו את רשימת המורים לתוך אוסף Teachers (כדי שה-Picker במסך יציג את המורים לבחירה).
         // 3. טענו את רשימת הקורסים עם includeRelations: true לתוך אוסף Courses (כדי להציג את שם המורה לכל קורס!).
         await Task.CompletedTask;

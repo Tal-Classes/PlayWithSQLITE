@@ -167,7 +167,7 @@ public class StudentsViewModel : BaseViewModel
     public async Task LoadStudentsAsync()
     {
         // 💡 TODO (Student - שלב 5):
-        // 1. הגנו בעזרת IsLoading בתוך try / finally ואתחלו את המסד (InitializeAsync).
+        // 1. הגנו בעזרת IsLoading בתוך try / finally (אתחול המסד מתבצע אוטומטית בתוך השירות!).
         // 2. עדכנו את TotalStudents בעזרת שאילתת הספירה (GetStudentsCountAsync).
         // 3. חשבו את skip לפי הנוסחה (CurrentPage - 1) * _pageSize ושלפו רק את העמוד הנוכחי (GetStudentsAsync(skip, _pageSize)).
         // 4. רעננו את אוסף Students (Clear + Add), ואם SelectedStudent != null רעננו גם את גיליון הציונים שלו.

@@ -93,7 +93,7 @@ public class TeachersViewModel : BaseViewModel
     {
         // 💡 TODO (Student - שלב 5):
         // 1. מנעו ריצה כפולה בעזרת בדיקת IsLoading והדלקתו בתוך בלוק try / finally.
-        // 2. ודאו אתחול של המסד (InitializeAsync), שלפו את כל המורים דרך _databaseService.
+        // 2. שלפו את כל המורים דרך _databaseService (אתחול המסד מתבצע אוטומטית בתוך השירות!).
         // 3. נקו את אוסף Teachers והוסיפו כל מורה (טיפ: שלפו כל מורה עם includeCourses: true כדי להציג קשר 1:N!).
         await Task.CompletedTask;
     }
