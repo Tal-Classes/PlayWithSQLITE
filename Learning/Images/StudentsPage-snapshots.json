@@ -1,0 +1,24 @@
+{
+  "screen": "StudentsPage",
+  "mockup": "C:\\Users\\Owner\\source\\repos\\PlayWithSQLITE\\Learning\\Mockups\\StudentsPage.html",
+  "overview": "C:\\Users\\Owner\\source\\repos\\PlayWithSQLITE\\Learning\\Images\\StudentsPage-overview.png",
+  "blocks": [
+    {
+      "name": "header",
+      "path": "C:\\Users\\Owner\\source\\repos\\PlayWithSQLITE\\Learning\\Images\\StudentsPage-block1-header.png"
+    },
+    {
+      "name": "add-student-form",
+      "path": "C:\\Users\\Owner\\source\\repos\\PlayWithSQLITE\\Learning\\Images\\StudentsPage-block2-add-student-form.png"
+    },
+    {
+      "name": "pagination-bar",
+      "path": "C:\\Users\\Owner\\source\\repos\\PlayWithSQLITE\\Learning\\Images\\StudentsPage-block3-pagination-bar.png"
+    },
+    {
+      "name": "students-list",
+      "path": "C:\\Users\\Owner\\source\\repos\\PlayWithSQLITE\\Learning\\Images\\StudentsPage-block4-students-list.png"
+    }
+  ],
+  "android": "C:\\Users\\Owner\\source\\repos\\PlayWithSQLITE\\Learning\\Images\\StudentsPage-android.png"
+}

@@ -1,0 +1,20 @@
+{
+  "screen": "TeachersPage",
+  "mockup": "C:\\Users\\Owner\\source\\repos\\PlayWithSQLITE\\Learning\\Mockups\\TeachersPage.html",
+  "overview": "C:\\Users\\Owner\\source\\repos\\PlayWithSQLITE\\Learning\\Images\\TeachersPage-overview.png",
+  "blocks": [
+    {
+      "name": "header",
+      "path": "C:\\Users\\Owner\\source\\repos\\PlayWithSQLITE\\Learning\\Images\\TeachersPage-block1-header.png"
+    },
+    {
+      "name": "add-teacher-form",
+      "path": "C:\\Users\\Owner\\source\\repos\\PlayWithSQLITE\\Learning\\Images\\TeachersPage-block2-add-teacher-form.png"
+    },
+    {
+      "name": "teachers-list",
+      "path": "C:\\Users\\Owner\\source\\repos\\PlayWithSQLITE\\Learning\\Images\\TeachersPage-block3-teachers-list.png"
+    }
+  ],
+  "android": "C:\\Users\\Owner\\source\\repos\\PlayWithSQLITE\\Learning\\Images\\TeachersPage-android.png"
+}

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ניהול קורסים ומורים</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 24px; background: #0f172a; font-family: "Segoe UI", sans-serif; }
+    [data-guide-overview] { width: min(390px, 100%); min-height: 760px; margin: auto; overflow: hidden; border-radius: 30px; background: #f8fafc; box-shadow: 0 18px 48px #020617; }
+    [data-guide-block] { position: relative; margin: 12px; padding: 18px; border: 2px dashed #10b981; border-radius: 18px; background: white; }
+    [data-guide-block]::before { content: attr(data-guide-block); position: absolute; top: 6px; inset-inline-end: 8px; color: #047857; font-size: 11px; font-weight: 700; }
+    .hero { min-height: 120px; padding: 24px; color: white; background: linear-gradient(135deg, #059669, #047857); }
+    .btn { background: #059669; color: white; padding: 10px 16px; border-radius: 8px; border: none; font-weight: bold; width: 100%; margin-top: 8px; }
+    .item { padding: 8px; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 6px; }
+  </style>
+</head>
+<body>
+  <main data-guide-overview>
+    <section class="hero" data-guide-block="header">
+      <h2>📚 ניהול קורסים ומורים</h2>
+      <p>שיוך מורה אחראי לקורס באמצעות מפתח זר (קשר 1:N)</p>
+    </section>
+    <section data-guide-block="add-course-form">
+      <h3>הוספת קורס חדש</h3>
+      <input type="text" placeholder="שם הקורס" style="width:100%; margin-bottom:4px;">
+      <input type="text" placeholder="תיאור" style="width:100%; margin-bottom:4px;">
+      <select style="width:100%; padding:6px; margin-bottom:4px;">
+        <option>ישראל ישראלי (מדעי המחשב)</option>
+        <option>שרה לוי (מתמטיקה)</option>
+      </select>
+      <button class="btn">➕ הוסף קורס</button>
+    </section>
+    <section data-guide-block="courses-list">
+      <h3>רשימת קורסים קיימים</h3>
+      <div class="item">
+        <strong>תכנות ב-C# ו-MAUI</strong>
+        <div>מורה אחראי: ישראל ישראלי | 5 נ"ז</div>
+      </div>
+      <div class="item">
+        <strong>מבני נתונים ואלגוריתמים</strong>
+        <div>מורה אחראי: ישראל ישראלי | 4 נ"ז</div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

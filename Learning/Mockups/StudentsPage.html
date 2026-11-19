@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ניהול תלמידים ודפדוף</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 24px; background: #0f172a; font-family: "Segoe UI", sans-serif; }
+    [data-guide-overview] { width: min(390px, 100%); min-height: 760px; margin: auto; overflow: hidden; border-radius: 30px; background: #f8fafc; box-shadow: 0 18px 48px #020617; }
+    [data-guide-block] { position: relative; margin: 12px; padding: 18px; border: 2px dashed #3b82f6; border-radius: 18px; background: white; }
+    [data-guide-block]::before { content: attr(data-guide-block); position: absolute; top: 6px; inset-inline-end: 8px; color: #1d4ed8; font-size: 11px; font-weight: 700; }
+    .hero { min-height: 120px; padding: 24px; color: white; background: linear-gradient(135deg, #2563eb, #1d4ed8); }
+    .btn { background: #2563eb; color: white; padding: 10px 16px; border-radius: 8px; border: none; font-weight: bold; width: 100%; margin-top: 8px; }
+    .item { padding: 8px; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 6px; display: flex; justify-content: space-between; }
+  </style>
+</head>
+<body>
+  <main data-guide-overview>
+    <section class="hero" data-guide-block="header">
+      <h2>🎓 ניהול תלמידים ודפדוף</h2>
+      <p>שליפת נתונים עם דפדוף (SKIP &amp; TAKE) והצגת גיליון ציונים (JOIN)</p>
+    </section>
+    <section data-guide-block="add-student-form">
+      <h3>הוספת תלמיד חדש</h3>
+      <input type="text" placeholder="שם פרטי" style="width:100%; margin-bottom:4px;">
+      <input type="text" placeholder="שם משפחה" style="width:100%; margin-bottom:4px;">
+      <input type="email" placeholder="דוא&quot;ל" style="width:100%; margin-bottom:4px;">
+      <button class="btn">➕ שמור תלמיד</button>
+    </section>
+    <section data-guide-block="pagination-bar">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span>◀ עמוד קודם</span>
+        <strong>עמוד 1 מתוך 2</strong>
+        <span>עמוד הבא ▶</span>
+      </div>
+    </section>
+    <section data-guide-block="students-list">
+      <h3>רשימת תלמידים</h3>
+      <div class="item"><span>נועם אברהם (שכבה י"א)</span><span style="color:red;">🗑</span></div>
+      <div class="item"><span>מאיה שלום (שכבה י"א)</span><span style="color:red;">🗑</span></div>
+      <div class="item"><span>יונתן מזרחי (שכבה י"ב)</span><span style="color:red;">🗑</span></div>
+    </section>
+  </main>
+</body>
+</html>

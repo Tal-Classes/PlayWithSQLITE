@@ -1,0 +1,20 @@
+{
+  "screen": "CoursesPage",
+  "mockup": "C:\\Users\\Owner\\source\\repos\\PlayWithSQLITE\\Learning\\Mockups\\CoursesPage.html",
+  "overview": "C:\\Users\\Owner\\source\\repos\\PlayWithSQLITE\\Learning\\Images\\CoursesPage-overview.png",
+  "blocks": [
+    {
+      "name": "header",
+      "path": "C:\\Users\\Owner\\source\\repos\\PlayWithSQLITE\\Learning\\Images\\CoursesPage-block1-header.png"
+    },
+    {
+      "name": "add-course-form",
+      "path": "C:\\Users\\Owner\\source\\repos\\PlayWithSQLITE\\Learning\\Images\\CoursesPage-block2-add-course-form.png"
+    },
+    {
+      "name": "courses-list",
+      "path": "C:\\Users\\Owner\\source\\repos\\PlayWithSQLITE\\Learning\\Images\\CoursesPage-block3-courses-list.png"
+    }
+  ],
+  "android": "C:\\Users\\Owner\\source\\repos\\PlayWithSQLITE\\Learning\\Images\\CoursesPage-android.png"
+}

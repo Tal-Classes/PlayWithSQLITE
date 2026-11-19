@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>תרשימי ארכיטקטורה — תיק פרויקט .NET MAUI</title>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f8fafc; color: #0f172a; margin: 24px; }
+    .card { background: white; border: 2px solid #cbd5e1; border-radius: 14px; padding: 22px; margin-bottom: 24px; box-shadow: 0 4px 10px rgba(15,23,42,0.05); }
+    h1, h2 { color: #0369a1; margin-top: 0; }
+    .diagram-visual { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin: 14px 0; }
+    .chips-row { margin-bottom: 14px; font-size: 13px; color: #334155; }
+    .screen-chip { display: inline-block; background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc; border-radius: 999px; padding: 3px 12px; margin: 3px 4px; font-weight: 600; font-size: 12px; }
+    .flow-grid { display: flex; flex-direction: column; gap: 10px; }
+    .flow-edge { display: flex; align-items: center; gap: 12px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px 14px; }
+    .flow-node { background: #0284c7; color: white; font-weight: 700; padding: 6px 14px; border-radius: 8px; font-size: 13px; }
+    .flow-target { background: #0f172a; }
+    .flow-arrow { display: flex; flex-direction: column; align-items: center; color: #475569; font-weight: 600; font-size: 12px; min-width: 110px; }
+    .flow-label { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; border-radius: 6px; padding: 1px 8px; font-size: 11px; margin-bottom: 2px; }
+    .uml-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+    .uml-class-box { border: 2px solid #0284c7; border-radius: 10px; background: #ffffff; overflow: hidden; }
+    .uml-header { background: #e0f2fe; padding: 8px 12px; border-bottom: 2px solid #0284c7; }
+    .uml-layer { font-size: 10px; text-transform: uppercase; font-weight: 700; color: #0369a1; background: #bae6fd; padding: 1px 6px; border-radius: 4px; }
+    .uml-title { font-size: 14px; font-weight: 800; color: #0c4a6e; margin-top: 4px; }
+    .uml-section { padding: 8px 12px; border-bottom: 1px solid #e2e8f0; font-family: Consolas, monospace; font-size: 11.5px; color: #1e293b; }
+    .uml-section:last-child { border-bottom: none; }
+    .uml-member { margin: 3px 0; }
+    .uml-empty { color: #94a3b8; font-style: italic; font-size: 11px; }
+    .uml-relations { margin-top: 14px; padding-top: 10px; border-top: 1px dashed #cbd5e1; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 12px; }
+    .rel-badge { background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px 10px; color: #334155; }
+    pre { direction: ltr; text-align: left; background: #f1f5f9; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 12px; color: #334155; }
+  </style>
+</head>
+<body>
+  <main data-guide-overview>
+    <section class="card" data-guide-block="screen-flow">
+      <h2>1. תרשים זרימת מסכים (Screen Flow Diagram)</h2>
+      <div class="diagram-visual" dir="ltr"><div class="chips-row"><strong>Screens (5):</strong> <span class="screen-chip">CoursesPage</span><span class="screen-chip">MainPage</span><span class="screen-chip">ReportsPage</span><span class="screen-chip">StudentsPage</span><span class="screen-chip">TeachersPage</span></div><div class="flow-grid"><div class="flow-edge"><span class="flow-node">AppShell</span><span class="flow-arrow"><span class="flow-label">Shell Tab / Flyout</span>&#8594;</span><span class="flow-node flow-target">StudentsPage</span></div><div class="flow-edge"><span class="flow-node">AppShell</span><span class="flow-arrow"><span class="flow-label">Shell Tab / Flyout</span>&#8594;</span><span class="flow-node flow-target">CoursesPage</span></div><div class="flow-edge"><span class="flow-node">AppShell</span><span class="flow-arrow"><span class="flow-label">Shell Tab / Flyout</span>&#8594;</span><span class="flow-node flow-target">TeachersPage</span></div><div class="flow-edge"><span class="flow-node">AppShell</span><span class="flow-arrow"><span class="flow-label">Shell Tab / Flyout</span>&#8594;</span><span class="flow-node flow-target">ReportsPage</span></div></div></div>
+      <pre>flowchart TD
+  AppShell([&quot;AppShell (נקודת פתיחה וניווט)&quot;])
+  AppShell --&gt;|&quot;Shell Tab / Flyout&quot;| StudentsPage
+  AppShell --&gt;|&quot;Shell Tab / Flyout&quot;| CoursesPage
+  AppShell --&gt;|&quot;Shell Tab / Flyout&quot;| TeachersPage
+  AppShell --&gt;|&quot;Shell Tab / Flyout&quot;| ReportsPage
+</pre>
+    </section>
+    <section class="card" data-guide-block="uml-diagram">
+      <h2>2. תרשים מחלקות (UML Class Diagram)</h2>
+      <div class="diagram-visual" dir="ltr"><div class="uml-grid"><div class="uml-class-box"><div class="uml-header"><span class="uml-layer">Other</span><div class="uml-title">AppShell</div></div><div class="uml-section"><div class="uml-empty">(no public properties)</div></div><div class="uml-section"><div class="uml-empty">(no public methods)</div></div></div><div class="uml-class-box"><div class="uml-header"><span class="uml-layer">Other</span><div class="uml-title">MainPage</div></div><div class="uml-section"><div class="uml-empty">(no public properties)</div></div><div class="uml-section"><div class="uml-empty">(no public methods)</div></div></div><div class="uml-class-box"><div class="uml-header"><span class="uml-layer">Models</span><div class="uml-title">Course</div></div><div class="uml-section"><div class="uml-member">+ int <strong>Id</strong></div><div class="uml-member">+ string <strong>Title</strong></div><div class="uml-member">+ int <strong>Credits</strong></div><div class="uml-member">+ string <strong>Description</strong></div><div class="uml-member">+ int <strong>TeacherId</strong></div><div class="uml-member">+ Teacher? <strong>Teacher</strong></div><div class="uml-member">+ List~Student~ <strong>Students</strong></div></div><div class="uml-section"><div class="uml-empty">(no public methods)</div></div></div><div class="uml-class-box"><div class="uml-header"><span class="uml-layer">Models</span><div class="uml-title">CourseGradeSummary</div></div><div class="uml-section"><div class="uml-member">+ int <strong>CourseId</strong></div><div class="uml-member">+ string <strong>CourseTitle</strong></div><div class="uml-member">+ string <strong>TeacherName</strong></div><div class="uml-member">+ int <strong>StudentCount</strong></div><div class="uml-member">+ double <strong>AverageGrade</strong></div><div class="uml-member">+ double <strong>MaxGrade</strong></div><div class="uml-member">+ double <strong>MinGrade</strong></div></div><div class="uml-section"><div class="uml-empty">(no public methods)</div></div></div><div class="uml-class-box"><div class="uml-header"><span class="uml-layer">Models</span><div class="uml-title">GradeLevelCount</div></div><div class="uml-section"><div class="uml-member">+ int <strong>GradeLevel</strong></div><div class="uml-member">+ int <strong>StudentCount</strong></div></div><div class="uml-section"><div class="uml-empty">(no public methods)</div></div></div><div class="uml-class-box"><div class="uml-header"><span class="uml-layer">Models</span><div class="uml-title">StudentTranscriptItem</div></div><div class="uml-section"><div class="uml-member">+ int <strong>StudentId</strong></div><div class="uml-member">+ string <strong>StudentName</strong></div><div class="uml-member">+ string <strong>CourseTitle</strong></div><div class="uml-member">+ int <strong>Credits</strong></div><div class="uml-member">+ string <strong>TeacherName</strong></div><div class="uml-member">+ double? <strong>Grade</strong></div><div class="uml-member">+ bool <strong>IsPaid</strong></div></div><div class="uml-section"><div class="uml-empty">(no public methods)</div></div></div><div class="uml-class-box"><div class="uml-header"><span class="uml-layer">Models</span><div class="uml-title">Enrollment</div></div><div class="uml-section"><div class="uml-member">+ int <strong>Id</strong></div><div class="uml-member">+ int <strong>StudentId</strong></div><div class="uml-member">+ int <strong>CourseId</strong></div><div class="uml-member">+ DateTime <strong>EnrollmentDate</strong></div><div class="uml-member">+ double? <strong>Grade</strong></div><div class="uml-member">+ bool <strong>IsPaid</strong></div><div class="uml-member">+ Student? <strong>Student</strong></div><div class="uml-member">+ Course? <strong>Course</strong></div></div><div class="uml-section"><div class="uml-empty">(no public methods)</div></div></div><div class="uml-class-box"><div class="uml-header"><span class="uml-layer">Models</span><div class="uml-title">Student</div></div><div class="uml-section"><div class="uml-member">+ int <strong>Id</strong></div><div class="uml-member">+ string <strong>FirstName</strong></div><div class="uml-member">+ string <strong>LastName</strong></div><div class="uml-member">+ string <strong>Email</strong></div><div class="uml-member">+ int <strong>GradeLevel</strong></div><div class="uml-member">+ DateTime <strong>BirthDate</strong></div><div class="uml-member">+ List~Course~ <strong>Courses</strong></div></div><div class="uml-section"><div class="uml-empty">(no public methods)</div></div></div><div class="uml-class-box"><div class="uml-header"><span class="uml-layer">Models</span><div class="uml-title">Teacher</div></div><div class="uml-section"><div class="uml-member">+ int <strong>Id</strong></div><div class="uml-member">+ string <strong>FullName</strong></div><div class="uml-member">+ string <strong>Email</strong></div><div class="uml-member">+ string <strong>Department</strong></div><div class="uml-member">+ List~Course~ <strong>Courses</strong></div></div><div class="uml-section"><div class="uml-empty">(no public methods)</div></div></div><div class="uml-class-box"><div class="uml-header"><span class="uml-layer">Services</span><div class="uml-title">DatabaseService</div></div><div class="uml-section"><div class="uml-empty">(no public properties)</div></div><div class="uml-section"><div class="uml-member">+ <strong>InitializeAsync()</strong> : Task</div><div class="uml-member">+ <strong>ClearAllDataAsync()</strong> : Task</div><div class="uml-member">+ <strong>SeedSampleDataAsync()</strong> : Task</div><div class="uml-member">+ <strong>GetTeachersAsync()</strong> : Task~List~Teacher~~</div><div class="uml-member">+ <strong>GetTeacherByIdAsync()</strong> : Task~Teacher?~</div><div class="uml-member">+ <strong>SaveTeacherAsync()</strong> : Task~int~</div><div class="uml-member">+ <strong>DeleteTeacherAsync()</strong> : Task~int~</div><div class="uml-member">+ <strong>GetCoursesAsync()</strong> : Task~List~Course~~</div></div></div><div class="uml-class-box"><div class="uml-header"><span class="uml-layer">Services</span><div class="uml-title">&lt;&lt;interface&gt;&gt; IDatabaseService</div></div><div class="uml-section"><div class="uml-empty">(no public properties)</div></div><div class="uml-section"><div class="uml-empty">(no public methods)</div></div></div><div class="uml-class-box"><div class="uml-header"><span class="uml-layer">ViewModels</span><div class="uml-title">BaseViewModel</div></div><div class="uml-section"><div class="uml-empty">(no public properties)</div></div><div class="uml-section"><div class="uml-empty">(no public methods)</div></div></div><div class="uml-class-box"><div class="uml-header"><span class="uml-layer">ViewModels</span><div class="uml-title">CoursesViewModel</div></div><div class="uml-section"><div class="uml-member">+ ObservableCollection~Course~ <strong>Courses</strong></div><div class="uml-member">+ ObservableCollection~Teacher~ <strong>Teachers</strong></div><div class="uml-member">+ ICommand <strong>LoadCoursesCommand</strong></div><div class="uml-member">+ ICommand <strong>AddCourseCommand</strong></div><div class="uml-member">+ ICommand <strong>DeleteCourseCommand</strong></div></div><div class="uml-section"><div class="uml-member">+ <strong>LoadCoursesAsync()</strong> : Task</div></div></div><div class="uml-class-box"><div class="uml-header"><span class="uml-layer">ViewModels</span><div class="uml-title">ReportsViewModel</div></div><div class="uml-section"><div class="uml-member">+ ObservableCollection~CourseGradeSummary~ <strong>CourseSummaries</strong></div><div class="uml-member">+ ObservableCollection~GradeLevelCount~ <strong>GradeDistributions</strong></div><div class="uml-member">+ ICommand <strong>LoadReportsCommand</strong></div><div class="uml-member">+ ICommand <strong>SeedDataCommand</strong></div><div class="uml-member">+ ICommand <strong>ClearDataCommand</strong></div></div><div class="uml-section"><div class="uml-member">+ <strong>LoadReportsAsync()</strong> : Task</div></div></div><div class="uml-class-box"><div class="uml-header"><span class="uml-layer">ViewModels</span><div class="uml-title">StudentsViewModel</div></div><div class="uml-section"><div class="uml-member">+ ObservableCollection~Student~ <strong>Students</strong></div><div class="uml-member">+ ObservableCollection~StudentTranscriptItem~ <strong>SelectedStudentTranscript</strong></div><div class="uml-member">+ ICommand <strong>LoadStudentsCommand</strong></div><div class="uml-member">+ ICommand <strong>NextPageCommand</strong></div><div class="uml-member">+ ICommand <strong>PrevPageCommand</strong></div><div class="uml-member">+ ICommand <strong>AddStudentCommand</strong></div><div class="uml-member">+ ICommand <strong>DeleteStudentCommand</strong></div></div><div class="uml-section"><div class="uml-member">+ <strong>LoadStudentsAsync()</strong> : Task</div></div></div><div class="uml-class-box"><div class="uml-header"><span class="uml-layer">ViewModels</span><div class="uml-title">TeachersViewModel</div></div><div class="uml-section"><div class="uml-member">+ ObservableCollection~Teacher~ <strong>Teachers</strong></div><div class="uml-member">+ ICommand <strong>LoadTeachersCommand</strong></div><div class="uml-member">+ ICommand <strong>AddTeacherCommand</strong></div><div class="uml-member">+ ICommand <strong>DeleteTeacherCommand</strong></div></div><div class="uml-section"><div class="uml-member">+ <strong>LoadTeachersAsync()</strong> : Task</div></div></div><div class="uml-class-box"><div class="uml-header"><span class="uml-layer">Views</span><div class="uml-title">CoursesPage</div></div><div class="uml-section"><div class="uml-empty">(no public properties)</div></div><div class="uml-section"><div class="uml-empty">(no public methods)</div></div></div><div class="uml-class-box"><div class="uml-header"><span class="uml-layer">Views</span><div class="uml-title">ReportsPage</div></div><div class="uml-section"><div class="uml-empty">(no public properties)</div></div><div class="uml-section"><div class="uml-empty">(no public methods)</div></div></div><div class="uml-class-box"><div class="uml-header"><span class="uml-layer">Views</span><div class="uml-title">StudentsPage</div></div><div class="uml-section"><div class="uml-empty">(no public properties)</div></div><div class="uml-section"><div class="uml-empty">(no public methods)</div></div></div><div class="uml-class-box"><div class="uml-header"><span class="uml-layer">Views</span><div class="uml-title">TeachersPage</div></div><div class="uml-section"><div class="uml-empty">(no public properties)</div></div><div class="uml-section"><div class="uml-empty">(no public methods)</div></div></div><div class="uml-class-box"><div class="uml-header"><span class="uml-layer">Other</span><div class="uml-title">ArchitectureSmokeTests</div></div><div class="uml-section"><div class="uml-empty">(no public properties)</div></div><div class="uml-section"><div class="uml-member">+ <strong>TestHarness_WhenInitialized_PassesSanityCheck()</strong> : void</div></div></div><div class="uml-class-box"><div class="uml-header"><span class="uml-layer">Other</span><div class="uml-title">DatabaseServiceTests</div></div><div class="uml-section"><div class="uml-empty">(no public properties)</div></div><div class="uml-section"><div class="uml-member">+ <strong>InitializeAsync()</strong> : Task</div><div class="uml-member">+ <strong>DisposeAsync()</strong> : Task</div><div class="uml-member">+ <strong>GetTeachersAsync_ReturnsSeededTeachers()</strong> : Task</div><div class="uml-member">+ <strong>GetCoursesAsync_WithRelations_LoadsTeacherDetails()</strong> : Task</div><div class="uml-member">+ <strong>Pagination_SkipAndTake_ReturnsCorrectSlices()</strong> : Task</div><div class="uml-member">+ <strong>GetCourseGradeSummariesAsync_PerformsJoinAndGroupBy()</strong> : Task</div><div class="uml-member">+ <strong>GetStudentTranscriptAsync_ReturnsMultiTableJoinedItems()</strong> : Task</div><div class="uml-member">+ <strong>GetTotalCreditsForStudentAsync_CalculatesSumOfCredits()</strong> : Task</div></div></div></div><div class="uml-relations"><strong>Relationships &amp; DI Wiring:</strong> <span class="rel-badge">AppShell &#9651;&#8212; inherits/implements <strong>Shell</strong></span><span class="rel-badge">MainPage &#9651;&#8212; inherits/implements <strong>ContentPage</strong></span><span class="rel-badge">DatabaseService &#9651;&#8212; inherits/implements <strong>IDatabaseService</strong></span><span class="rel-badge">DatabaseService &#8230;&gt; injects (DI) <strong>string</strong></span><span class="rel-badge">BaseViewModel &#9651;&#8212; inherits/implements <strong>INotifyPropertyChanged</strong></span><span class="rel-badge">CoursesViewModel &#9651;&#8212; inherits/implements <strong>BaseViewModel</strong></span><span class="rel-badge">CoursesViewModel &#8230;&gt; injects (DI) <strong>IDatabaseService</strong></span><span class="rel-badge">ReportsViewModel &#9651;&#8212; inherits/implements <strong>BaseViewModel</strong></span><span class="rel-badge">ReportsViewModel &#8230;&gt; injects (DI) <strong>IDatabaseService</strong></span><span class="rel-badge">StudentsViewModel &#9651;&#8212; inherits/implements <strong>BaseViewModel</strong></span><span class="rel-badge">StudentsViewModel &#8230;&gt; injects (DI) <strong>IDatabaseService</strong></span><span class="rel-badge">TeachersViewModel &#9651;&#8212; inherits/implements <strong>BaseViewModel</strong></span><span class="rel-badge">TeachersViewModel &#8230;&gt; injects (DI) <strong>IDatabaseService</strong></span><span class="rel-badge">CoursesPage &#9651;&#8212; inherits/implements <strong>ContentPage</strong></span><span class="rel-badge">CoursesPage &#8230;&gt; injects (DI) <strong>CoursesViewModel</strong></span><span class="rel-badge">ReportsPage &#9651;&#8212; inherits/implements <strong>ContentPage</strong></span><span class="rel-badge">ReportsPage &#8230;&gt; injects (DI) <strong>ReportsViewModel</strong></span><span class="rel-badge">StudentsPage &#9651;&#8212; inherits/implements <strong>ContentPage</strong></span><span class="rel-badge">StudentsPage &#8230;&gt; injects (DI) <strong>StudentsViewModel</strong></span><span class="rel-badge">TeachersPage &#9651;&#8212; inherits/implements <strong>ContentPage</strong></span><span class="rel-badge">TeachersPage &#8230;&gt; injects (DI) <strong>TeachersViewModel</strong></span><span class="rel-badge">DatabaseServiceTests &#9651;&#8212; inherits/implements <strong>IAsyncLifetime</strong></span></div></div>
+      <pre>classDiagram
+  direction TB
+  class AppShell {
+  }
+  class MainPage {
+  }
+  class Course {
+    +int Id
+    +string Title
+    +int Credits
+    +string Description
+    +int TeacherId
+    +Teacher? Teacher
+    +List~Student~ Students
+  }
+  class CourseGradeSummary {
+    +int CourseId
+    +string CourseTitle
+    +string TeacherName
+    +int StudentCount
+    +double AverageGrade
+    +double MaxGrade
+    +double MinGrade
+  }
+  class GradeLevelCount {
+    +int GradeLevel
+    +int StudentCount
+  }
+  class StudentTranscriptItem {
+    +int StudentId
+    +string StudentName
+    +string CourseTitle
+    +int Credits
+    +string TeacherName
+    +double? Grade
+    +bool IsPaid
+  }
+  class Enrollment {
+    +int Id
+    +int StudentId
+    +int CourseId
+    +DateTime EnrollmentDate
+    +double? Grade
+    +bool IsPaid
+    +Student? Student
+    +Course? Course
+  }
+  class Student {
+    +int Id
+    +string FirstName
+    +string LastName
+    +string Email
+    +int GradeLevel
+    +DateTime BirthDate
+    +List~Course~ Courses
+  }
+  class Teacher {
+    +int Id
+    +string FullName
+    +string Email
+    +string Department
+    +List~Course~ Courses
+  }
+  class DatabaseService {
+    +InitializeAsync() Task
+    +ClearAllDataAsync() Task
+    +SeedSampleDataAsync() Task
+    +GetTeachersAsync() Task~List~Teacher~~
+    +GetTeacherByIdAsync() Task~Teacher?~
+    +SaveTeacherAsync() Task~int~
+    +DeleteTeacherAsync() Task~int~
+    +GetCoursesAsync() Task~List~Course~~
+  }
+  class IDatabaseService {
+    &lt;&lt;interface&gt;&gt;
+  }
+  class BaseViewModel {
+  }
+  class CoursesViewModel {
+    +ObservableCollection~Course~ Courses
+    +ObservableCollection~Teacher~ Teachers
+    +ICommand LoadCoursesCommand
+    +ICommand AddCourseCommand
+    +ICommand DeleteCourseCommand
+    +LoadCoursesAsync() Task
+  }
+  class ReportsViewModel {
+    +ObservableCollection~CourseGradeSummary~ CourseSummaries
+    +ObservableCollection~GradeLevelCount~ GradeDistributions
+    +ICommand LoadReportsCommand
+    +ICommand SeedDataCommand
+    +ICommand ClearDataCommand
+    +LoadReportsAsync() Task
+  }
+  class StudentsViewModel {
+    +ObservableCollection~Student~ Students
+    +ObservableCollection~StudentTranscriptItem~ SelectedStudentTranscript
+    +ICommand LoadStudentsCommand
+    +ICommand NextPageCommand
+    +ICommand PrevPageCommand
+    +ICommand AddStudentCommand
+    +ICommand DeleteStudentCommand
+    +LoadStudentsAsync() Task
+  }
+  class TeachersViewModel {
+    +ObservableCollection~Teacher~ Teachers
+    +ICommand LoadTeachersCommand
+    +ICommand AddTeacherCommand
+    +ICommand DeleteTeacherCommand
+    +LoadTeachersAsync() Task
+  }
+  class CoursesPage {
+  }
+  class ReportsPage {
+  }
+  class StudentsPage {
+  }
+  class TeachersPage {
+  }
+  class ArchitectureSmokeTests {
+    +TestHarness_WhenInitialized_PassesSanityCheck() void
+  }
+  class DatabaseServiceTests {
+    +InitializeAsync() Task
+    +DisposeAsync() Task
+    +GetTeachersAsync_ReturnsSeededTeachers() Task
+    +GetCoursesAsync_WithRelations_LoadsTeacherDetails() Task
+    +Pagination_SkipAndTake_ReturnsCorrectSlices() Task
+    +GetCourseGradeSummariesAsync_PerformsJoinAndGroupBy() Task
+    +GetStudentTranscriptAsync_ReturnsMultiTableJoinedItems() Task
+    +GetTotalCreditsForStudentAsync_CalculatesSumOfCredits() Task
+  }
+  ContentPage &lt;|-- MainPage
+  IDatabaseService &lt;|-- DatabaseService
+  INotifyPropertyChanged &lt;|-- BaseViewModel
+  BaseViewModel &lt;|-- CoursesViewModel
+  CoursesViewModel ..&gt; IDatabaseService : DI
+  BaseViewModel &lt;|-- ReportsViewModel
+  ReportsViewModel ..&gt; IDatabaseService : DI
+  BaseViewModel &lt;|-- StudentsViewModel
+  StudentsViewModel ..&gt; IDatabaseService : DI
+  BaseViewModel &lt;|-- TeachersViewModel
+  TeachersViewModel ..&gt; IDatabaseService : DI
+  ContentPage &lt;|-- CoursesPage
+  CoursesPage ..&gt; CoursesViewModel : DI
+  ContentPage &lt;|-- ReportsPage
+  ReportsPage ..&gt; ReportsViewModel : DI
+  ContentPage &lt;|-- StudentsPage
+  StudentsPage ..&gt; StudentsViewModel : DI
+  ContentPage &lt;|-- TeachersPage
+  TeachersPage ..&gt; TeachersViewModel : DI
+</pre>
+    </section>
+  </main>
+</body>
+</html>

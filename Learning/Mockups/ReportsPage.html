@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>דוחות אגרגציה ושאילתות מורכבות</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 24px; background: #0f172a; font-family: "Segoe UI", sans-serif; }
+    [data-guide-overview] { width: min(390px, 100%); min-height: 760px; margin: auto; overflow: hidden; border-radius: 30px; background: #f8fafc; box-shadow: 0 18px 48px #020617; }
+    [data-guide-block] { position: relative; margin: 12px; padding: 18px; border: 2px dashed #059669; border-radius: 18px; background: white; }
+    [data-guide-block]::before { content: attr(data-guide-block); position: absolute; top: 6px; inset-inline-end: 8px; color: #065f46; font-size: 11px; font-weight: 700; }
+    .hero { min-height: 120px; padding: 24px; color: white; background: linear-gradient(135deg, #059669, #065f46); }
+    .btn { background: #059669; color: white; padding: 8px 14px; border-radius: 8px; border: none; font-weight: bold; }
+    .item { padding: 8px; border: 1px solid #d1fae5; border-radius: 8px; margin-bottom: 6px; background: #f0fdf4; }
+  </style>
+</head>
+<body>
+  <main data-guide-overview>
+    <section class="hero" data-guide-block="header">
+      <h2>📈 דוחות אגרגציה ו-JOIN</h2>
+      <p>שילוב פונקציות קיבוץ GROUP BY, AVG, COUNT, MAX ו-SUM</p>
+    </section>
+    <section data-guide-block="db-actions">
+      <h3>ניהול נתוני הדגמה</h3>
+      <button class="btn">🌱 צור נתוני הדגמה (Seed)</button>
+    </section>
+    <section data-guide-block="course-summaries">
+      <h3>סיכום קורסים וציונים (JOIN + GROUP BY)</h3>
+      <div class="item">
+        <strong>תכנות ב-C# ו-MAUI</strong>
+        <div>מורה: ישראל ישראלי | 4 רשומים | ממוצע: 94.2 | שיא: 100</div>
+      </div>
+      <div class="item">
+        <strong>מבני נתונים ואלגוריתמים</strong>
+        <div>מורה: ישראל ישראלי | 2 רשומים | ממוצע: 83.0 | שיא: 88</div>
+      </div>
+    </section>
+    <section data-guide-block="grade-distribution">
+      <h3>התפלגות תלמידים לפי שכבה (GROUP BY)</h3>
+      <div class="item" style="display:flex; justify-content:space-between;">
+        <span>שכבה י'</span>
+        <strong>2 תלמידים</strong>
+      </div>
+      <div class="item" style="display:flex; justify-content:space-between;">
+        <span>שכבה י"א</span>
+        <strong>2 תלמידים</strong>
+      </div>
+      <div class="item" style="display:flex; justify-content:space-between;">
+        <span>שכבה י"ב</span>
+        <strong>2 תלמידים</strong>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

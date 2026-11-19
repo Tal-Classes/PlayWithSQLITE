@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ניהול סגל מורים</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 24px; background: #0f172a; font-family: "Segoe UI", sans-serif; }
+    [data-guide-overview] { width: min(390px, 100%); min-height: 760px; margin: auto; overflow: hidden; border-radius: 30px; background: #f8fafc; box-shadow: 0 18px 48px #020617; }
+    [data-guide-block] { position: relative; margin: 12px; padding: 18px; border: 2px dashed #8b5cf6; border-radius: 18px; background: white; }
+    [data-guide-block]::before { content: attr(data-guide-block); position: absolute; top: 6px; inset-inline-end: 8px; color: #6d28d9; font-size: 11px; font-weight: 700; }
+    .hero { min-height: 120px; padding: 24px; color: white; background: linear-gradient(135deg, #7c3aed, #6d28d9); }
+    .btn { background: #7c3aed; color: white; padding: 10px 16px; border-radius: 8px; border: none; font-weight: bold; width: 100%; margin-top: 8px; }
+    .item { padding: 8px; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 6px; }
+  </style>
+</head>
+<body>
+  <main data-guide-overview>
+    <section class="hero" data-guide-block="header">
+      <h2>👨‍🏫 ניהול סגל מורים</h2>
+      <p>הדגמת קשר 1:N — כל מורה ורשימת הקורסים המשויכים אליו</p>
+    </section>
+    <section data-guide-block="add-teacher-form">
+      <h3>הוספת מורה חדש</h3>
+      <input type="text" placeholder="שם מלא" style="width:100%; margin-bottom:4px;">
+      <input type="email" placeholder="דוא&quot;ל" style="width:100%; margin-bottom:4px;">
+      <input type="text" placeholder="מחלקה" style="width:100%; margin-bottom:4px;">
+      <button class="btn">➕ שמור מורה</button>
+    </section>
+    <section data-guide-block="teachers-list">
+      <h3>מורים וקורסים פעילים</h3>
+      <div class="item">
+        <strong>ישראל ישראלי (מדעי המחשב)</strong>
+        <div style="font-size:12px; color:#4b5563;">• תכנות ב-C# ו-MAUI<br>• מבני נתונים ואלגוריתמים</div>
+      </div>
+      <div class="item">
+        <strong>שרה לוי (מתמטיקה)</strong>
+        <div style="font-size:12px; color:#4b5563;">• חדו"א לתלמידי מדעי המחשב</div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,24 @@
+{
+  "screen": "ReportsPage",
+  "mockup": "C:\\Users\\Owner\\source\\repos\\PlayWithSQLITE\\Learning\\Mockups\\ReportsPage.html",
+  "overview": "C:\\Users\\Owner\\source\\repos\\PlayWithSQLITE\\Learning\\Images\\ReportsPage-overview.png",
+  "blocks": [
+    {
+      "name": "header",
+      "path": "C:\\Users\\Owner\\source\\repos\\PlayWithSQLITE\\Learning\\Images\\ReportsPage-block1-header.png"
+    },
+    {
+      "name": "db-actions",
+      "path": "C:\\Users\\Owner\\source\\repos\\PlayWithSQLITE\\Learning\\Images\\ReportsPage-block2-db-actions.png"
+    },
+    {
+      "name": "course-summaries",
+      "path": "C:\\Users\\Owner\\source\\repos\\PlayWithSQLITE\\Learning\\Images\\ReportsPage-block3-course-summaries.png"
+    },
+    {
+      "name": "grade-distribution",
+      "path": "C:\\Users\\Owner\\source\\repos\\PlayWithSQLITE\\Learning\\Images\\ReportsPage-block4-grade-distribution.png"
+    }
+  ],
+  "android": "C:\\Users\\Owner\\source\\repos\\PlayWithSQLITE\\Learning\\Images\\ReportsPage-android.png"
+}
