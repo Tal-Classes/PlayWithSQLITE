@@ -1,0 +1,37 @@
+erDiagram
+    TEACHERS {
+        int Id PK "AutoIncrement"
+        string FullName "NotNull, MaxLength(100)"
+        string Email "MaxLength(100)"
+        string Department "MaxLength(50)"
+    }
+
+    COURSES {
+        int Id PK "AutoIncrement"
+        string Title "NotNull, MaxLength(100)"
+        int Credits "Default 3"
+        string Description "MaxLength(200)"
+        int TeacherId FK "ForeignKey(Teacher)"
+    }
+
+    STUDENTS {
+        int Id PK "AutoIncrement"
+        string FirstName "NotNull, MaxLength(50)"
+        string LastName "NotNull, MaxLength(50)"
+        string Email "NotNull, Unique, MaxLength(100)"
+        int GradeLevel "10 / 11 / 12"
+        datetime BirthDate
+    }
+
+    ENROLLMENTS {
+        int Id PK "AutoIncrement"
+        int StudentId FK "ForeignKey(Student)"
+        int CourseId FK "ForeignKey(Course)"
+        datetime EnrollmentDate
+        double Grade "Nullable (0-100)"
+        bool IsPaid
+    }
+
+    TEACHERS ||--o{ COURSES : "1:N מלמד (OneToMany / ManyToOne)"
+    STUDENTS ||--o{ ENROLLMENTS : "1:N נרשם (טבלת גישור M:N)"
+    COURSES ||--o{ ENROLLMENTS : "1:N מכיל (טבלת גישור M:N)"

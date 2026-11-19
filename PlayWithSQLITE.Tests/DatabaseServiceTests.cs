@@ -123,7 +123,7 @@ public class DatabaseServiceTests : IAsyncLifetime
         Assert.All(distribution, d => Assert.True(d.StudentCount > 0));
     }
 
-    [Fact(Skip = "שלב 2/3: יופעל לאחר מימוש פעולת רישום תלמיד לקורס (EnrollStudentAsync)")]
+    [Fact(Skip = "שלב 3: יופעל לאחר מימוש פעולות טבלת הגישור (EnrollStudentAsync ו-GetEnrollmentsAsync)")]
     public async Task EnrollStudentAsync_CreatesNewEnrollment()
     {
         var teacher = new Teacher { FullName = "מורה בדיקה", Email = "test@teacher.org", Department = "בדיקות" };
@@ -138,7 +138,7 @@ public class DatabaseServiceTests : IAsyncLifetime
         int result = await _databaseService.EnrollStudentAsync(student.Id, course.Id, grade: 99.0);
         Assert.True(result > 0);
 
-        var transcript = await _databaseService.GetStudentTranscriptAsync(student.Id);
-        Assert.Contains(transcript, t => t.CourseTitle == "קורס בדיקה" && t.Grade == 99.0);
+        var enrollments = await _databaseService.GetEnrollmentsAsync();
+        Assert.Contains(enrollments, e => e.StudentId == student.Id && e.CourseId == course.Id && e.Grade == 99.0);
     }
 }

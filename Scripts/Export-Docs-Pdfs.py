@@ -459,8 +459,13 @@ def convert_mmd_to_pdf(page, mmd_file: Path, output_pdf: Path, learning_dir: Pat
     output_pdf.parent.mkdir(parents=True, exist_ok=True)
     mmd_code = mmd_file.read_text(encoding="utf-8", errors="ignore")
     stem = mmd_file.stem
-    is_flow = "flow" in stem.lower()
-    title = "תרשים זרימת מסכים (Screen Flow Diagram)" if is_flow else "תרשים מחלקות (UML Class Diagram)"
+    low = stem.lower()
+    if "flow" in low:
+        title = "תרשים זרימת מסכים (Screen Flow Diagram)"
+    elif "erd" in low:
+        title = "תרשים קשרי ישויות (Entity-Relationship Diagram — ERD)"
+    else:
+        title = "תרשים מחלקות (UML Class Diagram)"
 
     # Check for corresponding rendered PNG
     png_path = learning_dir / "Images" / f"{stem}.png"
@@ -552,8 +557,12 @@ def main():
                 maui_pdf = maui_docs / f"{g_file.stem}.pdf"
                 root_pdf = root_docs / f"{g_file.stem}.pdf"
 
-            convert_markdown_to_pdf(page, g_file, maui_pdf, learning_dir)
-            safe_copy(maui_pdf, root_pdf)
+            tmp_pdf = root_docs / f"_{g_file.stem}.tmp.pdf"
+            convert_markdown_to_pdf(page, g_file, tmp_pdf, learning_dir)
+            safe_copy(tmp_pdf, root_pdf)
+            safe_copy(tmp_pdf, maui_pdf)
+            if tmp_pdf.exists():
+                tmp_pdf.unlink()
 
         print("\n[2/3] Converting Diagram Markdown & HTML files...")
         for d_md in diagram_md_files:
@@ -562,10 +571,14 @@ def main():
             root_pdf = root_docs / f"{d_md.stem}.pdf"
             root_sub_pdf = root_docs / "Diagrams" / f"{d_md.stem}.pdf"
 
-            convert_markdown_to_pdf(page, d_md, maui_pdf, learning_dir)
-            safe_copy(maui_pdf, maui_sub_pdf)
-            safe_copy(maui_pdf, root_pdf)
-            safe_copy(maui_pdf, root_sub_pdf)
+            tmp_pdf = root_docs / f"_{d_md.stem}.tmp.pdf"
+            convert_markdown_to_pdf(page, d_md, tmp_pdf, learning_dir)
+            safe_copy(tmp_pdf, root_pdf)
+            safe_copy(tmp_pdf, root_sub_pdf)
+            safe_copy(tmp_pdf, maui_pdf)
+            safe_copy(tmp_pdf, maui_sub_pdf)
+            if tmp_pdf.exists():
+                tmp_pdf.unlink()
 
         for d_html in diagram_html_files:
             maui_pdf = maui_docs / f"{d_html.stem}.pdf"
@@ -573,10 +586,14 @@ def main():
             root_pdf = root_docs / f"{d_html.stem}.pdf"
             root_sub_pdf = root_docs / "Diagrams" / f"{d_html.stem}.pdf"
 
-            convert_html_to_pdf(page, d_html, maui_pdf)
-            safe_copy(maui_pdf, maui_sub_pdf)
-            safe_copy(maui_pdf, root_pdf)
-            safe_copy(maui_pdf, root_sub_pdf)
+            tmp_pdf = root_docs / f"_{d_html.stem}.tmp.pdf"
+            convert_html_to_pdf(page, d_html, tmp_pdf)
+            safe_copy(tmp_pdf, root_pdf)
+            safe_copy(tmp_pdf, root_sub_pdf)
+            safe_copy(tmp_pdf, maui_pdf)
+            safe_copy(tmp_pdf, maui_sub_pdf)
+            if tmp_pdf.exists():
+                tmp_pdf.unlink()
 
         print("\n[3/3] Converting Mermaid Diagram files...")
         for d_mmd in diagram_mmd_files:
@@ -585,10 +602,14 @@ def main():
             root_pdf = root_docs / f"{d_mmd.stem}.pdf"
             root_sub_pdf = root_docs / "Diagrams" / f"{d_mmd.stem}.pdf"
 
-            convert_mmd_to_pdf(page, d_mmd, maui_pdf, learning_dir)
-            safe_copy(maui_pdf, maui_sub_pdf)
-            safe_copy(maui_pdf, root_pdf)
-            safe_copy(maui_pdf, root_sub_pdf)
+            tmp_pdf = root_docs / f"_{d_mmd.stem}.tmp.pdf"
+            convert_mmd_to_pdf(page, d_mmd, tmp_pdf, learning_dir)
+            safe_copy(tmp_pdf, root_pdf)
+            safe_copy(tmp_pdf, root_sub_pdf)
+            safe_copy(tmp_pdf, maui_pdf)
+            safe_copy(tmp_pdf, maui_sub_pdf)
+            if tmp_pdf.exists():
+                tmp_pdf.unlink()
 
         browser.close()
 

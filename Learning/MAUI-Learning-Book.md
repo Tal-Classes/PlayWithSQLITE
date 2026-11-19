@@ -1,46 +1,43 @@
 # ספר הלמידה: מסד נתונים מקומי SQLite מרובה-טבלאות ב-.NET MAUI
 
-ספר למידה זה מלווה את פרויקט `PlayWithSQLITE`. הוא מרכז את עקרונות הנדסת התוכנה, עיצוב הנתונים, ופקודות ה-SQL שנלמדו במסגרת פרויקט הבגרות ברמת 5 יחידות לימוד.
+ספר למידה זה מלווה את פרויקט `PlayWithSQLITE`. הוא מרכז את עקרונות הנדסת התוכנה, תכנון ERD, עיצוב הנתונים, פקודות ה-SQL, הזרקת תלויות (DI) וחיבור MVVM שנלמדו במסגרת פרויקט הבגרות ברמת 5 יחידות לימוד.
 
 ---
 
-## 📚 פרק 1: תשתית מסד הנתונים ועיצוב הישויות (Models & SQLite Attributes)
-- **מה נבנה:** הוספנו את החבילות הרשמיות והיציבות (Stable בלבד) `sqlite-net-pcl` ו-`SQLiteNetExtensions.Async` באמצעות ממשק המשתמש הגרפי (Manage NuGet Packages) ב-Visual Studio וב-Rider (ללא סימון Prerelease). בנינו 4 מחלקות מודל: `Teacher`, `Course`, `Student`, `Enrollment`.
-- **למה זה נחוץ:** ייצוג מדויק של עולם התוכן (בית ספר) במסד נתונים יחסי (Relational DB) המאפשר שמירה מקומית על גבי המכשיר הנייד ללא תלות ברשת.
-- **מושגים שנלמדו:** `[Table]`, `[PrimaryKey]`, `[AutoIncrement]`, `[NotNull]`, `[Unique]`, `[Ignore]`, `[ForeignKey]`, `[OneToMany]`, `[ManyToMany]`.
+## 📚 פרק 1: התקנה ויזואלית, תרשים ERD, קשרי גומלין, `CascadeOperation` ומודלים
+- **מה נבנה:** התקנת החבילות הרשמיות והיציבות (`Stable` בלבד, ללא Prerelease) `sqlite-net-pcl` ו-`SQLiteNetExtensions.Async` דרך ממשק `Manage NuGet Packages` ב-Visual Studio וב-Rider; תכנון תרשים **ERD** ל-4 טבלאות (`Teachers`, `Courses`, `Students`, `Enrollments`); והגדרת הדקורציות והקשרים בשני צדי הקשר (`1:N` ו-`M:N`).
+- **מושגים שנלמדו:** תרשים ERD, מפתח ראשי (`PK`), מפתח זר (`FK`) בצד ה-N, טבלת גישור (`Junction Table`), `CascadeOperation` (`None`, `CascadeRead`, `CascadeInsert`, `CascadeDelete`, `All`), ודקורציות (`[Table]`, `[PrimaryKey]`, `[AutoIncrement]`, `[NotNull]`, `[Unique]`, `[MaxLength]`, `[Ignore]`, `[ForeignKey]`, `[OneToMany]`, `[ManyToOne]`, `[ManyToMany]`).
 - **מדריך מפורט:** [01-Nuget-Packages-And-Models.md](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/Learning/Guides/01-Nuget-Packages-And-Models.md).
 
 ---
 
-## 📚 פרק 2: התחברות אסינכרונית ופעולות CRUD
-- **מה נבנה:** מחלקת שירות `DatabaseService` המממשת את `IDatabaseService`. החיבור מנוהל באמצעות `SQLiteAsyncConnection` עם נתיב שמור ב-`FileSystem.AppDataDirectory`.
-- **למה זה נחוץ:** הפרדת שכבות (Separation of Concerns) בין תצוגה (Views/ViewModels) לבין מסד הנתונים (Data Persistence). שמירה על תהליכון ה-UI חופשי ע"י קריאות `async/await`.
-- **מושגים שנלמדו:** `CreateTableAsync`, `InsertAsync`, `UpdateAsync`, `DeleteAsync`, `Table<T>().ToListAsync()`.
+## 📚 פרק 2: מחלקת `Constants`, הבנת `IDatabaseService`, חיבור אסינכרוני ו-CRUD
+- **מה נבנה:** מחלקה סטטית ייעודית `Constants.cs` המרכזת את שם קובץ המסד (`DatabaseFilename`), הרשאות הפתיחה (`SQLiteOpenFlags`) ונתיב השמירה (`FileSystem.AppDataDirectory`); הבנת הממשק `IDatabaseService`; ומימוש החיבור האסינכרוני (`SQLiteAsyncConnection`) ופעולות ה-CRUD המלאות ב-`DatabaseService`.
+- **למה זה נחוץ:** מקור אמת יחיד להגדרות המסד, הפרדת שכבות (Loose Coupling) ושמירה על תהליכון ה-UI חופשי בעזרת `async / await`.
+- **מושגים שנלמדו:** `Constants.Flags`, `CreateTableAsync` (אידמפוטנטיות), `InsertAsync`, `Table<T>().ToListAsync()`, `FirstOrDefaultAsync`, `UpdateAsync` (ודפוס Upsert), `DeleteAsync`, `DeleteAllAsync`.
 - **מדריך מפורט:** [02-Database-Connection-And-Basic-CRUD.md](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/Learning/Guides/02-Database-Connection-And-Basic-CRUD.md).
 
 ---
 
-## 📚 פרק 3: קשרי גומלין במסד נתונים (1:N ו-M:N)
-- **מה נבנה:** 
-  - קשר **1:N (יחיד לרבים):** מורה אחד מקושר למספר קורסים (`Teacher` -> `Courses`).
-  - קשר **M:N (רבים לרבים):** תלמיד רשום למספר קורסים וקורס מכיל מספר תלמידים דרך טבלת קישור `Enrollment`.
-- **למה זה נחוץ:** נרמול מסד נתונים ומניעת כפילויות, לצד יכולת לשמור מידע אודות הקשר עצמו (ציון, תאריך רישום, תשלום).
-- **מושגים שנלמדו:** `GetWithChildrenAsync`, `GetAllWithChildrenAsync`, מפתחות זרים (`Foreign Key`), טבלאות ביניים (`Junction Table`).
+## 📚 פרק 3: עבודה מעשית עם קשרי גומלין בשכבת השירות (`1:N` ו-`M:N`)
+- **מה נבנה:** טעינת אובייקטים מקושרים באמצעות `SQLiteNetExtensions.Async` (`GetWithChildrenAsync`, `GetAllWithChildrenAsync`), ניהול טבלת הגישור `Enrollment` (רישום ללא כפילויות, עדכון ציון, ביטול רישום), ומחיקה מבוקרת המונעת רשומות יתומות (`Orphan Records`).
 - **מדריך מפורט:** [03-Table-Relationships.md](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/Learning/Guides/03-Table-Relationships.md).
 
 ---
 
-## 📚 פרק 4: שאילתות מתקדמות, אגרגציות ודפדוף (JOIN, GROUP BY, SUM, SKIP)
-- **מה נבנה:** 
-  - שאילתת `INNER JOIN` ו-`LEFT JOIN` המשלבת 3 טבלאות להפקת גיליון ציונים אישי.
-  - שאילתת `GROUP BY` עם פונקציות צבירה (`COUNT`, `AVG`, `MAX`, `MIN`) להפקת דוח קורסים מסכם.
-  - שאילתת `SUM` לחישוב סך נקודות זכות אקדמיות.
-  - מנגנון דפדוף (Pagination) באמצעות `Skip()` ו-`Take()` ב-LINQ.
-- **למה זה נחוץ:** הפקת תובנות ודוחות מערכת מורכבים בפנייה מרוכזת ויעילה למסד הנתונים, ושיפור זמני טעינה וצריכת זיכרון ב-UI.
+## 📚 פרק 4: פירוק שאילתות SQL מתקדמות — סדר ביצוע, `JOIN`, `GROUP BY`, אגרגציות ודפדוף
+- **מה נבנה:** הבנת סדר הביצוע הלוגי ב-SQL (`FROM` ➡️ `JOIN` ➡️ `WHERE` ➡️ `GROUP BY` ➡️ `HAVING` ➡️ `SELECT` ➡️ `ORDER BY` ➡️ `LIMIT/OFFSET`), פירוק שלב-אחר-שלב של הטבלה הנוצרת בכל שלב של `INNER JOIN` ו-`LEFT JOIN`, חישובי `COUNT(e.Id)` מול `COUNT(*)`, `AVG`, `MAX`, `MIN`, `SUM` עם `ExecuteScalarAsync<int>`, ודפדוף עם `OrderBy` + `Skip` + `Take`.
 - **מדריך מפורט:** [04-Advanced-Queries-Aggregations.md](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/Learning/Guides/04-Advanced-Queries-Aggregations.md).
 
 ---
 
-## 📚 פרק 5: מפת הענפים ב-Git ושלבי המשימה
-מדריך המשימה המלא המנחה את התלמיד שלב אחר שלב נמצא בקובץ:
-[00-Master-Assignment.md](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/Learning/Guides/00-Master-Assignment.md).
+## 📚 פרק 5: רישום ב-DI Container (`MauiProgram.cs`) ויצירת פקודות `ICommand` ב-ViewModels
+- **מה נבנה:** רישום `IDatabaseService` מול `DatabaseService` כ-`Singleton` ב-DI Container לצד `Transient` עבור ViewModels ו-Pages; ויצירת כל הפקודות (`ICommand`, `Command<T>`, `CanExecute`, `ChangeCanExecute`, הגנת `IsLoading`) בכל 4 ה-ViewModels (`TeachersViewModel`, `CoursesViewModel`, `StudentsViewModel`, `ReportsViewModel`) להזרמת נתונים מהמסד אל מסכי ה-XAML.
+- **מדריך מפורט:** [05-DI-And-ViewModel-Commands.md](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/Learning/Guides/05-DI-And-ViewModel-Commands.md).
+
+---
+
+## 📚 פרק 6: בדיקות יחידה ב-xUnit v3, אימות DI ומפת הענפים
+- **מה נבנה:** פרויקט בדיקות מודרני ב-**xUnit v3** על גבי `Microsoft.Testing.Platform` (`global.json`, `<OutputType>Exe</OutputType>`, `IAsyncLifetime` עם `ValueTask`) ואימות אוטומטי באמצעות `Audit-DI.ps1` ו-`Validate-Tests.ps1`.
+- **מדריך בדיקות ואימות:** [06-Testing-And-Verification.md](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/Learning/Guides/06-Testing-And-Verification.md).
+- **מדריך המשימה הראשי:** [00-Master-Assignment.md](file:///c:/Users/Owner/source/repos/PlayWithSQLITE/Learning/Guides/00-Master-Assignment.md).

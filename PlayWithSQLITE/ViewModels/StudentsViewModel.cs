@@ -6,6 +6,11 @@ using PlayWithSQLITE.Services;
 
 namespace PlayWithSQLITE.ViewModels;
 
+/// <summary>
+/// ViewModel לניהול מסך התלמידים, דפדוף (Pagination) וגיליון הציונים האישי (StudentsPage).
+/// תשתית המאפיינים, חישובי העמודים והאוספים מוכנה ומקושרת ל-XAML.
+/// משימתכם בשלב 5 (ראו מדריך 05): יצירת הפקודות (ICommand) וחיבורן ל-IDatabaseService!
+/// </summary>
 public class StudentsViewModel : BaseViewModel
 {
     private readonly IDatabaseService _databaseService;
@@ -31,8 +36,8 @@ public class StudentsViewModel : BaseViewModel
             _currentPage = value;
             OnPropertyChanged();
             OnPropertyChanged(nameof(PageInfo));
-            ((Command)NextPageCommand).ChangeCanExecute();
-            ((Command)PrevPageCommand).ChangeCanExecute();
+            (NextPageCommand as Command)?.ChangeCanExecute();
+            (PrevPageCommand as Command)?.ChangeCanExecute();
         }
     }
 
@@ -46,8 +51,8 @@ public class StudentsViewModel : BaseViewModel
             OnPropertyChanged();
             OnPropertyChanged(nameof(PageInfo));
             OnPropertyChanged(nameof(TotalPages));
-            ((Command)NextPageCommand).ChangeCanExecute();
-            ((Command)PrevPageCommand).ChangeCanExecute();
+            (NextPageCommand as Command)?.ChangeCanExecute();
+            (PrevPageCommand as Command)?.ChangeCanExecute();
         }
     }
 
@@ -92,7 +97,7 @@ public class StudentsViewModel : BaseViewModel
             if (_newFirstName == value) return;
             _newFirstName = value;
             OnPropertyChanged();
-            ((Command)AddStudentCommand).ChangeCanExecute();
+            (AddStudentCommand as Command)?.ChangeCanExecute();
         }
     }
 
@@ -104,7 +109,7 @@ public class StudentsViewModel : BaseViewModel
             if (_newLastName == value) return;
             _newLastName = value;
             OnPropertyChanged();
-            ((Command)AddStudentCommand).ChangeCanExecute();
+            (AddStudentCommand as Command)?.ChangeCanExecute();
         }
     }
 
@@ -116,7 +121,7 @@ public class StudentsViewModel : BaseViewModel
             if (_newEmail == value) return;
             _newEmail = value;
             OnPropertyChanged();
-            ((Command)AddStudentCommand).ChangeCanExecute();
+            (AddStudentCommand as Command)?.ChangeCanExecute();
         }
     }
 
@@ -131,22 +136,25 @@ public class StudentsViewModel : BaseViewModel
         }
     }
 
-    public ICommand LoadStudentsCommand { get; }
-    public ICommand NextPageCommand { get; }
-    public ICommand PrevPageCommand { get; }
-    public ICommand AddStudentCommand { get; }
-    public ICommand DeleteStudentCommand { get; }
+    // 💡 שלב 5: חמש הפקודות המקושרות לכפתורים ב-StudentsPage.xaml
+    public ICommand? LoadStudentsCommand { get; }
+    public ICommand? NextPageCommand { get; }
+    public ICommand? PrevPageCommand { get; }
+    public ICommand? AddStudentCommand { get; }
+    public ICommand? DeleteStudentCommand { get; }
 
     public StudentsViewModel(IDatabaseService databaseService)
     {
         _databaseService = databaseService;
         Title = "ניהול תלמידים ודפדוף";
 
-        LoadStudentsCommand = new Command(async () => await LoadStudentsAsync());
-        NextPageCommand = new Command(async () => await NextPageAsync(), () => CurrentPage < TotalPages);
-        PrevPageCommand = new Command(async () => await PrevPageAsync(), () => CurrentPage > 1);
-        AddStudentCommand = new Command(async () => await AddStudentAsync(), CanAddStudent);
-        DeleteStudentCommand = new Command<Student>(async (student) => await DeleteStudentAsync(student));
+        // 💡 TODO (Student - שלב 5, ראו מדריך 05):
+        // אתחלו כאן את חמש הפקודות:
+        // 1. LoadStudentsCommand — טוענת את עמוד התלמידים הנוכחי (LoadStudentsAsync).
+        // 2. NextPageCommand — מתקדמת לעמוד הבא (NextPageAsync), פעילה רק כאשר CurrentPage < TotalPages!
+        // 3. PrevPageCommand — חוזרת לעמוד הקודם (PrevPageAsync), פעילה רק כאשר CurrentPage > 1!
+        // 4. AddStudentCommand — מוסיפה תלמיד (AddStudentAsync), פעילה רק כאשר CanAddStudent() מחזירה true!
+        // 5. DeleteStudentCommand — פקודה המקבלת Student ומוחקת אותו (DeleteStudentAsync).
     }
 
     private bool CanAddStudent()
@@ -158,99 +166,46 @@ public class StudentsViewModel : BaseViewModel
 
     public async Task LoadStudentsAsync()
     {
-        if (IsLoading) return;
-
-        try
-        {
-            IsLoading = true;
-            await _databaseService.InitializeAsync();
-
-            TotalStudents = await _databaseService.GetStudentsCountAsync();
-
-            // דפדוף בעזרת SKIP ו-TAKE
-            int skip = (CurrentPage - 1) * _pageSize;
-            var list = await _databaseService.GetStudentsAsync(skip, _pageSize);
-
-            Students.Clear();
-            foreach (var item in list)
-            {
-                Students.Add(item);
-            }
-
-            if (SelectedStudent != null)
-            {
-                await LoadTranscriptForStudentAsync(SelectedStudent.Id);
-            }
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        // 💡 TODO (Student - שלב 5):
+        // 1. הגנו בעזרת IsLoading בתוך try / finally ואתחלו את המסד (InitializeAsync).
+        // 2. עדכנו את TotalStudents בעזרת שאילתת הספירה (GetStudentsCountAsync).
+        // 3. חשבו את skip לפי הנוסחה (CurrentPage - 1) * _pageSize ושלפו רק את העמוד הנוכחי (GetStudentsAsync(skip, _pageSize)).
+        // 4. רעננו את אוסף Students (Clear + Add), ואם SelectedStudent != null רעננו גם את גיליון הציונים שלו.
+        await Task.CompletedTask;
     }
 
     private async Task NextPageAsync()
     {
-        if (CurrentPage < TotalPages)
-        {
-            CurrentPage++;
-            await LoadStudentsAsync();
-        }
+        // 💡 TODO (Student - שלב 5): קדמו את CurrentPage (אם ניתן) וטענו מחדש את העמוד.
+        await Task.CompletedTask;
     }
 
     private async Task PrevPageAsync()
     {
-        if (CurrentPage > 1)
-        {
-            CurrentPage--;
-            await LoadStudentsAsync();
-        }
+        // 💡 TODO (Student - שלב 5): הפחיתו את CurrentPage (אם ניתן) וטענו מחדש את העמוד.
+        await Task.CompletedTask;
     }
 
     private async Task AddStudentAsync()
     {
-        if (!CanAddStudent()) return;
-
-        var student = new Student
-        {
-            FirstName = NewFirstName.Trim(),
-            LastName = NewLastName.Trim(),
-            Email = NewEmail.Trim(),
-            GradeLevel = NewGradeLevel
-        };
-
-        await _databaseService.SaveStudentAsync(student);
-
-        NewFirstName = string.Empty;
-        NewLastName = string.Empty;
-        NewEmail = string.Empty;
-
-        await LoadStudentsAsync();
+        // 💡 TODO (Student - שלב 5):
+        // 1. בדקו CanAddStudent(), צרו Student חדש ושמרו אותו במסד דרך _databaseService.
+        // 2. אפסו את שדות הטופס ורעננו את הרשימה (LoadStudentsAsync).
+        await Task.CompletedTask;
     }
 
     private async Task DeleteStudentAsync(Student? student)
     {
-        if (student == null) return;
-
-        await _databaseService.DeleteStudentAsync(student);
-        if (SelectedStudent?.Id == student.Id)
-        {
-            SelectedStudent = null;
-            SelectedStudentTranscript.Clear();
-            StudentTotalCredits = 0;
-        }
-
-        await LoadStudentsAsync();
+        // 💡 TODO (Student - שלב 5):
+        // מחקו את התלמיד דרך _databaseService; אם הוא היה התלמיד הנבחר — נקו את הבחירה ואת הגיליון, ורעננו את הרשימה.
+        await Task.CompletedTask;
     }
 
     private async Task LoadTranscriptForStudentAsync(int studentId)
     {
-        SelectedStudentTranscript.Clear();
-        var items = await _databaseService.GetStudentTranscriptAsync(studentId);
-        foreach (var item in items)
-        {
-            SelectedStudentTranscript.Add(item);
-        }
-
-        StudentTotalCredits = await _databaseService.GetTotalCreditsForStudentAsync(studentId);
+        // 💡 TODO (Student - שלב 5):
+        // 1. שלפו את גיליון הציונים האישי (GetStudentTranscriptAsync) ומלאו את SelectedStudentTranscript.
+        // 2. חשבו את סך נקודות הזכות (GetTotalCreditsForStudentAsync) ועדכנו את StudentTotalCredits.
+        await Task.CompletedTask;
     }
 }
