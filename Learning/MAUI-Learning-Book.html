@@ -2096,43 +2096,43 @@ git<span class="w"> </span>checkout<span class="w"> </span>main
 <tr>
 <td style="text-align:left"><strong><code>GetCourseByIdAsync</code></strong></td>
 <td style="text-align:left"><code>int id, bool includeRelations = true</code></td>
-<td style="text-align:left">אם <code>includeRelations == true</code> לטעון עם <code>GetWithChildrenAsync&lt;Course&gt;(id)</code> בתוך <code>try/catch</code>; אחרת <code>FirstOrDefaultAsync</code>. מחזירה <code>Course?</code>.</td>
+<td style="text-align:left">הפעולה מקבלת מזהה קורס ודגל האם לכלול נתונים קשורים, ומחזירה את הקורס שהמזהה שלו שווה ל-<code>id</code> ובהתאם לדגל האם לטעון גם את הרשומות הקשורות אליו (המורה והתלמידים). אם לא נמצא קורס עם המזהה המבוקש על הפעולה להחזיר <code>null</code>. <em>(שימו לב: פעולת הגישה למסד הנתונים עם נתונים קשורים עלולה לזרוק חריגה — Exception — ולכן יש לטפל בכך).</em></td>
 <td style="text-align:left">דוגמה 1 (<code>GetTeacherByIdAsync</code>)</td>
 </tr>
 <tr>
 <td style="text-align:left"><strong><code>GetStudentByIdAsync</code></strong></td>
 <td style="text-align:left"><code>int id, bool includeCourses = false</code></td>
-<td style="text-align:left">אם <code>includeCourses == true</code> לטעון עם <code>GetWithChildrenAsync&lt;Student&gt;(id)</code> בתוך <code>try/catch</code>; אחרת <code>FirstOrDefaultAsync</code>. מחזירה <code>Student?</code>.</td>
+<td style="text-align:left">הפעולה מקבלת מזהה תלמיד ודגל האם לכלול את הקורסים שלו, ומחזירה את התלמיד שהמזהה שלו שווה ל-<code>id</code> ובהתאם לדגל האם לכלול גם את רשימת הקורסים שאליהם הוא רשום. אם לא נמצא תלמיד עם המזהה המבוקש על הפעולה להחזיר <code>null</code>. <em>(שימו לב: גם כאן טעינה עם נתונים קשורים עלולה לזרוק חריגה כאשר המזהה לא קיים).</em></td>
 <td style="text-align:left">דוגמה 1 (<code>GetTeacherByIdAsync</code>)</td>
 </tr>
 <tr>
 <td style="text-align:left"><strong><code>GetEnrollmentsAsync</code></strong></td>
 <td style="text-align:left">ללא</td>
-<td style="text-align:left">לקרוא ל-<code>InitDBAsync()</code> ולהחזיר <code>await _database!.GetAllWithChildrenAsync&lt;Enrollment&gt;()</code> (כך שכל רישום יכיל את <code>Student</code> ו-<code>Course</code> מלאים!).</td>
+<td style="text-align:left">הפעולה אינה מקבלת פרמטרים; היא מוודאת שהמסד מאותחל ומחזירה את רשימת כל רשומות הרישום הקיימות במסד הנתונים, כך שכל רשומת רישום תכלול בתוכה גם את פרטי התלמיד המלאים וגם את פרטי הקורס המלאים המקושרים אליה.</td>
 <td style="text-align:left">דוגמה 2 (<code>GetCoursesAsync</code>)</td>
 </tr>
 <tr>
 <td style="text-align:left"><strong><code>UpdateEnrollmentGradeAsync</code></strong></td>
 <td style="text-align:left"><code>int enrollmentId, double grade</code></td>
-<td style="text-align:left">לאתר את הרישום לפי <code>e.Id == enrollmentId</code>; אם לא נמצא (<code>null</code>) להחזיר <code>0</code>; אחרת לעדכן <code>enrollment.Grade = grade</code> ולהחזיר <code>UpdateAsync(enrollment)</code>.</td>
-<td style="text-align:left">דוגמה 3 (בדיקת קיום + עדכון)</td>
+<td style="text-align:left">הפעולה מקבלת מזהה רישום וציון חדש. היא מאתרת במסד את רשומת הרישום שהמזהה שלה תואם ל-<code>enrollmentId</code> — אם לא נמצאה רשומה כזו על הפעולה להחזיר <code>0</code>; אחרת עליה לעדכן את הציון של אותה רשומה, לשמור את השינוי במסד הנתונים ולהחזיר את מספר השורות שעודכנו.</td>
+<td style="text-align:left">דוגמה 3 (בדיקת קיום + שמירה)</td>
 </tr>
 <tr>
 <td style="text-align:left"><strong><code>RemoveEnrollmentAsync</code></strong></td>
 <td style="text-align:left"><code>int studentId, int courseId</code></td>
-<td style="text-align:left">לאתר רישום לפי <code>e.StudentId == studentId &amp;&amp; e.CourseId == courseId</code>; אם נמצא — למחוק עם <code>DeleteAsync</code> ולהחזיר את התוצאה; אחרת להחזיר <code>0</code>.</td>
-<td style="text-align:left">דוגמה 3 (חיפוש לפי זוג FK)</td>
+<td style="text-align:left">הפעולה מקבלת מזהה תלמיד ומזהה קורס. היא מחפשת את רשומת הרישום שמחברת בין אותו תלמיד לאותו קורס — אם נמצאה רשומה כזו עליה למחוק אותה ממסד הנתונים ולהחזיר את מספר השורות שנמחקו; אם לא נמצא רישום תואם על הפעולה להחזיר <code>0</code>.</td>
+<td style="text-align:left">דוגמה 3 (איתור לפי זוג מפתחות זרים)</td>
 </tr>
 <tr>
 <td style="text-align:left"><strong><code>DeleteStudentAsync</code></strong></td>
 <td style="text-align:left"><code>Student student</code></td>
-<td style="text-align:left">לאתר ולמחוק תחילה את כל ה-<code>Enrollment</code> שבהם <code>e.StudentId == student.Id</code>, ורק אז למחוק את ה-<code>student</code> עצמו.</td>
+<td style="text-align:left">הפעולה מקבלת אובייקט תלמיד למחיקה. כדי למנוע רשומות יתומות, עליה לאתר ולמחוק תחילה את כל רשומות הרישום השייכות לאותו תלמיד (מבלי למחוק את הקורסים עצמם!), ורק לאחר מכן למחוק את התלמיד עצמו ממסד הנתונים ולהחזיר את מספר השורות שנמחקו.</td>
 <td style="text-align:left">דוגמה 4 (<code>DeleteCourseAsync</code>)</td>
 </tr>
 <tr>
 <td style="text-align:left"><strong><code>DeleteTeacherAsync</code></strong></td>
 <td style="text-align:left"><code>Teacher teacher</code></td>
-<td style="text-align:left">לאתר את כל ה-<code>Course</code> שבהם <code>c.TeacherId == teacher.Id</code>, לקרוא עבור כל אחד מהם ל-<code>await DeleteCourseAsync(course)</code> (שכבר מנקה גם את הרישומים!), ורק אז למחוק את ה-<code>teacher</code>.</td>
+<td style="text-align:left">הפעולה מקבלת אובייקט מורה למחיקה. כדי למנוע רשומות יתומות, עליה לאתר תחילה את כל הקורסים שהמורה מלמד ולמחוק כל אחד מהם בצורה מסודרת (כך שגם רשומות הרישום של אותם קורסים ינוקו), ורק בסוף למחוק את המורה עצמו ולהחזיר את מספר השורות שנמחקו.</td>
 <td style="text-align:left">דוגמה 4 (<code>DeleteCourseAsync</code>)</td>
 </tr>
 </tbody>
